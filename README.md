@@ -1,2 +1,2 @@
-# Studytopia
-A good place for studying (AI and Cloud implemented)
+# Kitakeeps
+Business Management System (AI and Cloud implemented)
