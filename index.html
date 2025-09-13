@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KitaKeeps</title>
+
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Vue.js -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+    <!-- Font Awesome’s icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS -->
@@ -16,14 +20,16 @@
 
 <body class="bg-gradient-to-b from-blue-50 to-white">
     <div id="app">
+
         <!-- Header -->
         <header :class="{'nav-scrolled': scrolled}" class="fixed top-0 w-full z-50 transition-all duration-300 py-4">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
+
                     <!-- Logo -->
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <h1 class="text-2xl font-bold text-blue-600">KitaKeeps</h1>
+                            <a href="index.html" class="text-3xl font-bold text-blue-600">KitaKeeps</a>
                         </div>
                     </div>
 
@@ -37,7 +43,7 @@
                                 Testimonials
                             </a>
                             <a href="#pricing" class="text-gray-700 transition-colors hover:text-blue-600">
-                                Pricing
+                                Team
                             </a>
                             <a href="#contact" class="text-gray-700 transition-colors hover:text-blue-600">
                                 Contact
@@ -45,20 +51,20 @@
                         </div>
                     </nav>
 
-                    <!-- CTA Button -->
-                    <div class="hidden md:block">
-                        <button class="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    <!-- Login and Signup Nav Button -->
+                    <div class="hidden md:block space-x-4">
+                        <a href="login.html" class="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors">
                             Log in
-                        </button>
-                        <button class="border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors">
+                        </a>
+                        <a href="signup.html" class="border border-blue-600 text-blue-600 px-4 py-3 rounded-md hover:bg-blue-50 transition-colors">
                             Sign up
-                        </button>
+                        </a>
                     </div>
 
-                    <!-- Mobile menu button -->
+                    <!-- Mobile Hamburger button (Hidden in desktop, ofc)-->
                     <div class="md:hidden">
                         <button @click="toggleMenu" class="text-gray-700 hover:text-blue-600">
-                            <i :class="menuOpen ? 'fa-times' : 'fa-bars'" class="fas text-xl"></i>
+                            <i :class="menuOpen ? 'fa-times' : 'fa-bars'" class="fas text-3xl"></i>
                         </button>
                     </div>
                 </div>
@@ -73,18 +79,18 @@
                             Testimonials
                         </a>
                         <a href="#pricing" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
-                            Pricing
+                            Team
                         </a>
                         <a href="#contact" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
                             Contact
                         </a>
-                        <div class="px-3 py-2">
-                            <button class="bg-blue-600 text-white px-10 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        <div class="px-3 py-2 space-x-2">
+                            <a href="login.html" class="bg-blue-600 text-white px-10 py-2 rounded-md hover:bg-blue-700 transition-colors">
                                 Log in
-                            </button>
-                            <button class="border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors">
+                            </a>
+                            <a href="signup.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors">
                                 Sign up
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -93,48 +99,56 @@
 
         <!-- Hero Section -->
         <section class="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28">
+
             <!-- Animated background elements -->
             <div class="absolute inset-0 overflow-hidden">
                 <div class="absolute -top-40 -right-32 h-80 w-80 pulse-animation rounded-full bg-blue-200 opacity-30 mix-blend-multiply filter"></div>
+
                 <div class="absolute -bottom-40 -left-32 h-80 w-80 pulse-animation rounded-full bg-blue-300 opacity-30 mix-blend-multiply filter"></div>
             </div>
 
             <div class="container relative mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid gap-12 lg:grid-cols-2 lg:gap-20">
+                <div class="grid lg:grid-cols-2">
                     <div class="flex flex-col justify-center fade-in">
+
+                        <!-- Landing page title -->
                         <h1 class="mb-6 text-4xl font-black leading-tight text-gray-900 sm:text-5xl lg:text-6xl">
-                            Streamline Your Hardware Store <span class="text-blue-600">Inventory Management</span>
+                            Smarter <span class="text-blue-600">Business Management</span>, Made Simple
                         </h1>
 
+                        <!-- Description -->
                         <p class="mx-auto mb-8 max-w-2xl text-xl leading-relaxed text-gray-600">
-                            Track, manage, and optimize your hardware inventory with our powerful, easy-to-use system designed specifically for hardware stores.
+                            Track, manage, and optimize your hardware inventory with our powerful, easy-to-use system designed for <span class="text-blue-600">Building and Home Improvement Hardware Stores</span>.
                         </p>
 
+                        <!-- Buttons -->
                         <div class="flex flex-col items-start gap-4 sm:flex-row">
-                            <button class="bg-blue-600 px-8 py-3 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
+                            <a href="signup.html" class="bg-blue-600 px-8 py-3 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
                                 Get Started
                                 <i class="fas fa-arrow-right ml-2"></i>
-                            </button>
-                            <button class="border border-blue-600 bg-transparent px-8 py-3 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition-colors flex items-center">
-                                <i class="fas fa-play mr-2"></i>
-                                Watch Demo
-                            </button>
+                            </a>
+
+                            <a class="border border-blue-600 bg-transparent px-8 py-3 text-blue-600 rounded-md hover:bg-blue-600 hover:text-white transition-colors flex items-center">
+                                <i class="fa-solid fa-circle-info mr-2"></i>
+                                Learn More
+                            </a>
                         </div>
 
-                        <div class="mt-12">
+                        <!-- Hardwares that like this -->
+                        <!-- <div class="mt-12">
                             <p class="mb-4 text-sm text-gray-500">Trusted by hardware stores nationwide</p>
                             <div class="flex flex-wrap items-center gap-6 opacity-60">
                                 <div class="text-lg font-semibold text-gray-700">Ace Hardware</div>
                                 <div class="text-lg font-semibold text-gray-700">True Value</div>
                                 <div class="text-lg font-semibold text-gray-700">Local Pro</div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="relative">
-                        <div class="relative z-10 rounded-2xl bg-white p-6 shadow-2xl shadow-blue-500/10 slide-in">
+                        <div class="relative z-10 rounded-2xl slide-in">
                             <img 
-                                src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" 
+                                src="assets/images/storyset/Construction-pana.png" 
                                 alt="Dashboard view of hardware inventory management system showing tools, supplies and stock levels"
                                 class="w-full rounded-lg"
                             />
@@ -142,6 +156,7 @@
                         
                         <!-- Floating elements -->
                         <div class="absolute -bottom-6 -left-6 z-0 h-32 w-32 float-animation rounded-lg bg-blue-100 shadow-lg"></div>
+
                         <div class="absolute -right-4 -top-4 z-0 h-24 w-24 float-animation-2 rounded-lg bg-blue-200 shadow-lg"></div>
                     </div>
                 </div>

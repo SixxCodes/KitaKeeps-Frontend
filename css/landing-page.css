@@ -58,15 +58,7 @@ body {
     to { transform: translateY(0); opacity: 1; }
 }
 
-.mobile-menu {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-out;
-}
-
-.mobile-menu.open {
-    max-height: 500px;
-}
+/* =================== Header =================== */
 
 .nav-scrolled {
     background-color: white;
@@ -74,3 +66,18 @@ body {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 }
+
+/* =================== Mobile =================== */
+
+.mobile-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.mobile-menu.open {
+    max-height: 500px;
+}
+
