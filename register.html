@@ -24,14 +24,50 @@
         <div class="float-shape"></div>
         <div class="float-shape"></div>
 
-        <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 fade-slide-in relative z-10">
+        <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-10 fade-slide-in relative z-10 my-9">
 
             <h2 class="text-center text-3xl font-extrabold text-blue-600 mb-2">KitaKeeps</h2>
-            <p class="text-center mb-4">Welcome back! Log in to continue.</p>
+            <p class="text-center mb-4 text-gray-500">Begin your journey to effortless harmony in hardware management.</p>
 
             <form @submit.prevent="submitLogin" novalidate>
+
+                <!-- Hardware Name -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Hardware Name</label>
+                    <input
+                        required
+                        placeholder="KitaKeeps Warehouse"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition focus:ring-2 focus:ring-blue-400"
+                        :class="{'border-red-500': emailError}"
+                    />
+                    <p v-if="emailError" class="text-red-500 text-sm mt-1">{{ emailError }}</p>
+                </div>
+
+                <!--Name -->
+                <div class="mb-4 flex space-x-4">
+                    <!-- First Name -->
+                    <div class="flex-1">
+                        <label class="block text-gray-700 font-semibold mb-2">First Name</label>
+                        <input
+                        required
+                        placeholder="Kita"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="flex-1">
+                        <label class="block text-gray-700 font-semibold mb-2">Last Name</label>
+                        <input
+                        required
+                        placeholder="Keepers"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+                </div>
+
                 <!-- Email -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="email" class="block text-gray-700 font-semibold mb-2">Email address</label>
                     <input
                         id="email"
@@ -46,7 +82,7 @@
                 </div>
 
                 <!-- Password -->
-                <div class="mb-6 relative">
+                <div class="mb-4 relative">
                     <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
                     <input
                         :type="showPassword ? 'text' : 'password'"
@@ -65,15 +101,34 @@
                     <p v-if="passwordError" class="text-red-500 text-sm mt-1">{{ passwordError }}</p>
                 </div>
 
-                <div class="flex items-center justify-between mb-6">
+                <!-- Confirm Password -->
+                <div class="mb-6 relative">
+                    <label for="password" class="block text-gray-700 font-semibold mb-2">Confirm Password</label>
+                    <input
+                        :type="showPassword ? 'text' : 'password'"
+                        id="password"
+                        v-model.trim="password"
+                        required
+                        placeholder="Enter your password"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition focus:ring-2 focus:ring-blue-400"
+                        :class="{'border-red-500': passwordError}"
+                    />
 
+                    <!-- Show password (eye) icon -->
+                    <button type="button" @click="togglePassword" class="absolute right-3 top-11 text-gray-500 hover:text-blue-600 focus:outline-none" :aria-label="showPassword ? 'Hide password' : 'Show password'">
+                        <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                    </button>
+                    <p v-if="passwordError" class="text-red-500 text-sm mt-1">{{ passwordError }}</p>
+                </div>
+
+                <!-- <div class="flex items-center justify-between mb-6">
                     <label class="flex items-center text-gray-700">
                         <input type="checkbox" v-model="rememberMe" class="form-checkbox h-4 w-4 text-blue-600" />
                         <span class="ml-2 text-sm">Remember me</span>
                     </label>
 
                     <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
-                </div>
+                </div> -->
 
                 <button
                 type="submit"
@@ -98,6 +153,6 @@
         </div>
     </div>
 
-    <script src="js/login.js"></script>
+    <script src="js/register.js"></script>
 </body>
 </html>

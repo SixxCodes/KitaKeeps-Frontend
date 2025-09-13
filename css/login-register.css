@@ -1,5 +1,7 @@
+/* =================== LINKS =================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
+/* =================== DESIGNS =================== */
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(to bottom, #e0f2fe, #ffffff);
@@ -7,7 +9,8 @@ body {
     overflow-x: hidden;
 }
 
-/* Floating shapes animations */
+/* =================== ANIMATIONS =================== */
+/* Shapes */
 .float-shape {
     position: absolute;
     border-radius: 50%;
@@ -16,6 +19,7 @@ body {
     animation: float 6s ease-in-out infinite;
     mix-blend-mode: multiply;
 }
+
 .float-shape:nth-child(1) {
     width: 160px;
     height: 160px;
@@ -24,6 +28,7 @@ body {
     left: 5%;
     animation-delay: 0s;
 }
+
 .float-shape:nth-child(2) {
     width: 120px;
     height: 120px;
@@ -32,6 +37,7 @@ body {
     right: 10%;
     animation-delay: 2s;
 }
+
 .float-shape:nth-child(3) {
     width: 200px;
     height: 200px;
@@ -50,12 +56,13 @@ body {
     }
 }
 
-/* Form container fade and slide */
+/* Form container animation */
 .fade-slide-in {
     animation: fadeSlideIn 1s ease forwards;
     opacity: 0;
     transform: translateY(30px);
 }
+
 @keyframes fadeSlideIn {
     to {
     opacity: 1;
@@ -63,7 +70,7 @@ body {
     }
 }
 
-/* Input focus ring override for blue */
+/* Input field focus ring */
 input:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.5);

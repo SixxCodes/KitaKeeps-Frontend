@@ -1,12 +1,14 @@
 /* =================== LINKS =================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
+
+/* =================== DESIGNS =================== */
 body {
     font-family: 'Inter', sans-serif;
     scroll-behavior: smooth;
 }
 
-/* =================== ANIMATIONOS =================== */
+/* =================== ANIMATIONS =================== */
 
 .float-animation {
     animation: float 6s ease-in-out infinite;
