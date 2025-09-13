@@ -39,23 +39,23 @@ new Vue({
 
         testimonials: [
             {
-                name: 'John Smith',
-                role: 'Store Owner',
-                company: 'Smith Hardware',
+                name: 'Mae Rhie Bihisan',
+                role: 'Branch Manager',
+                company: 'Zyrile Hardware',
                 content: 'This system cut our inventory discrepancies by 85% in the first month. It\'s transformed how we manage our stock.',
                 rating: 5,
             },
             {
-                name: 'Maria Rodriguez',
-                role: 'Operations Manager',
-                company: 'BuildRight Supplies',
+                name: 'Bee and Ohgay',
+                role: 'Cashier',
+                company: 'Zyrile Hardware',
                 content: 'The real-time tracking has eliminated our stockouts. Our customers are happier and our sales have increased.',
                 rating: 5,
             },
             {
-                name: 'Thomas Wilson',
-                role: 'Purchasing Director',
-                company: 'Wilson Hardware Chain',
+                name: 'Ken Knee Madayuhh',
+                role: 'CEO',
+                company: 'Zyrile Hardware',
                 content: 'The automated reordering feature saves us 10+ hours per week and ensures we never miss a replenishment.',
                 rating: 5,
             },
