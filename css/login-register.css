@@ -80,3 +80,14 @@ input:focus {
 button:hover {
     background-color: #0284c7;
 }
+
+/* Show password (eye icon) 
+walaon ang built-in show passwords sa browser kay pangit
+-dli mu-function ug tarong*/
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-textfield-decoration-container,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-password-toggle {
+  display: none !important;
+}

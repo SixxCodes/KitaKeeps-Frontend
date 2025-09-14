@@ -6,6 +6,7 @@ new Vue({
         password: '',
         rememberMe: false,
         showPassword: false,
+
         emailError: '',
         passwordError: '',
         loading: false,
@@ -30,8 +31,8 @@ new Vue({
 
             if (!this.password) {
                 this.passwordError = 'Password is required.';
-            } else if (this.password.length < 6) {
-                this.passwordError = 'Password must be at least 6 characters.';
+            } else if (this.password.length < 8) {
+                this.passwordError = 'Password must be at least 8 characters.';
             }
 
             if (this.emailError || this.passwordError) {

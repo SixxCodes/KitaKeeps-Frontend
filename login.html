@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>KitaKeeps - Login</title>
 
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/logo/logo-removebg-preview.png" type="image/x-icon">
+
+    <!-- Open Graph / Social Preview -->
+    <meta property="og:title" content="KitaKeeps - Login">
+    <meta property="og:description" content="Manage your hardware effortlessly.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/SixxCodes/KitaKeeps/main/assets/images/docu/social-preview-1.png">
+    <meta property="og:url" content="https://sixxcodes.github.io/KitaKeeps/">
+    <meta name="twitter:card" content="summary_large_image">
+
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -57,12 +67,12 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 transition focus:ring-2 focus:ring-blue-400"
                         :class="{'border-red-500': passwordError}"
                     />
+                    <p v-if="passwordError" class="text-red-500 text-sm mt-1">{{ passwordError }}</p>
 
                     <!-- Show password (eye) icon -->
                     <button type="button" @click="togglePassword" class="absolute right-3 top-11 text-gray-500 hover:text-blue-600 focus:outline-none" :aria-label="showPassword ? 'Hide password' : 'Show password'">
                         <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                     </button>
-                    <p v-if="passwordError" class="text-red-500 text-sm mt-1">{{ passwordError }}</p>
                 </div>
 
                 <div class="flex items-center justify-between mb-6">
