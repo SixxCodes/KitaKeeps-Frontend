@@ -49,12 +49,15 @@
                     <!-- Desktop Navigation -->
                     <nav class="hidden md:block">
                         <div class="ml-10 flex items-baseline space-x-8">
+                            <a href="{{ route('home') }}" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
+                                Home~
+                            </a>
                             <a href="#features" class="text-gray-700 transition-colors hover:text-blue-600">
                                 Features
                             </a>
-                            <a href="#testimonials" class="text-gray-700 transition-colors hover:text-blue-600">
+                            <!-- <a href="#testimonials" class="text-gray-700 transition-colors hover:text-blue-600">
                                 Testimonials
-                            </a>
+                            </a> -->
                             <a href="#project-team" class="text-gray-700 transition-colors hover:text-blue-600">
                                 Team
                             </a>
@@ -85,12 +88,15 @@
                 <!-- Mobile Navigation -->
                 <div :class="{'open': menuOpen}" class="mobile-menu md:hidden">
                     <div class="space-y-1 border-t border-gray-200 px-2 pb-3 pt-2 sm:px-3">
+                        <a href="{{ route('home') }}" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
+                            Home
+                        </a>
                         <a href="#features" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
                             Features
                         </a>
-                        <a href="#testimonials" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
+                        <!-- <a href="#testimonials" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
                             Testimonials
-                        </a>
+                        </a> -->
                         <a href="#project-team" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
                             Team
                         </a>
@@ -102,7 +108,7 @@
                                 Log in
                             </a>
                             <a href="{{ route('register') }}" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors">
-                                Sign up
+                                Register
                             </a>
                         </div>
                     </div>
@@ -262,7 +268,7 @@
         </section>
 
         <!-- Testimonials Section -->
-        <section id="testimonials" class="bg-blue-50 py-20 scroll-mt-16">
+        <!-- <section id="testimonials" class="bg-blue-50 py-20 scroll-mt-16">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="mb-16 text-center fade-in">
                     <h2 class="mb-4 text-3xl font-black text-gray-900 sm:text-4xl">Trusted by Hardware Professionals</h2>
@@ -286,7 +292,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <!-- Project Team Section -->
         <section id="project-team" class="py-20 scroll-mt-16">
