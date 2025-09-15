@@ -1,4 +1,5 @@
 <img src="public/assets/images/docu/social-preview-1.png" alt="KitaKeeps Social Preview"/>
+
 # KitaKeeps
 
 <p align="center">
