@@ -8,15 +8,11 @@ class PaymentSale extends Model
 {
     // Table name
     protected $table = 'payment_sales';
-
-    // Disable auto-incrementing primary key cuz this is a pivot table
-    public $incrementing = false;
+    // ID (PK)
+    protected $primaryKey = 'payment_sale_id';
 
     // No timestamps
     public $timestamps = false;
-
-    // // Primary key type (optional)
-    // protected $keyType = 'string';
 
     // Fillable fields
     protected $fillable = [
@@ -33,7 +29,7 @@ class PaymentSale extends Model
     // Relationships:
 
     // payment_sales belongsTo payments
-    public function payment()
+    public function payment_salesbelongsTopayments()
     {
         return $this->belongsTo(Payment::class, 'payment_id', 'payment_id');
     }
@@ -41,6 +37,6 @@ class PaymentSale extends Model
     // payment_sales belongsTo sales
     public function payment_salesbelongsTosales()
     {
-        return $this->belongsTo(sales::class, 'sale_id', 'sale_id');
+        return $this->belongsTo(Sale::class, 'sale_id', 'sale_id');
     }
 }

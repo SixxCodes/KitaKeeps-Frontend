@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class products extends Model
+class Product extends Model
 {
     // Table name
     protected $table = 'products';
@@ -37,18 +37,18 @@ class products extends Model
     // products hasMany branch_products
     public function productshasManybranch_products()
     {
-        return $this->hasMany(branch_products::class, 'product_id', 'product_id');
+        return $this->hasMany(BranchProduct::class, 'product_id', 'product_id');
     }
 
     // products hasMany product_categories
-    public function category()
+    public function productshasManyproduct_categories()
     {
-        return $this->belongsTo(product_categories::class, 'category_id', 'category_id');
+        return $this->belongsTo(ProductCategory::class, 'category_id', 'category_id');
     }
 
     // products hasMany product_suppliers
     public function productshasManyproduct_suppliers()
     {
-        return $this->belongsTo(product_suppliers::class, 'category_id', 'category_id');
+        return $this->belongsTo(ProductSupplier::class, 'category_id', 'category_id');
     }
 }

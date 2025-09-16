@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class audit_log extends Model
+class AuditLog extends Model
 {
     // Table name
     protected $table = 'audit_log';
@@ -18,14 +18,15 @@ class audit_log extends Model
         'details',
     ];
 
-    // Cast created_at as datetime
+    // Casts
     protected $casts = [
         'created_at' => 'datetime',
     ];
 
-    // Relationship: an audit log belongs to a user
-    // ERD: User: zero or one - generates - one to many :audit_log
-    public function user_function()
+    // Relationship:
+
+    // audit_log belongsTo User
+    public function audit_logbelongsToUser()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }

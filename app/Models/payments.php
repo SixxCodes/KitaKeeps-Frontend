@@ -21,7 +21,7 @@ class Payment extends Model
         'notes',
     ];
 
-    // Casts for proper data types
+    // Casts
     protected $casts = [
         'total_amount' => 'decimal:2',
         'payment_date' => 'datetime',
@@ -29,16 +29,15 @@ class Payment extends Model
 
     // Relationships
 
-    // Payment belongs to a User
-    // public function creator()
-    // {
-    //     return $this->belongsTo(User::class, 'created_by', 'user_id');
-    // }
+    // payments belongsTo User
+    public function paymentsbelongsToUser()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
 
     // payments hasMany payment_sales
     public function paymentshasManypayment_sales()
     {
-        return $this->hasMany(payment_sales::class, 'payment_id', 'payment_id');
+        return $this->hasMany(PaymentSale::class, 'payment_id', 'payment_id');
     }
-    
 }

@@ -31,11 +31,11 @@ class Payroll extends Model
         'generated_at' => 'datetime',
     ];
 
-    // Relationships
+    // Relationships:
 
     // payroll belongsTo employees
     public function payrollbelongsToemployees()
     {
-        return $this->belongsTo(employees::class, 'employee_id', 'employee_id');
+        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
 }

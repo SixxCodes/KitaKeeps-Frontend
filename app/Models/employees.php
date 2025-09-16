@@ -29,21 +29,21 @@ class Employee extends Model
 
     // Relationships
 
-    // Employee belongs to a Branch
-    public function branch()
+    // employees belongsTo branches
+    public function employeesbelongsTobranches()
     {
-        return $this->belongsTo(branches::class, 'branch_id', 'branch_id');
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
-    // employees hasMany attendances
-    public function employeeshasManyattendances()
+    // employees hasMany attendance
+    public function employeeshasManyattendance()
     {
-        return $this->hasMany(attendance::class, 'employee_id', 'employee_id');
+        return $this->hasMany(Attendance::class, 'employee_id', 'employee_id');
     }
 
     // employees hasMany payroll
     public function employeeshasManypayroll()
     {
-        return $this->hasMany(payroll::class, 'employee_id', 'employee_id');
+        return $this->hasMany(Payroll::class, 'employee_id', 'employee_id');
     }
 }

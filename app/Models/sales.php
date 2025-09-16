@@ -31,30 +31,30 @@ class Sale extends Model
         'sale_date' => 'datetime',
     ];
 
-    // Relationships
+    // Relationships:
 
     // sales belongsTo customers
     public function salesbelongsTocustomers()
     {
-        return $this->belongsTo(customers::class, 'customer_id', 'customer_id');
+        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 
     // sales belongsTo branches
     public function salesbelongsTobranches()
     {
-        return $this->belongsTo(branches::class, 'branch_id', 'branch_id');
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
     // sales hasMany sale_items
     public function saleshasManysale_items()
     {
-        return $this->hasMany(sale_items::class, 'sale_id', 'sale_id');
+        return $this->hasMany(SaleItem::class, 'sale_id', 'sale_id');
     }
 
     // sales hasMany payment_sales
-    public function saleItems()
+    public function saleshasManypayment_sales()
     {
-        return $this->hasMany(payment_sales::class, 'sale_id', 'sale_id');
+        return $this->hasMany(PaymentSale::class, 'sale_id', 'sale_id');
     }
     
     // sales belongsTo User

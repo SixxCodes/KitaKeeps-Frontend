@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class attendance extends Model
+class Attendance extends Model
 {
     // Table name 
     protected $table = 'attendance';
@@ -25,11 +25,11 @@ class attendance extends Model
         'created_at' => 'datetime',
     ];
 
-    // Relationships
-    // Allows each Attendance record to “know” which Employee it belongs to.
-    // ERD: Employee: one and only one - has - one to many :attendance
-    public function employees_function()
+    // Relationships:
+
+    // attendance belongsTo employees
+    public function attendancebelongsToemployees()
     {
-        return $this->belongsTo(employees::class, 'employee_id', 'employee_id');
+        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
 }

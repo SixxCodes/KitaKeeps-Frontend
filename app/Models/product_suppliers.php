@@ -20,24 +20,24 @@ class ProductSupplier extends Model
         'preferred',
     ];
 
-    // Casts for proper data types
+    // Casts
     protected $casts = [
         'supplier_cost' => 'decimal:2',
         'preferred' => 'boolean',
         'created_at' => 'datetime',
     ];
 
-    // Relationships
+    // Relationships: (Tulay table)
 
     // product_suppliers belongsTo products
     public function product_suppliersbelongsToproducts()
     {
-        return $this->belongsTo(products::class, 'product_id', 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 
     // product_suppliers belongsTo suppliers
     public function product_suppliersbelongsTosuppliers()
     {
-        return $this->belongsTo(suppliers::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }
 }

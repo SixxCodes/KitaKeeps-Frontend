@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class product_categories extends Model
+class ProductCategory extends Model
 {
     // Table name
     protected $table = 'product_categories';
@@ -17,11 +17,14 @@ class product_categories extends Model
         'cat_description',
     ];
 
-    // Relationships
+    // No timestamps
+    public $timestamps = false;
+
+    // Relationships:
 
     // product_categories hasMany products
     public function product_categorieshasManyproducts()
     {
-        return $this->hasMany(products::class, 'category_id', 'category_id');
+        return $this->hasMany(Product::class, 'category_id', 'category_id');
     }
 }

@@ -33,6 +33,6 @@ class Forecast extends Model
     // forecasts belongsTo branch_products
     public function forecastsbelongsTobranch_products()
     {
-        return $this->belongsTo(branch_products::class, 'branch_product_id', 'branch_product_id');
+        return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
     }
 }

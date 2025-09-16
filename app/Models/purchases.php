@@ -35,13 +35,13 @@ class Purchase extends Model
     // purchases belongsTo suppliers
     public function purchasesbelongsTosuppliers()
     {
-        return $this->belongsTo(suppliers::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }
 
     // purchases hasMany purchase_items
     public function purchaseshasManypurchase_items()
     {
-        return $this->hasMany(purchase_items::class, 'purchase_id', 'purchase_id');
+        return $this->hasMany(PurchaseItem::class, 'purchase_id', 'purchase_id');
     }
 
     // purchases belongsTo User
@@ -53,6 +53,6 @@ class Purchase extends Model
     // purchases belongsTo branches
     public function purchasesbelongsTobranches()
     {
-        return $this->belongsTo(branches::class, 'branch_id', 'branch_id');
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 }

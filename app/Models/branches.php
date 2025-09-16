@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class branches extends Model
+class Branch extends Model
 {
     // Table name
     protected $table = 'branches';
@@ -24,27 +24,27 @@ class branches extends Model
 
     // Relationships:
 
-    // branches has many branch_products
+    // branches hasMany branch_products
     public function brancheshasManybranch_products()
     {
-        return $this->hasMany(branch_products::class, 'branch_id', 'branch_id');
+        return $this->hasMany(BranchProduct::class, 'branch_id', 'branch_id');
     }
 
-    // branches has many purchases
+    // branches hasMany purchases
     public function brancheshasManypurchases()
     {
-        return $this->hasMany(purchases::class, 'branch_id', 'branch_id');
+        return $this->hasMany(Purchase::class, 'branch_id', 'branch_id');
     }
 
-    // branches has many employees
+    // branches hasMany employees
     public function brancheshasManyemployees()
     {
-        return $this->hasMany(employees::class, 'branch_id', 'branch_id');
+        return $this->hasMany(Employee::class, 'branch_id', 'branch_id');
     }
 
-    // branches has many sales
+    // branches hasMany sales
     public function brancheshasManysales()
     {
-        return $this->hasMany(sales::class, 'branch_id', 'branch_id');
+        return $this->hasMany(Sale::class, 'branch_id', 'branch_id');
     }
 }

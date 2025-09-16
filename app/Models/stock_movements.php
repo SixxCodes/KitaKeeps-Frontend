@@ -34,7 +34,7 @@ class StockMovement extends Model
     // stock_movements belongsTo branch_prosducts
     public function stock_movementsbelongsTobranch_products()
     {
-        return $this->belongsTo(branch_products::class, 'branch_product_id', 'branch_product_id');
+        return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
     }
 
     // stock_movements belongsTo User 

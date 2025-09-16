@@ -50,7 +50,7 @@
                     <nav class="hidden md:block">
                         <div class="ml-10 flex items-baseline space-x-8">
                             <a href="{{ route('home') }}" class="block px-3 py-2 text-gray-700 hover:text-blue-600">
-                                Home~
+                                Home
                             </a>
                             <a href="#features" class="text-gray-700 transition-colors hover:text-blue-600">
                                 Features

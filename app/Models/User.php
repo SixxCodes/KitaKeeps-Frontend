@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable; // trait, adds methods to User model so that users can receive notifications (email, database, SMS, etc.).
 
     // Table
     protected $table = 'users';
@@ -43,8 +43,35 @@ class User extends Authenticatable
         }
     }
 
-    public function audit_log()
+    // Relationships:
+
+    // User hasMany audit_log
+    public function userhasManyaudit_log()
     {
-        return $this->hasMany(audit_log::class, 'user_id', 'user_id');
+        return $this->hasMany(AuditLog::class, 'user_id', 'user_id');
+    }
+
+    // User hasMany sales
+    public function userhasManysales()
+    {
+        return $this->hasMany(Sale::class, 'created_by', 'user_id');
+    }
+
+    // User hasMany purchases
+    public function UserhasManypurchases()
+    {
+        return $this->hasMany(Purchase::class, 'created_by', 'user_id');
+    }
+
+    // User hasMany stock_movements
+    public function UserhasManystock_movements()
+    {
+        return $this->hasMany(StockMovement::class, 'created_by', 'user_id');
+    }
+
+    // User hasMany payments
+    public function UserhasManypayments()
+    {
+        return $this->hasMany(Payment::class, 'user_id', 'user_id');
     }
 }

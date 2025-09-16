@@ -21,6 +21,9 @@ class PurchaseItem extends Model
         'subtotal',
     ];
 
+    // No timestamps
+    public $timestamps = false;
+
     // Casts for proper data types
     protected $casts = [
         'quantity' => 'integer',
@@ -33,12 +36,12 @@ class PurchaseItem extends Model
     // purchase_items belongsTo purchases
     public function purchase_itemsbelongsTopurchases()
     {
-        return $this->belongsTo(purchases::class, 'purchase_id', 'purchase_id');
+        return $this->belongsTo(Purchase::class, 'purchase_id', 'purchase_id');
     }
 
     // purchase_items belongsTo branch_products
     public function purchase_itemsbelongsTobranch_products()
     {   
-        return $this->belongsTo(branch_products::class, 'branch_product_id', 'branch_product_id');
+        return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
     }
 }
