@@ -33,9 +33,9 @@ class Payroll extends Model
 
     // Relationships
 
-    // Payroll belongs to an Employee
-    public function employee()
+    // payroll belongsTo employees
+    public function payrollbelongsToemployees()
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
+        return $this->belongsTo(employees::class, 'employee_id', 'employee_id');
     }
 }

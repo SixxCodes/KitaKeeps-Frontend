@@ -29,17 +29,16 @@ class Payment extends Model
 
     // Relationships
 
-    // Payment belongs to a User (creator)
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by', 'user_id');
-    }
+    // Payment belongs to a User
+    // public function creator()
+    // {
+    //     return $this->belongsTo(User::class, 'created_by', 'user_id');
+    // }
 
-    // Optional: If you link payments to sales
-    /*
-    public function sales()
+    // payments hasMany payment_sales
+    public function paymentshasManypayment_sales()
     {
-        return $this->hasMany(Sale::class, 'payment_id', 'payment_id');
+        return $this->hasMany(payment_sales::class, 'payment_id', 'payment_id');
     }
-    */
+    
 }

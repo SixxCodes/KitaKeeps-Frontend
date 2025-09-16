@@ -33,29 +33,33 @@ class Sale extends Model
 
     // Relationships
 
-    // Sale belongs to a Branch
-    public function branch()
+    // sales belongsTo customers
+    public function salesbelongsTocustomers()
     {
-        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
+        return $this->belongsTo(customers::class, 'customer_id', 'customer_id');
     }
 
-    // Sale belongs to a Customer
-    public function customer()
+    // sales belongsTo branches
+    public function salesbelongsTobranches()
     {
-        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
+        return $this->belongsTo(branches::class, 'branch_id', 'branch_id');
     }
 
-    // Sale belongs to a User (created_by)
-    public function creator()
+    // sales hasMany sale_items
+    public function saleshasManysale_items()
+    {
+        return $this->hasMany(sale_items::class, 'sale_id', 'sale_id');
+    }
+
+    // sales hasMany payment_sales
+    public function saleItems()
+    {
+        return $this->hasMany(payment_sales::class, 'sale_id', 'sale_id');
+    }
+    
+    // sales belongsTo User
+    public function salesbelongsToUser()
     {
         return $this->belongsTo(User::class, 'created_by', 'user_id');
     }
-
-    // Sale has many sale items (optional, if you have a sale_items table)
-    /*
-    public function saleItems()
-    {
-        return $this->hasMany(SaleItem::class, 'sale_id', 'sale_id');
-    }
-    */
 }

@@ -42,4 +42,9 @@ class User extends Authenticatable
             $this->attributes['password'] = Hash::make($password);
         }
     }
+
+    public function audit_log()
+    {
+        return $this->hasMany(audit_log::class, 'user_id', 'user_id');
+    }
 }

@@ -30,9 +30,9 @@ class Forecast extends Model
 
     // Relationships
 
-    // Forecast belongs to a BranchProduct
-    public function branchProduct()
+    // forecasts belongsTo branch_products
+    public function forecastsbelongsTobranch_products()
     {
-        return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
+        return $this->belongsTo(branch_products::class, 'branch_product_id', 'branch_product_id');
     }
 }

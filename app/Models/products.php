@@ -34,15 +34,21 @@ class products extends Model
 
     // Relationships
 
-    // Product belongs to a category
-    public function category()
+    // products hasMany branch_products
+    public function productshasManybranch_products()
     {
-        return $this->belongsTo(ProductCategory::class, 'category_id', 'category_id');
+        return $this->hasMany(branch_products::class, 'product_id', 'product_id');
     }
 
-    // Product can belong to many branches through branch_products
-    public function branchProducts()
+    // products hasMany product_categories
+    public function category()
     {
-        return $this->hasMany(BranchProduct::class, 'product_id', 'product_id');
+        return $this->belongsTo(product_categories::class, 'category_id', 'category_id');
+    }
+
+    // products hasMany product_suppliers
+    public function productshasManyproduct_suppliers()
+    {
+        return $this->belongsTo(product_suppliers::class, 'category_id', 'category_id');
     }
 }

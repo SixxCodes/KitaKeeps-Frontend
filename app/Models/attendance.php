@@ -27,6 +27,7 @@ class attendance extends Model
 
     // Relationships
     // Allows each Attendance record to “know” which Employee it belongs to.
+    // ERD: Employee: one and only one - has - one to many :attendance
     public function employees_function()
     {
         return $this->belongsTo(employees::class, 'employee_id', 'employee_id');

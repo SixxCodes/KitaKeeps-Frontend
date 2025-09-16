@@ -30,15 +30,15 @@ class SaleItem extends Model
 
     // Relationships
 
-    // SaleItem belongs to a Sale
-    public function sale()
+    // sale_items belongsTo sales
+    public function sale_itemsbelongsTosales()
     {
-        return $this->belongsTo(Sale::class, 'sale_id', 'sale_id');
+        return $this->belongsTo(sales::class, 'sale_id', 'sale_id');
     }
 
-    // SaleItem belongs to a BranchProduct
-    public function branchProduct()
+    // sale_items belongsTo branch_products
+    public function sale_itemsbelongsTobranch_products()
     {
-        return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
+        return $this->belongsTo(branch_products::class, 'branch_product_id', 'branch_product_id');
     }
 }

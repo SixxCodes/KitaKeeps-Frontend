@@ -25,11 +25,11 @@ class Customer extends Model
     ];
 
     // Relationships
-    // If customers have orders, you can define:
-    /*
-    public function orders()
+
+    // customers hasMany sales
+    public function customershasManysales()
     {
-        return $this->hasMany(Order::class, 'customer_id', 'customer_id');
+        return $this->hasMany(sales::class, 'customer_id', 'customer_id');
     }
-    */
+    
 }

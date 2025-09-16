@@ -29,15 +29,15 @@ class ProductSupplier extends Model
 
     // Relationships
 
-    // ProductSupplier belongs to a Product
-    public function product()
+    // product_suppliers belongsTo products
+    public function product_suppliersbelongsToproducts()
     {
-        return $this->belongsTo(Product::class, 'product_id', 'product_id');
+        return $this->belongsTo(products::class, 'product_id', 'product_id');
     }
 
-    // ProductSupplier belongs to a Supplier
-    public function supplier()
+    // product_suppliers belongsTo suppliers
+    public function product_suppliersbelongsTosuppliers()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(suppliers::class, 'supplier_id', 'supplier_id');
     }
 }

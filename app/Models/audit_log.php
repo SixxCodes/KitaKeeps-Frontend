@@ -24,6 +24,7 @@ class audit_log extends Model
     ];
 
     // Relationship: an audit log belongs to a user
+    // ERD: User: zero or one - generates - one to many :audit_log
     public function user_function()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');

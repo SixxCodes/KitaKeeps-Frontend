@@ -18,8 +18,9 @@ class product_categories extends Model
     ];
 
     // Relationships
-    // A category can have many products
-    public function products_function_two()
+
+    // product_categories hasMany products
+    public function product_categorieshasManyproducts()
     {
         return $this->hasMany(products::class, 'category_id', 'category_id');
     }

@@ -30,17 +30,17 @@ class PaymentSale extends Model
         'amount' => 'decimal:2',
     ];
 
-    // Relationships
+    // Relationships:
 
-    // PaymentSale belongs to a Payment
+    // payment_sales belongsTo payments
     public function payment()
     {
         return $this->belongsTo(Payment::class, 'payment_id', 'payment_id');
     }
 
-    // PaymentSale belongs to a Sale
-    public function sale()
+    // payment_sales belongsTo sales
+    public function payment_salesbelongsTosales()
     {
-        return $this->belongsTo(Sale::class, 'sale_id', 'sale_id');
+        return $this->belongsTo(sales::class, 'sale_id', 'sale_id');
     }
 }

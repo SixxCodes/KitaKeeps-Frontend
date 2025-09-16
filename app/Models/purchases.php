@@ -32,29 +32,27 @@ class Purchase extends Model
 
     // Relationships
 
-    // Purchase belongs to a Supplier
-    public function supplier()
+    // purchases belongsTo suppliers
+    public function purchasesbelongsTosuppliers()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(suppliers::class, 'supplier_id', 'supplier_id');
     }
 
-    // Purchase belongs to a Branch
-    public function branch()
+    // purchases hasMany purchase_items
+    public function purchaseshasManypurchase_items()
     {
-        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
+        return $this->hasMany(purchase_items::class, 'purchase_id', 'purchase_id');
     }
 
-    // Purchase belongs to a User (created_by)
-    public function creator()
+    // purchases belongsTo User
+    public function purchasesbelongsToUser()
     {
         return $this->belongsTo(User::class, 'created_by', 'user_id');
     }
 
-    // Optional: Purchase has many items (if you have a purchase_items table)
-    /*
-    public function purchaseItems()
+    // purchases belongsTo branches
+    public function purchasesbelongsTobranches()
     {
-        return $this->hasMany(PurchaseItem::class, 'purchase_id', 'purchase_id');
+        return $this->belongsTo(branches::class, 'branch_id', 'branch_id');
     }
-    */
 }

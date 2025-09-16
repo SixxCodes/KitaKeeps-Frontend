@@ -31,14 +31,14 @@ class StockMovement extends Model
 
     // Relationships
 
-    // StockMovement belongs to a BranchProduct
-    public function branchProduct()
+    // stock_movements belongsTo branch_prosducts
+    public function stock_movementsbelongsTobranch_products()
     {
-        return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
+        return $this->belongsTo(branch_products::class, 'branch_product_id', 'branch_product_id');
     }
 
-    // StockMovement belongs to a User (creator)
-    public function creator()
+    // stock_movements belongsTo User 
+    public function stock_movementsbelongsToUser()
     {
         return $this->belongsTo(User::class, 'created_by', 'user_id');
     }

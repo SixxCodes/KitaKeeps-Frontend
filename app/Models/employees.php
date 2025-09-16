@@ -32,12 +32,18 @@ class Employee extends Model
     // Employee belongs to a Branch
     public function branch()
     {
-        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
+        return $this->belongsTo(branches::class, 'branch_id', 'branch_id');
     }
 
-    // Employee has many attendances
-    public function attendances()
+    // employees hasMany attendances
+    public function employeeshasManyattendances()
     {
-        return $this->hasMany(Attendance::class, 'employee_id', 'employee_id');
+        return $this->hasMany(attendance::class, 'employee_id', 'employee_id');
+    }
+
+    // employees hasMany payroll
+    public function employeeshasManypayroll()
+    {
+        return $this->hasMany(payroll::class, 'employee_id', 'employee_id');
     }
 }

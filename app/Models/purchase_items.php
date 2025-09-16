@@ -30,15 +30,15 @@ class PurchaseItem extends Model
 
     // Relationships
 
-    // PurchaseItem belongs to a Purchase
-    public function purchase()
+    // purchase_items belongsTo purchases
+    public function purchase_itemsbelongsTopurchases()
     {
-        return $this->belongsTo(Purchase::class, 'purchase_id', 'purchase_id');
+        return $this->belongsTo(purchases::class, 'purchase_id', 'purchase_id');
     }
 
-    // PurchaseItem belongs to a BranchProduct
-    public function branchProduct()
-    {
-        return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
+    // purchase_items belongsTo branch_products
+    public function purchase_itemsbelongsTobranch_products()
+    {   
+        return $this->belongsTo(branch_products::class, 'branch_product_id', 'branch_product_id');
     }
 }
