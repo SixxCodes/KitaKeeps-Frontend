@@ -1,4 +1,4 @@
-<img src="public/assets/images/docu/social-preview-1.png" alt="KitaKeeps Social Preview"/>
+<a href="https://sixxcodes.github.io/KitaKeeps"><img src="public/assets/images/docu/social-preview-1.png" alt="KitaKeeps Social Preview"/></a>
 
 # KitaKeeps
 
