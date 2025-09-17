@@ -1,15 +1,18 @@
 // ==================== Login (Error handling only, no login logic)====================
-new Vue({
-    el: '#app',
-    data: {
-        email: '',
-        password: '',
-        rememberMe: false,
-        showPassword: false,
+import { createApp } from 'vue';
 
-        emailError: '',
-        passwordError: '',
-        loading: false,
+const app = createApp({
+    data() {
+        return {
+            email: '',
+            password: '',
+            rememberMe: false,
+            showPassword: false,
+
+            emailError: '',
+            passwordError: '',
+            loading: false,
+        }
     },
     methods: {
         togglePassword() {
@@ -49,3 +52,8 @@ new Vue({
         }
     }
 });
+
+const el = document.getElementById('login-app');
+if (el) {
+    app.mount('#login-app');
+}

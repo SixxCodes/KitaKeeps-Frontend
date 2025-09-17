@@ -1,25 +1,28 @@
 // ==================== Login (Error handling only, no login logic)====================
-new Vue({
-    el: '#app',
-    data: {
-        hardwareName: '',
-        username: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        rememberMe: false,
-        showPassword: false,
+import { createApp } from 'vue';
 
-        hardwareNameError: '',
-        usernameError: '',
-        firstNameError: '',
-        lastNameError: '',
-        emailError: '',
-        passwordError: '',
-        confirmPasswordError: '',
-        loading: false,
+const app = createApp({
+    data() {
+        return {
+            hardwareName: '',
+            username: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+            rememberMe: false,
+            showPassword: false,
+
+            hardwareNameError: '',
+            usernameError: '',
+            firstNameError: '',
+            lastNameError: '',
+            emailError: '',
+            passwordError: '',
+            confirmPasswordError: '',
+            loading: false,
+        }
     },
     methods: {
         togglePassword() {
@@ -29,11 +32,12 @@ new Vue({
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
         },
-        submitLogin() {
+        submitRegister() {
+            // Reset all errors
             this.hardwareNameError = '';
             this.usernameError = '';
             this.firstNameError = '';
-            this.lastNameError= '';
+            this.lastNameError = '';
             this.emailError = '';
             this.passwordError = '';
             this.confirmPasswordError = '';
@@ -91,11 +95,7 @@ new Vue({
                 this.confirmPasswordError = 'Passwords do not match.';
             }
 
-            // if (this.emailError || this.passwordError) {
-            //     return;
-            // }
-
-            // Stop submission if errors exist
+            // Stop submission if any errors exist
             if (
                 this.hardwareNameError ||
                 this.usernameError ||
@@ -110,11 +110,16 @@ new Vue({
 
             this.loading = true;
 
-            // Simulate async login
+            // Simulate async registration
             setTimeout(() => {
-                alert(`Logged in as ${this.email}.\nRemember me: ${this.rememberMe ? 'Yes' : 'No'}`);
+                alert(`Registered as ${this.email}.\nRemember me: ${this.rememberMe ? 'Yes' : 'No'}`);
                 this.loading = false;
             }, 2000);
         }
     }
 });
+
+const el = document.getElementById('register-app');
+if (el) {
+    app.mount('#register-app');
+}
