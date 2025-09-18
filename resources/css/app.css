@@ -4,7 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ==================== SIDEBAR MENU (AI-Generated) ==================== */
+/* ==================== SIDEBAR MENU ==================== */
+/* Sidebar */
+/* Sidebar animation smooth slide */
+#sidebar {
+  transition: transform 0.3s ease-in-out;
+  will-change: transform;
+}
+
+
+
+
+
+/* SCROLLBAR */
 /* Base: scrollbar hidden */
 .hover-scroll::-webkit-scrollbar {
   width: 0; /* completely hidden */

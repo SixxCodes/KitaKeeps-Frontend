@@ -25,8 +25,9 @@ import '../css/login-register.css';
 import './landing-page.js'; // landing page Vue 3 
 import './login.js';        // login Vue 3 
 import './register.js'; 
+import initSidebar from './sidebar.js';
 
 window.Alpine = Alpine;
 Alpine.start();
 
-
+initSidebar();

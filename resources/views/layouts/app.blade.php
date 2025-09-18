@@ -20,10 +20,10 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-    <div class="flex h-screen bg-gray-100">
+    <div id="sidebar-app" class="flex h-screen bg-gray-100">
         <!-- Sidebar -->
         <div id="sidebar" 
-            class="w-64 h-screen overflow-x-hidden overflow-y-auto text-white bg-gray-900 hover-scroll">
+            :class="['w-64 h-screen overflow-x-hidden overflow-y-auto text-white bg-gray-900 hover-scroll ',{ '-translate-x-full fixed md:static top-0 left-0 z-40': !isSidebarOpen && isMobile }]">
             @include('layouts.sidebar')
         </div>
 
@@ -38,6 +38,6 @@
             </main>
         </div>
     </div>
-</body>
+    </body>
 
 </html>
