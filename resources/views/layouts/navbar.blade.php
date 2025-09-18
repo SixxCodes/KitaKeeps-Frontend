@@ -1,4 +1,4 @@
-<nav class="flex items-center justify-between px-6 py-4 bg-white shadow">
+<nav class="flex items-center justify-between px-6 py-3 bg-white shadow">
     <div class="flex items-center space-x-4">
         <!-- Hamburger (only visible on mobile/tablet) -->
         <button 
@@ -17,6 +17,11 @@
     </div>
 
     <div class="flex items-center space-x-4">
-        <span class="text-gray-600">User Name</span>
+        <i class="fa-solid fa-bell"></i>
+        <i class="fa-solid fa-user"></i>
+        <div class="flex flex-col">
+            <span class="text-sm text-black">User Name</span>
+            <span class="text-xs text-gray-600">Position at Hardware</span>
+        </div>
     </div>
 </nav>

@@ -22,14 +22,14 @@
             <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Home
             </p>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-2xl fa-solid fa-grip"></i>
                 Dashboard
-            </button>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            </a>
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 fa-solid fa-computer"></i>
                 POS
-            </button>
+            </a>
         </div>
 
         <!-- Business Intelligence Section -->
@@ -37,49 +37,49 @@
             <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Business Intelligence
             </p>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 fa-solid fa-robot"></i>
                 Reports &amp; Analytics
-            </button>
+            </a>
         </div>
 
         <!-- Management Section -->
         <div>
-            <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
+            <p class="block mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Management
             </p>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 fa-solid fa-warehouse"></i>
                 My Hardware
-            </button>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            </a>
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-2 text-xl fa-solid fa-clipboard-list"></i>
                 My Inventory
-            </button>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            </a>
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-lg fa-solid fa-parachute-box"></i>
                 My Suppliers
-            </button>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            </a>
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-sm fa-solid fa-users"></i>
                 My Employees
-            </button>
-            <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            </a>
+            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-sm fa-solid fa-users-line"></i>
                 My Customers
-            </button>
+            </a>
         </div>
     </nav>
 
     <!-- Bottom Buttons -->
     <div class="px-4 py-4 space-y-2 border-t border-blue-700">
-        <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+        <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
             <i class="mr-1 fa-solid fa-gear"></i>
             Settings
-        </button>
-        <button class="w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+        </a>
+        <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
             <i class="mr-1 fa-solid fa-right-from-bracket"></i>
             Logout
-        </button>
+        </a>
     </div>
 </div>
