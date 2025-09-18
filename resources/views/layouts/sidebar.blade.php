@@ -22,11 +22,14 @@
             <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Home
             </p>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('Dashboard')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'Dashboard'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-2xl fa-solid fa-grip"></i>
                 Dashboard
             </a>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('POS')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'POS'}"
+                class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 fa-solid fa-computer"></i>
                 POS
             </a>
@@ -37,7 +40,8 @@
             <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Business Intelligence
             </p>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('Reports &amp; Analytics')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'Reports &amp; Analytics'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 fa-solid fa-robot"></i>
                 Reports &amp; Analytics
             </a>
@@ -48,23 +52,28 @@
             <p class="block mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Management
             </p>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('My Hardware')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'My Hardware'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 fa-solid fa-warehouse"></i>
                 My Hardware
             </a>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('My Inventory')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'My Inventory'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-2 text-xl fa-solid fa-clipboard-list"></i>
                 My Inventory
             </a>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('My Suppliers')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'My Suppliers'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-lg fa-solid fa-parachute-box"></i>
                 My Suppliers
             </a>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('My Employees')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'My Employees'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-sm fa-solid fa-users"></i>
                 My Employees
             </a>
-            <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+            <a href="#" @click.prevent="changePage('My Customers')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'My Customers'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-sm fa-solid fa-users-line"></i>
                 My Customers
             </a>
@@ -73,7 +82,8 @@
 
     <!-- Bottom Buttons -->
     <div class="px-4 py-4 space-y-2 border-t border-blue-700">
-        <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+        <a href="#" @click.prevent="changePage('Settings')" 
+                :class="{'font-bold bg-blue-800': currentPage === 'Settings'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
             <i class="mr-1 fa-solid fa-gear"></i>
             Settings
         </a>

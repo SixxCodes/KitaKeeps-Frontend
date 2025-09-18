@@ -12,7 +12,11 @@
         </button>
 
         <h1 class="text-xl text-gray-800">
-            {{ $pageTitle ?? 'Dashboard' }}
+            <!-- Page Icon -->
+            <span v-html="pageIcons[currentPage]"></span>
+
+            <!-- Page Title -->
+            <span v-if="currentPage">@{{ currentPage }}</span>
         </h1>
     </div>
 

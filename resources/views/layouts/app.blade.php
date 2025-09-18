@@ -39,8 +39,41 @@
             @include('layouts.navbar')
 
             <!-- Page Content -->
-            <main>
-                {{ $slot }}
+            <main class="p-4">
+                <!-- HOME Section-->
+                <div v-if="currentPage === 'Dashboard'">
+                    <h2>Welcome to Dashboard</h2>
+                </div>
+                <div v-else-if="currentPage === 'POS'">
+                    <h2>POS</h2>
+                </div>
+
+                <!-- BUSINESS INTELLIGENCE Section -->
+                <div v-else-if="currentPage === 'Reports &amp; Analytics'">
+                    <h2>Reports &amp; Analytics</h2>
+                </div>
+
+                <!-- MANAGEMENT Section -->
+                <div v-else-if="currentPage === 'My Hardware'">
+                    <h2>My Hardware</h2>
+                </div>
+                <div v-else-if="currentPage === 'My Inventory'">
+                    <h2>My Inventory</h2>
+                </div>
+                <div v-else-if="currentPage === 'My Suppliers'">
+                    <h2>My Suppliers</h2>
+                </div>
+                <div v-else-if="currentPage === 'My Employees'">
+                    <h2>My Employees</h2>
+                </div>
+                <div v-else-if="currentPage === 'My Customers'">
+                    <h2>My Customers</h2>
+                </div>
+
+                <!-- Bottom Button(s)-->
+                <div v-else-if="currentPage === 'Settings'">
+                    <h2>Settings</h2>
+                </div>
             </main>
         </div>
     </div>
