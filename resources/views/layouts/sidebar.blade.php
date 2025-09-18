@@ -2,9 +2,18 @@
     <!-- Logo and Name -->
     <div class="flex items-center px-6 py-3 space-x-3 border-b border-blue-700">
         <img src="assets/images/logo/logo-removebg-preview.png" alt="Logo" class="w-10 h-10" />
-        <span class="text-xl font-bold">
+        <span class="pr-10 text-xl font-bold">
             KitaKeeps
         </span>
+
+        <!-- Close button (mobile only) -->
+        <button 
+            @click="toggleSidebar" 
+            class="text-gray-300 hover:text-white focus:outline-none md:hidden"
+        >
+            <!-- X Icon -->
+            <i class="text-lg fa-solid fa-x"></i>
+        </button>
     </div>
 
     <nav class="flex-1 px-4 py-6 space-y-6 overflow-y-auto">

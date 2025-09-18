@@ -23,7 +23,13 @@
     <div id="sidebar-app" class="flex h-screen bg-gray-100">
         <!-- Sidebar -->
         <div id="sidebar" 
-            :class="['w-64 h-screen overflow-x-hidden overflow-y-auto text-white bg-gray-900 hover-scroll ',{ '-translate-x-full fixed md:static top-0 left-0 z-40': !isSidebarOpen && isMobile }]">
+            :class="[
+                'w-64 overflow-x-hidden overflow-y-auto text-white bg-gray-900 hover-scroll transition-transform duration-300',
+                { 
+                    '-translate-x-full fixed md:static top-0 left-0 z-40 h-full md:h-screen': !isSidebarOpen && isMobile,
+                    'fixed md:static top-0 left-0 z-40 h-full md:h-screen': isSidebarOpen && isMobile
+                }
+            ]">
             @include('layouts.sidebar')
         </div>
 

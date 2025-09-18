@@ -31,5 +31,5 @@ export default function initSidebar() {
         }
     });
 
-    app.mount('#sidebar-app'); // mounts Vue to your <div id="sidebar-app">
+    app.mount('#sidebar-app'); //mount sa sidebar element
 }
