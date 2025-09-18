@@ -1,4 +1,4 @@
-// ==================== Login (Error handling only, no login logic)====================
+// ==================== Register (Error handling only, no register logic)====================
 import { createApp } from 'vue';
 
 const app = createApp({
@@ -110,11 +110,40 @@ const app = createApp({
 
             this.loading = true;
 
-            // Simulate async registration
-            setTimeout(() => {
-                alert(`Registered as ${this.email}.\nRemember me: ${this.rememberMe ? 'Yes' : 'No'}`);
+            fetch("/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    name: this.firstName + " " + this.lastName,  // Laravel expects "name"
+                    email: this.email,
+                    password: this.password,
+                    password_confirmation: this.confirmPassword,
+
+                    // Optional custom fields (if backend accepts them)
+                    hardware_name: this.hardwareName,
+                    username: this.username,
+                })
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw errorData;
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Registered successfully:", data);
+                window.location.href = "/dashboard"; // redirect
+            })
+            .catch(error => {
+                console.error("Registration failed:", error);
+            })
+            .finally(() => {
                 this.loading = false;
-            }, 2000);
+            });
         }
     }
 });

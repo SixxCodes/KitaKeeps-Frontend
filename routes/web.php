@@ -5,20 +5,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::get('/login-frontend', function () {
     return view('auth.login');
 });
 
-// routes/web.php
 Route::get('/register-frontend', function () {
-    return view('auth.register'); // your frontend register page
+    return view('auth.register');
 });
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard'); // only logged-in users can access /dashboard.
+})->name('dashboard'); // comment if login is required
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

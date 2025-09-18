@@ -29,7 +29,7 @@
 </head>
 
 <body class="bg-gradient-to-b from-blue-50 to-white">
-    <x-app-layout>
+    <x-guest-layout>
         <div id="landing-page-app">
 
             <!-- Header -->
@@ -40,10 +40,10 @@
                         <!-- Logo -->
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <a href="#"><img src="assets/images/logo/logo-removebg-preview.png" class="w-16 h-16 mr-2" alt="KitaKeeps Logo"></a>
+                                <a href="{{ route('welcome') }}"><img src="assets/images/logo/logo-removebg-preview.png" class="w-16 h-16 mr-2" alt="KitaKeeps Logo"></a>
                             </div>
                             <div class="flex-shrink-0">
-                                <a href="#" class="text-3xl font-bold text-blue-600">KitaKeeps</a>
+                                <a href="{{ route('welcome') }}" class="text-3xl font-bold text-blue-600">KitaKeeps</a>
                             </div>
                         </div>
 
@@ -433,7 +433,7 @@
             </footer>
         </div>
     
-    </x-app-layout>
+    </x-guest-layout>
     @vite('resources/js/app.js')
 </body>
 </html>

@@ -1,4 +1,4 @@
-// =================== FEATURES AND TESTIMONIALS ===================
+// =================== FEATURES, TESTIMONIALS, PROJECT TEAM ===================
 import { createApp } from 'vue';
 
 const app = createApp({

@@ -74,4 +74,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payment::class, 'user_id', 'user_id');
     }
+
+    // User hasMany branches
+    public function UserhasManybranches()
+    {
+        return $this->hasMany(Branch::class, 'user_id', 'user_id');
+    }
 }

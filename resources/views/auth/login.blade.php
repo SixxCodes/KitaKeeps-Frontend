@@ -27,7 +27,7 @@
     <!-- <link rel="stylesheet" href="{{ asset('assets/css/login-register.css') }}"> -->
 </head>
 <body>
-    <x-app-layout>
+    <x-guest-layout>
         <div id="login-app" class="relative flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
             
             <!-- Floating shapes -->
@@ -108,6 +108,6 @@
                 </p>
             </div>
         </div>
-    </x-app-layout>
+    </x-guest-layout>
 </body>
 </html>

@@ -14,6 +14,7 @@
     <meta property="og:image" content="https://raw.githubusercontent.com/SixxCodes/KitaKeeps/main/assets/images/docu/social-preview-1.png">
     <meta property="og:url" content="https://sixxcodes.github.io/KitaKeeps/">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Tailwind -->
     <!-- <script src="https://cdn.tailwindcss.com"></script> -->
@@ -27,7 +28,7 @@
     <!-- <link rel="stylesheet" href="{{ asset('assets/css/login-register.css') }}"> -->
 </head>
 <body>
-    <x-app-layout>
+    <x-guest-layout>
         <div id="register-app" class="relative flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
             
             <!-- Floating shapes -->
@@ -183,6 +184,6 @@
                 </p>
             </div>
         </div>
-    </x-app-layout>
+    </x-guest-layout>
 </body>
 </html>
