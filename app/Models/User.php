@@ -11,18 +11,18 @@ class User extends Authenticatable
     use Notifiable; // trait, adds methods to User model so that users can receive notifications (email, database, SMS, etc.).
 
     // Table
-    protected $table = 'users';
+    protected $table = 'user';
     // ID (PK)
     protected $primaryKey = 'user_id';
 
     protected $fillable = [
         'username',
         'password',
-        'user_firstname',
-        'user_lastname',
-        'user_email',
+        'role',
+        'person_id',
         'last_login',
-        'profile_pic',
+        'is_active',
+        'user_image_path',
     ];
 
     protected $hidden = [
@@ -33,6 +33,7 @@ class User extends Authenticatable
     protected $casts = [
         'last_login' => 'datetime',
         'created_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     // Automatically hash password
@@ -45,39 +46,45 @@ class User extends Authenticatable
 
     // Relationships:
 
-    // User hasMany audit_log
+    // User hasMany purchase
+    public function userhasManypurchase()
+    {
+        return $this->hasMany(Purchase::class, 'created_by', 'user_id');
+    }
+
+    // User hasMany User_branch
+    public function userhasManyUser_branch()
+    {
+        return $this->hasMany(UserBranch::class, 'user_id', 'user_id');
+    }
+
+    // User hasMany sale
+    public function userhasManysale()
+    {
+        return $this->hasMany(Sale::class, 'created_by', 'user_id');
+    }
+
+    // User hasMany payment
+    public function userhasManypayment()
+    {
+        return $this->hasMany(Payment::class, 'created_by', 'user_id');
+    }
+
+    // User profile
     public function userhasManyaudit_log()
     {
         return $this->hasMany(AuditLog::class, 'user_id', 'user_id');
     }
 
-    // User hasMany sales
-    public function userhasManysales()
+    // User hasMany person
+    public function UserhasManyperson()
     {
-        return $this->hasMany(Sale::class, 'created_by', 'user_id');
+        return $this->belongsTo(Person::class, 'user_id', 'user_id');
     }
 
-    // User hasMany purchases
-    public function UserhasManypurchases()
-    {
-        return $this->hasMany(Purchase::class, 'created_by', 'user_id');
-    }
-
-    // User hasMany stock_movements
-    public function UserhasManystock_movements()
+    // User hasMany stock_movement
+    public function userhasManystock_movement()
     {
         return $this->hasMany(StockMovement::class, 'created_by', 'user_id');
-    }
-
-    // User hasMany payments
-    public function UserhasManypayments()
-    {
-        return $this->hasMany(Payment::class, 'user_id', 'user_id');
-    }
-
-    // User hasMany branches
-    public function UserhasManybranches()
-    {
-        return $this->hasMany(Branch::class, 'user_id', 'user_id');
     }
 }

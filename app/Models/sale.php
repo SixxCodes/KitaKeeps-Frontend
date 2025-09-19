@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sale extends Model
 {
     // Table name
-    protected $table = 'sales';
+    protected $table = 'sale';
 
     // ID (PK)
     protected $primaryKey = 'sale_id';
@@ -33,32 +33,40 @@ class Sale extends Model
 
     // Relationships:
 
-    // sales belongsTo customers
-    public function salesbelongsTocustomers()
-    {
-        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
-    }
-
-    // sales belongsTo branches
-    public function salesbelongsTobranches()
+    // sale belongsTo branch
+    public function salebelongsTobranch()
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
-    // sales hasMany sale_items
-    public function saleshasManysale_items()
+    // polymorphic relationship to stock movements
+    // sale hasMany stock_movement
+    public function salehasManystock_movement()
+    {
+        return $this->hasMany(StockMovement::class, 'reference_id', 'sale_id')
+                    ->where('movement_type', 'Sale');
+    }
+
+    // sale hasMany sale_item
+    public function salehasManysale_item()
     {
         return $this->hasMany(SaleItem::class, 'sale_id', 'sale_id');
     }
 
-    // sales hasMany payment_sales
-    public function saleshasManypayment_sales()
+    // sale belongsTo customer
+    public function salebelongsTocustomer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
+    }
+
+    // sale hasMany payment_sale
+    public function salehasManypayment_sale()
     {
         return $this->hasMany(PaymentSale::class, 'sale_id', 'sale_id');
     }
-    
-    // sales belongsTo User
-    public function salesbelongsToUser()
+
+    // sale belongsTo User
+    public function salebelongsToUser()
     {
         return $this->belongsTo(User::class, 'created_by', 'user_id');
     }

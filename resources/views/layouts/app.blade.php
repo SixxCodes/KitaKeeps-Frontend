@@ -34,15 +34,15 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 h-screen overflow-y-auto">
+        <div class="flex-1 h-screen overflow-x-hidden">
             <!-- Navbar -->
             @include('layouts.navbar')
 
             <!-- Page Content -->
-            <main class="p-4">
+            <main class="w-screen h-screen mx-10 my-6">
                 <!-- HOME Section-->
                 <div v-if="currentPage === 'Dashboard'">
-                    <h2>Welcome to Dashboard</h2>
+                    <h2>Hardware Name</h2>  
                 </div>
                 <div v-else-if="currentPage === 'POS'">
                     <h2>POS</h2>

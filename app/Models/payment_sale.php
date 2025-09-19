@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentSale extends Model
 {
     // Table name
-    protected $table = 'payment_sales';
+    protected $table = 'payment_sale';
     // ID (PK)
     protected $primaryKey = 'payment_sale_id';
 
@@ -28,14 +28,14 @@ class PaymentSale extends Model
 
     // Relationships:
 
-    // payment_sales belongsTo payments
-    public function payment_salesbelongsTopayments()
+    // payment_sale belongsTo payment
+    public function payment_salebelongsTopayment()
     {
         return $this->belongsTo(Payment::class, 'payment_id', 'payment_id');
     }
 
-    // payment_sales belongsTo sales
-    public function payment_salesbelongsTosales()
+    // payment_sale belongsTo sale
+    public function payment_salebelongsTosale()
     {
         return $this->belongsTo(Sale::class, 'sale_id', 'sale_id');
     }

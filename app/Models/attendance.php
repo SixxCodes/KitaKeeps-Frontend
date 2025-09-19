@@ -27,8 +27,8 @@ class Attendance extends Model
 
     // Relationships:
 
-    // attendance belongsTo employees
-    public function attendancebelongsToemployees()
+    // attendance belongsTo employee
+    public function attendancebelongsToemployee()
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }

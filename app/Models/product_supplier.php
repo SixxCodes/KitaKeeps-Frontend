@@ -29,14 +29,14 @@ class ProductSupplier extends Model
 
     // Relationships: (Tulay table)
 
-    // product_suppliers belongsTo products
-    public function product_suppliersbelongsToproducts()
+    // product_supplier belongsTo product
+    public function product_supplierbelongsToproduct()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 
-    // product_suppliers belongsTo suppliers
-    public function product_suppliersbelongsTosuppliers()
+    // product_supplier belongsTo supplier
+    public function product_supplierbelongsTosupplier()
     {
         return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }

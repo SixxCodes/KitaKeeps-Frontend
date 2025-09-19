@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class PurchaseItem extends Model
 {
     // Table name
-    protected $table = 'purchase_items';
+    protected $table = 'purchase_item';
 
     // ID (PK)
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'purchase_item_id';
 
     // Fillable fields for mass assignment
     protected $fillable = [
@@ -31,16 +31,16 @@ class PurchaseItem extends Model
         'subtotal' => 'decimal:2',
     ];
 
-    // Relationships
+    // Relationships:
 
-    // purchase_items belongsTo purchases
-    public function purchase_itemsbelongsTopurchases()
+    // purchase_item belongsTo purchase
+    public function purchase_itembelongsTopurchase()
     {
         return $this->belongsTo(Purchase::class, 'purchase_id', 'purchase_id');
     }
 
-    // purchase_items belongsTo branch_products
-    public function purchase_itemsbelongsTobranch_products()
+    // purchase_item belongsTo branch_product
+    public function purchase_itembelongsTobranch_product()
     {   
         return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
     }

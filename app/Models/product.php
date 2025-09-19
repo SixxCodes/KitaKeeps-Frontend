@@ -7,20 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     // Table name
-    protected $table = 'products';
+    protected $table = 'product';
     // ID (PK)
     protected $primaryKey = 'product_id';
 
     // Fillable fields for mass assignment
     protected $fillable = [
         'sku',
-        'product_image',
         'prod_name',
         'prod_description',
         'category_id',
         'unit_cost',
         'selling_price',
         'is_active',
+        'prod_image_path',
     ];
 
     // Casts for proper data types
@@ -34,21 +34,21 @@ class Product extends Model
 
     // Relationships
 
-    // products hasMany branch_products
-    public function productshasManybranch_products()
+    // product hasMany branch_product
+    public function productshasManybranch_product()
     {
         return $this->hasMany(BranchProduct::class, 'product_id', 'product_id');
     }
 
-    // products hasMany product_categories
-    public function productshasManyproduct_categories()
+    // product belongsTo category
+    public function productbelongsTocategory()
     {
-        return $this->belongsTo(ProductCategory::class, 'category_id', 'category_id');
+        return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
 
-    // products hasMany product_suppliers
-    public function productshasManyproduct_suppliers()
+    // product hasMany product_supplier
+    public function producthasManyproduct_supplier()
     {
-        return $this->belongsTo(ProductSupplier::class, 'category_id', 'category_id');
+        return $this->hasMany(ProductSupplier::class, 'product_id', 'product_id');
     }
 }

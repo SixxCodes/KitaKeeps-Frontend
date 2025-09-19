@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class SaleItem extends Model
 {
     // Table name
-    protected $table = 'sale_items';
+    protected $table = 'sale_item';
 
     // Primary key
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'sale_item_id';
 
     // Fillable fields for mass assignment
     protected $fillable = [
@@ -33,14 +33,14 @@ class SaleItem extends Model
 
     // Relationships:
 
-    // sale_items belongsTo sales
-    public function sale_itemsbelongsTosales()
+    // sale_item belongsTo sale
+    public function sale_itembelongsTosale()
     {
         return $this->belongsTo(Sale::class, 'sale_id', 'sale_id');
     }
 
-    // sale_items belongsTo branch_products
-    public function sale_itemsbelongsTobranch_products()
+    // sale_item belongsTo branch_product
+    public function sale_itembelongsTobranch_product()
     {
         return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
     }

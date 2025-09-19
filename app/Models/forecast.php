@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Forecast extends Model
 {
     // Table name
-    protected $table = 'forecasts';
+    protected $table = 'forecast';
     // ID (PK)
     protected $primaryKey = 'forecast_id';
 
@@ -18,6 +18,7 @@ class Forecast extends Model
         'period_end',
         'forecast_qty',
         'method',
+        'notes',
     ];
 
     // Casts for proper data types
@@ -30,8 +31,8 @@ class Forecast extends Model
 
     // Relationships
 
-    // forecasts belongsTo branch_products
-    public function forecastsbelongsTobranch_products()
+    // forecast belongsTo branch_product
+    public function forecastbelongsTobranch_product()
     {
         return $this->belongsTo(BranchProduct::class, 'branch_product_id', 'branch_product_id');
     }

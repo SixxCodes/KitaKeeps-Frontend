@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     // Table name
-    protected $table = 'suppliers';
+    protected $table = 'supplier';
 
     // ID (PK)
     protected $primaryKey = 'supplier_id';
@@ -25,16 +25,16 @@ class Supplier extends Model
         'created_at' => 'datetime',
     ];
 
-    // Relationships
+    // Relationships: 
 
-    // suppliers hasMany product_suppliers
-    public function suppliershasManyproduct_suppliers()
+    // supplier hasMany product_supplier
+    public function supplierhasManyproduct_supplier()
     {
         return $this->hasMany(ProductSupplier::class, 'supplier_id', 'supplier_id');
     }
 
-    // suppliers hasMany purchases
-    public function suppliershasManypurchases()
+    // supplier hasMany purchase
+    public function supplierhasManypurchase()
     {
         return $this->hasMany(Purchase::class, 'supplier_id', 'supplier_id');
     }

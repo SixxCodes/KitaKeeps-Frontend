@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
     // Table name
-    protected $table = 'customers';
+    protected $table = 'customer';
     // ID (PK)
     protected $primaryKey = 'customer_id';
 
@@ -26,8 +26,8 @@ class Customer extends Model
 
     // Relationships
 
-    // customers hasMany sales
-    public function customershasManysales()
+    // customer hasMany sale
+    public function customerhasManysale()
     {
         return $this->hasMany(Sale::class, 'customer_id', 'customer_id');
     }
