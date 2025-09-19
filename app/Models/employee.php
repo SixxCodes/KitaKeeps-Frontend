@@ -29,7 +29,7 @@ class Employee extends Model
 
     // Relationships
 
-    // employees belongsTo branches
+    // employees belongsTo person
     public function employeebelongsToperson()
     {
         return $this->belongsTo(Person::class, 'person_id', 'person_id');
