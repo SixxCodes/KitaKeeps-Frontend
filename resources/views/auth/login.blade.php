@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>KitaKeeps - Login</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="assets/images/logo/logo-removebg-preview.png" type="image/x-icon">
@@ -41,19 +42,20 @@
                 <p class="mb-4 text-center">Welcome back! Log in to continue.</p>
 
                 <form @submit.prevent="submitLogin" novalidate>
-                    <!-- Email -->
+
+                    <!-- Username -->
                     <div class="mb-6">
-                        <label for="email" class="block mb-2 font-semibold text-gray-700">Email address</label>
+                        <label for="username" class="block mb-2 font-semibold text-gray-700">Username</label>
                         <input
-                            id="email"
-                            type="email"
-                            v-model.trim="email"
+                            id="username"
+                            type="username"
+                            v-model.trim="username"
                             required
-                            placeholder="you@example.com"
+                            placeholder="kitakeepers143"
                             class="w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
-                            :class="{'border-red-500': emailError}"
+                            :class="{'border-red-500': usernameError}"
                         />
-                        <p v-if="emailError" class="mt-1 text-sm text-red-500">@{{ emailError }}</p>
+                        <p v-if="usernameError" class="mt-1 text-sm text-red-500">@{{ usernameError }}</p>
                     </div>
 
                     <!-- Password -->

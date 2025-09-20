@@ -87,9 +87,13 @@
             <i class="mr-1 fa-solid fa-gear"></i>
             Settings
         </a>
-        <a class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
-            <i class="mr-1 fa-solid fa-right-from-bracket"></i>
-            Logout
-        </a>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" 
+                class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
+                <i class="mr-1 fa-solid fa-right-from-bracket"></i>
+                Logout
+            </button>
+        </form>
     </div>
 </div>

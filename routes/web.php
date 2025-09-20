@@ -3,8 +3,11 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterUserController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
+
+Route::post('/login-frontend', [AuthenticatedSessionController::class, 'store']);
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,7 +23,7 @@ Route::get('/register-frontend', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard.owner.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard'); // i-comment ni if di sa maggamit ug auth
+})->middleware(['auth'])->name('dashboard'); // i-comment ni if di sa maggamit ug auth
 // })->name('dashboard'); // i-comment ni if login is required na
 
 Route::middleware('auth')->group(function () {

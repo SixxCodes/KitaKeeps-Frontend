@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,11 +23,27 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
 
+        $user = Auth::user();
+
+        // Update last login timestamp
+        $user->last_login = now();
+        $user->save();
+
         $request->session()->regenerate();
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->user_id,
+                'username' => $user->username,
+                'role' => $user->role,
+            ],
+            'redirect' => route('dashboard'),
+        ]);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

@@ -129,9 +129,18 @@ const app = createApp({
                     password_confirmation: this.confirmPassword
                 })
             })
-            .then(res => res.json())
-            .then(data => {
+            .then(res => res.text())
+            .then(text => {
                 this.loading = false;
+                let data;
+
+                try {
+                    data = JSON.parse(text);  // try parsing JSON
+                } catch (err) {
+                    console.error('Non-JSON response:', text);
+                    alert('Server returned an unexpected response. Check console for details.');
+                    return;
+                }
 
                 if (!data.success) {
                     // Backend validation errors
