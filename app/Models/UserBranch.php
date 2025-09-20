@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserBranch extends Model
 {
     // Table name
-    protected $table = 'person';
+    protected $table = 'user_branch';
     // ID (PK)
     protected $primaryKey = 'user_branch_id';
 
@@ -23,13 +23,13 @@ class UserBranch extends Model
     // Relationships:
 
     // user_branch belongsTo User
-    public function user_branchbelongsToUser()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
     // user_branch belongsTo branch
-    public function user_branchbelongsTobranch()
+    public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }

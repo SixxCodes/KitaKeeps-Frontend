@@ -6,8 +6,8 @@ const app = createApp({
         return {
             hardwareName: '',
             username: '',
-            firstName: '',
-            lastName: '',
+            firstname: '',
+            lastname: '',
             email: '',
             password: '',
             confirmPassword: '',
@@ -16,8 +16,8 @@ const app = createApp({
 
             hardwareNameError: '',
             usernameError: '',
-            firstNameError: '',
-            lastNameError: '',
+            firstnameError: '',
+            lastnameError: '',
             emailError: '',
             passwordError: '',
             confirmPasswordError: '',
@@ -36,11 +36,12 @@ const app = createApp({
             // Reset all errors
             this.hardwareNameError = '';
             this.usernameError = '';
-            this.firstNameError = '';
-            this.lastNameError = '';
+            this.firstnameError = '';
+            this.lastnameError = '';
             this.emailError = '';
             this.passwordError = '';
             this.confirmPasswordError = '';
+            this.loading = false;
 
             // Hardware name validation
             if (!this.hardwareName) {
@@ -59,17 +60,17 @@ const app = createApp({
             }
 
             // First Name validation
-            if (!this.firstName) {
-                this.firstNameError = 'First Name is required.';
-            } else if (!/^[A-Za-z\s-]+$/.test(this.firstName)) {
-                this.firstNameError = 'First Name can only contain letters, spaces, and dashes.';
+            if (!this.firstname) {
+                this.firstnameError = 'First Name is required.';
+            } else if (!/^[A-Za-z\s-]+$/.test(this.firstname)) {
+                this.firstnameError = 'First Name can only contain letters, spaces, and dashes.';
             }
 
             // Last Name validation
-            if (!this.lastName) {
-                this.lastNameError = 'Last Name is required.';
-            } else if (!/^[A-Za-z\s-]+$/.test(this.lastName)) {
-                this.lastNameError = 'Last Name can only contain letters, spaces, and dashes.';
+            if (!this.lastname) {
+                this.lastnameError = 'Last Name is required.';
+            } else if (!/^[A-Za-z\s-]+$/.test(this.lastname)) {
+                this.lastnameError = 'Last Name can only contain letters, spaces, and dashes.';
             }
 
             // Email validation
@@ -99,8 +100,8 @@ const app = createApp({
             if (
                 this.hardwareNameError ||
                 this.usernameError ||
-                this.firstNameError ||
-                this.lastNameError ||
+                this.firstnameError ||
+                this.lastnameError ||
                 this.emailError ||
                 this.passwordError ||
                 this.confirmPasswordError
@@ -110,39 +111,56 @@ const app = createApp({
 
             this.loading = true;
 
-            fetch("/register", {
-                method: "POST",
+            fetch('/register-frontend', {  // your backend endpoint
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest', // triggers AJAX detection
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify({
-                    name: this.firstName + " " + this.lastName,  // Laravel expects "name"
+                    hardwareName: this.hardwareName,
+                    username: this.username,
+                    firstname: this.firstname,
+                    lastname: this.lastname,
                     email: this.email,
                     password: this.password,
-                    password_confirmation: this.confirmPassword,
-
-                    // Optional custom fields (if backend accepts them)
-                    hardware_name: this.hardwareName,
-                    username: this.username,
+                    password_confirmation: this.confirmPassword
                 })
             })
-            .then(async response => {
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw errorData;
-                }
-                return response.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                console.log("Registered successfully:", data);
-                window.location.href = "/dashboard"; // redirect
-            })
-            .catch(error => {
-                console.error("Registration failed:", error);
-            })
-            .finally(() => {
                 this.loading = false;
+
+                if (!data.success) {
+                    // Backend validation errors
+                    this.hardwareNameError = data.errors.hardwareName || '';
+                    this.usernameError = data.errors.username || '';
+                    this.firstnameError = data.errors.firstname || '';
+                    this.lastnameError = data.errors.lastname || '';
+                    this.emailError = data.errors.email || '';
+                    this.passwordError = data.errors.password || '';
+                    this.confirmPasswordError = data.errors.confirmPassword || '';
+                } else {
+                    // Registration successful
+                    alert(`Successfully registered ${this.username}! 🎉`);
+                    window.location.href = data.redirect;
+                    
+                    // Clear form
+                    this.hardwareName = '';
+                    this.username = '';
+                    this.firstname = '';
+                    this.lastname = '';
+                    this.email = '';
+                    this.password = '';
+                    this.confirmPassword = '';
+                }
+            })
+            .catch(err => {
+                this.loading = false;
+                console.error('Error submitting registration:', err);
+                alert('An error occurred. Please try again later.');
             });
         }
     }

@@ -76,12 +76,12 @@
                             <label for="first-name" class="block mb-2 font-semibold text-gray-700">First Name</label>
                             <input
                             id="first-name"
-                            v-model.trim="firstName"
+                            v-model.trim="firstname"
                             required
                             placeholder="Kita"
-                            class="w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400" :class="{'border-red-500': firstNameError}"
+                            class="w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400" :class="{'border-red-500': firstnameError}"
                             />
-                            <p v-if="firstNameError" class="mt-1 text-sm text-red-500">@{{ firstNameError }}</p>
+                            <p v-if="firstnameError" class="mt-1 text-sm text-red-500">@{{ firstnameError }}</p>
                         </div>
 
                         <!-- Last Name -->
@@ -89,12 +89,12 @@
                             <label for="last-name" class="block mb-2 font-semibold text-gray-700">Last Name</label>
                             <input
                             id="last-name"
-                            v-model.trim="lastName"
+                            v-model.trim="lastname"
                             required
                             placeholder="Keepers"
-                            class="w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400" :class="{'border-red-500': lastNameError}"
+                            class="w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400" :class="{'border-red-500': lastnameError}"
                             />
-                            <p v-if="lastNameError" class="mt-1 text-sm text-red-500">@{{ lastNameError }}</p>
+                            <p v-if="lastnameError" class="mt-1 text-sm text-red-500">@{{ lastnameError }}</p>
                         </div>
                     </div>
 

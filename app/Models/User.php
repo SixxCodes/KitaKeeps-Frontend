@@ -32,17 +32,11 @@ class User extends Authenticatable
 
     protected $casts = [
         'last_login' => 'datetime',
-        'created_at' => 'datetime',
         'is_active' => 'boolean',
     ];
-
-    // Automatically hash password
-    public function setPasswordAttribute($password)
-    {
-        if ($password) {
-            $this->attributes['password'] = Hash::make($password);
-        }
-    }
+    
+    // no timestamps
+    public $timestamps = false;
 
     // Relationships:
 
@@ -53,9 +47,9 @@ class User extends Authenticatable
     }
 
     // User hasMany User_branch
-    public function userhasManyUser_branch()
+    public function branches()
     {
-        return $this->hasMany(UserBranch::class, 'user_id', 'user_id');
+        return $this->belongsToMany(Branch::class, 'user_branch', 'user_id', 'branch_id');
     }
 
     // User hasMany sale
@@ -77,9 +71,9 @@ class User extends Authenticatable
     }
 
     // User hasMany person
-    public function UserhasManyperson()
+    public function UserbelongsToperson()
     {
-        return $this->belongsTo(Person::class, 'user_id', 'user_id');
+        return $this->belongsTo(Person::class, 'person_id', 'person_id');
     }
 
     // User hasMany stock_movement

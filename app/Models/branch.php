@@ -40,9 +40,9 @@ class Branch extends Model
     }
 
     // branch hasMany user_branch
-    public function branchhasManyuser_branch()
+    public function users()
     {
-        return $this->hasMany(UserBranch::class, 'branch_id', 'branch_id');
+        return $this->belongsToMany(User::class, 'user_branch', 'branch_id', 'user_id');
     }
 
     // branch hasMany employee

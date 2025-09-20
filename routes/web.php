@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RegisterUserController;
+
+Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
 Route::get('/', function () {
     return view('welcome');
@@ -9,7 +12,7 @@ Route::get('/', function () {
 
 Route::get('/login-frontend', function () {
     return view('auth.login');
-});
+})->name('login');
 
 Route::get('/register-frontend', function () {
     return view('auth.register');
