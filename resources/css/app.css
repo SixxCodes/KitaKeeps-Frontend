@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 /* ==================== SIDEBAR MENU ==================== */
-/* Sidebar */
+/* SIDEBAR */
 /* Sidebar animation smooth slide */
 #sidebar {
   transition: transform 0.3s ease-in-out;

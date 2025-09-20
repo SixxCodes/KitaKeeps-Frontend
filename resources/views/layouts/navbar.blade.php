@@ -24,8 +24,8 @@
         <i class="fa-solid fa-bell"></i>
         <i class="fa-solid fa-user"></i>
         <div class="flex flex-col">
-            <span class="text-sm text-black">User Name</span>
-            <span class="text-xs text-gray-600">Position at Hardware</span>
+            <span class="text-sm text-black">{{ Auth::user()->username }}</span>
+            <span class="text-xs text-gray-600">{{ Auth::user()->role }} at Branch Name</span> <!-- edit later and branch name sa name gyud sa hardware -->
         </div>
     </div>
 </nav>
