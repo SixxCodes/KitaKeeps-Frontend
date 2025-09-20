@@ -22,7 +22,7 @@ Route::get('/register-frontend', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard.owner.dashboard');
+    return view('layouts.app');
 })->middleware(['auth'])->name('dashboard'); // i-comment ni if di sa maggamit ug auth
 // })->name('dashboard'); // i-comment ni if login is required na
 

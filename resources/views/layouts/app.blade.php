@@ -42,37 +42,37 @@
             <main class="w-screen h-screen mx-10 my-6">
                 <!-- HOME Section-->
                 <div v-if="currentPage === 'Dashboard'">
-                    <h2>Hardware Name</h2>  
+                    @include('modules.dashboard') 
                 </div>
                 <div v-else-if="currentPage === 'POS'">
-                    <h2>POS</h2>
+                    @include('modules.pos') 
                 </div>
 
                 <!-- BUSINESS INTELLIGENCE Section -->
                 <div v-else-if="currentPage === 'Reports &amp; Analytics'">
-                    <h2>Reports &amp; Analytics</h2>
+                    @include('modules.reportsAndAnalytics') 
                 </div>
 
                 <!-- MANAGEMENT Section -->
                 <div v-else-if="currentPage === 'My Hardware'">
-                    <h2>My Hardware</h2>
+                    @include('modules.myHardware') 
                 </div>
                 <div v-else-if="currentPage === 'My Inventory'">
-                    <h2>My Inventory</h2>
+                    @include('modules.myInventory') 
                 </div>
                 <div v-else-if="currentPage === 'My Suppliers'">
-                    <h2>My Suppliers</h2>
+                    @include('modules.mySuppliers') 
                 </div>
                 <div v-else-if="currentPage === 'My Employees'">
-                    <h2>My Employees</h2>
+                    @include('modules.myEmployees') 
                 </div>
                 <div v-else-if="currentPage === 'My Customers'">
-                    <h2>My Customers</h2>
+                    @include('modules.myCustomers') 
                 </div>
 
                 <!-- Bottom Button(s)-->
                 <div v-else-if="currentPage === 'Settings'">
-                    <h2>Settings</h2>
+                    @include('modules.settings') 
                 </div>
             </main>
         </div>
