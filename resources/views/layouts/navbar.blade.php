@@ -11,21 +11,31 @@
             </svg>
         </button>
 
-        <h1 class="text-xl text-gray-800">
+        <h1 class="text-xl text-gray-900">
             <!-- Page Icon -->
-            <span v-html="pageIcons[currentPage]"></span>
+            <span class="text-blue-800" v-html="pageIcons[currentPage]"></span>
 
             <!-- Page Title -->
-            <span v-if="currentPage">@{{ currentPage }}</span>
+            <span class="text-[14px] sm:text-base md:text-lg lg:text-xl" v-if="currentPage">@{{ currentPage }}</span>
         </h1>
     </div>
 
-    <div class="flex items-center space-x-4">
-        <i class="fa-solid fa-bell"></i>
-        <i class="fa-solid fa-user"></i>
-        <div class="flex flex-col">
+    <div class="flex items-center mr-4 space-x-1">
+        <!-- Bell Icon (always visible) -->
+        <i class="mr-5 text-blue-800 fa-solid fa-bell"></i>
+
+        <!-- User Icon (always visible) -->
+        <button class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+            <i class="fa-solid fa-user"></i>
+        </button>
+
+        <!-- Username and Role (hidden on mobile) -->
+        <div class="flex-col hidden sm:flex">
             <span class="text-sm text-black">{{ Auth::user()->username }}</span>
-            <span class="text-xs text-gray-600">{{ Auth::user()->role }} at Branch Name</span> <!-- edit later and branch name sa name gyud sa hardware -->
+            <span class="text-xs text-gray-600">{{ Auth::user()->role }} at Branch Name</span>
         </div>
+
+        <!-- Dropdown arrow (hidden on mobile) -->
+        <i class="hidden text-gray-400 sm:inline fa-solid fa-angle-down"></i>
     </div>
 </nav>

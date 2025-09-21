@@ -7,7 +7,7 @@
 
         <link rel="shortcut icon" href="assets/images/logo/logo-removebg-preview.png" type="image/x-icon">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>KitaKeeps</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -34,12 +34,12 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 h-screen overflow-x-hidden">
+        <div class="flex-1 min-h-screen overflow-x-hidden overflow-y-auto pb-15">
             <!-- Navbar -->
             @include('layouts.navbar')
 
             <!-- Page Content -->
-            <main class="w-screen h-screen mx-10 my-6">
+            <main class="flex-1 h-screen mx-10 my-6">
                 <!-- HOME Section-->
                 <div v-if="currentPage === 'Dashboard'">
                     @include('modules.dashboard') 

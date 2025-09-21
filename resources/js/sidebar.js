@@ -6,7 +6,7 @@ export default function initSidebar() {
             return {
                 isSidebarOpen: true,
                 isMobile: window.innerWidth < 1024,
-                currentPage: 'Dashboard', // default page
+                currentPage: localStorage.getItem('currentPage') || 'Dashboard', // load saved page
                 pageIcons: {
                     // HOME Section
                     Dashboard: `<i class="fa-solid fa-grip"></i>`,
@@ -42,6 +42,7 @@ export default function initSidebar() {
             },
             changePage(pageName) {
                 this.currentPage = pageName; // updates navbar title
+                localStorage.setItem('currentPage', pageName); // save to storage
             }
         },
         mounted() {
