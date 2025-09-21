@@ -57,10 +57,10 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-2 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option v-for="num in [5, 10, 25, 50]">1</option>
+            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
+                <option>5</option>
             </select>
-            <span class="mr-5 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
         </div>
 
         <!-- Search Bar --> 
@@ -180,10 +180,10 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-2 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option v-for="num in [5, 10, 25, 50]">1</option>
+            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
+                <option>5</option>
             </select>
-            <span class="mr-5 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
         </div>
 
         <!-- Search Bar --> 
