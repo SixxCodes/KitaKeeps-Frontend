@@ -5,7 +5,7 @@
             <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
             <button><i class="fa-solid fa-caret-down"></i></button>
         </div>
-        <span class="text-xs text-gray-600">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
     </div>
 
     <!-- Search Bar --> 
@@ -37,22 +37,38 @@
 
 <div class="flex flex-col mt-8 space-y-6 lg:flex-row lg:space-x-2 lg:space-y-0">
     <!-- Left: Product Listing -->
-    <div class="w-full bg-pink-300 lg:w-2/3">
+    <div class="w-full lg:w-2/3">
         
         <!-- Categories -->
         <div class="flex pb-2 space-x-2 overflow-x-auto table-pretty-scrollbar">
-            <button class="px-4 py-1 text-sm bg-white rounded-full">All</button>
-            <button class="px-4 py-1 text-sm text-white bg-blue-500 rounded-full">Paint</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Cement</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plumbing</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Electrical</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plywoods</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plywoods</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plywoods</button>
+            <button class="px-4 py-1 text-sm bg-white rounded-full shadow ellipses whitespace-nowrap">
+                All
+            </button>
+            <button class="px-4 py-1 text-sm text-white bg-blue-500 rounded-full shadow ellipses whitespace-nowrap">
+                Paint
+            </button>
+            <button class="px-4 py-1 text-sm bg-white rounded-full shadow ellipses whitespace-nowrap">
+                Cement
+            </button>
+            <button class="px-4 py-1 text-sm bg-white rounded-full shadow ellipses whitespace-nowrap">
+                Plumbing
+            </button>
+            <button class="px-4 py-1 text-sm bg-white rounded-full shadow ellipses whitespace-nowrap">
+                Electrical
+            </button>
+            <button class="px-4 py-1 text-sm bg-white rounded-full shadow ellipses whitespace-nowrap">
+                Furniture
+            </button>
+            <button class="px-4 py-1 text-sm bg-white rounded-full shadow ellipses whitespace-nowrap">
+                Plywoods
+            </button>
+            <button class="px-4 py-1 text-sm bg-white rounded-full shadow ellipses whitespace-nowrap">
+                Flooring
+            </button>
         </div>
 
         <!-- Products Grid -->
-        <div class="grid grid-cols-2 gap-4 mt-4 bg-green-300 sm:grid-cols-3 md:grid-cols-4">
+        <div class="grid grid-cols-2 gap-4 mt-4 sm:grid-cols-3 md:grid-cols-4">
             <!-- Card -->
             <div class="p-4 bg-white bg-gray-100 rounded shadow">
                 <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">

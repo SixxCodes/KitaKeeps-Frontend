@@ -46,12 +46,12 @@ $maxWidth = [
     x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
     x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
     x-show="show"
-    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+    class="fixed inset-0 z-50 flex items-start justify-center px-4 sm:items-center sm:px-0"
     style="display: {{ $show ? 'block' : 'none' }};"
 >
     <div
         x-show="show"
-        class="fixed inset-0 transform transition-all"
+        class="w-full max-w-md transition-all transform bg-white rounded-lg shadow-[35px_35px_20px_rgba(0,0,0,1),_-35px_-35px_20px_rgba(0,0,0,1)] sm:ml-64 sm:w-auto sm:max-w-lg sm:mx-0 sm:my-auto"
         x-on:click="show = false"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0"
@@ -60,12 +60,12 @@ $maxWidth = [
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
     >
-        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <div class="absolute shadow-xl inset-1"></div>
     </div>
 
     <div
         x-show="show"
-        class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        class="border border-blue-500 border-l-2 border-r-2 border-b-2 border-t-2 mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"

@@ -21,6 +21,14 @@
     </div>
 
     <nav class="flex-1 px-4 py-6 space-y-6 overflow-y-auto">
+        <!-- Top: Clock + Date -->
+        <!-- <div class="flex items-start justify-start">
+            <div class="flex flex-col items-start">
+                <span id="clock" class="text-xl font-semibold text-white-600">12:45:32</span>
+                <span id="date" class="text-sm text-white-500">September 22, 2025</span>
+            </div>
+        </div> -->
+
         <!-- Home Section -->
         <div>
             <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
