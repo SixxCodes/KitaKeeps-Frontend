@@ -18,6 +18,7 @@ class Employee extends Model
         'daily_rate',
         'hire_date',
         'position',
+        'employee_image_path',
     ];
 
     // Casts for proper data types
@@ -30,7 +31,7 @@ class Employee extends Model
     // Relationships
 
     // employees belongsTo person
-    public function employeebelongsToperson()
+    public function person()
     {
         return $this->belongsTo(Person::class, 'person_id', 'person_id');
     }

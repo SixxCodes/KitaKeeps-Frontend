@@ -1,3 +1,8 @@
+@php
+    use App\Models\Supplier;
+    $suppliers = Supplier::all();
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -19,7 +24,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased table-pretty-scrollbar">
     <div id="sidebar-app" class="flex h-screen bg-gray-100">
         <!-- Sidebar -->
         <div id="sidebar" 

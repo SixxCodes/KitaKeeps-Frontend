@@ -18,7 +18,11 @@ class Supplier extends Model
         'supp_contact',
         'supp_address',
         'notes',
+        'supp_image_path',
     ];
+
+    // no updated_at;
+    public $timestamps = false;
 
     // Casts for proper data types
     protected $casts = [

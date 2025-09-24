@@ -84,24 +84,28 @@
             <h2 class="text-xl font-semibold">Add New Supplier</h2>
         </div>
 
-        <!-- Supplier Image (Circle Placeholder) -->
-        <div class="flex flex-col items-center mb-6">
-            <div class="relative">
-                <img src="assets/images/logo/logo-removebg-preview.png" 
-                    class="object-cover w-24 h-24 border rounded-full shadow" 
-                    alt="Employee photo">
-
-                <!-- Edit image button -->
-                <button 
-                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
-                    <i class="text-xs fa-solid fa-pen"></i>
-                </button>
-            </div>
-            <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
-        </div>
-
         <!-- Form -->
-        <form class="space-y-4 text-sm">
+        <form method="POST" action="{{ route('suppliers.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
+            @csrf
+            
+            <!-- Supplier Image -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="preview-supp" src="assets/images/logo/logo-removebg-preview.png" 
+                        class="object-cover w-24 h-24 border rounded-full shadow" 
+                        alt="Supplier photo">
+
+                    <!-- Upload button -->
+                    <label for="supp_image" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </label>
+                    <input type="file" id="supp_image" name="supp_image" class="hidden" accept="image/*"
+                        onchange="document.getElementById('preview-supp').src = window.URL.createObjectURL(this.files[0])">
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
+            </div>
+
             <!-- Supplier Info -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Supplier Information</legend>
@@ -111,19 +115,19 @@
                     <!-- Supplier Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Supplier Name</label>
-                        <input type="text" placeholder="KitaKeeps Warehouse" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="supp_name" placeholder="KitaKeeps Warehouse" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Contact Number -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="supp_contact" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" placeholder="123 Supplier St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="supp_address" placeholder="123 Supplier St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                 </div>
@@ -142,6 +146,49 @@
 
     </div>
 </x-modal>
+
+<!-- Add Supplier Feedback Modal -->
+<!-- Success Modal -->
+<x-modal name="success-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-green-600 fa-solid fa-circle-check fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Success!</h2>
+        <p class="mt-1 text-gray-600">Supplier has been added successfully.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-green-600 rounded hover:bg-green-700"
+            x-on:click="$dispatch('close-modal', 'success-modal')">
+            OK
+        </button>
+    </div>
+</x-modal>
+
+<!-- Error Modal -->
+<x-modal name="error-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-red-600 fa-solid fa-circle-xmark fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Error!</h2>
+        <p class="mt-1 text-gray-600">Something went wrong. Please try again.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-red-600 rounded hover:bg-red-700"
+            x-on:click="$dispatch('close-modal', 'error-modal')">
+            Try Again
+        </button>
+    </div>
+</x-modal>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        @if(session('success'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
+        @endif
+
+        @if(session('error'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
+        @endif
+    });
+</script>
+
+
 
 
 
@@ -165,10 +212,12 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option>5</option>
+            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
             </select>
-            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm">entries</span>
         </div>
 
         <!-- Search Bar --> 
@@ -198,24 +247,30 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Employee Rows -->
+                @forelse($suppliers as $supplier)
+                
+                <!-- Supplier Rows -->
                 <tr class="hover:bg-gray-50">
-                    <!-- Customer ID -->
-                    <td class="px-3 py-2 border">1</td>
+                    <!-- Supplier ID -->
+                    <td class="px-3 py-2 border">{{ $supplier->supplier_id }}</td>
 
-                    <!-- Branch Name -->
+                    <!-- Supplier Name -->
                     <td class="px-3 py-2 border ellipsis whitespace-nowrap">
                         <div class="flex items-center gap-2">
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">BB Hardware</span>
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
+                                {{ $supplier->supp_name }}
+                            </span>
                         </div>
                     </td>
 
-                    <!-- Main Branch -->
-                    <td class="px-3 py-2 border ellipsis whitespace-nowrap">0929 281 1168</td>
-
-                    <!-- Location -->
+                    <!-- Supplier Contact -->
                     <td class="px-3 py-2 border ellipsis whitespace-nowrap">
-                        123 Street, Tagum, Davao del yeh
+                        {{ $supplier->supp_contact }}
+                    </td>
+
+                    <!-- Supplier Location -->
+                    <td class="px-3 py-2 border ellipsis whitespace-nowrap">
+                        {{ $supplier->supp_address }}
                     </td>
 
                     <!-- Actions -->
@@ -231,16 +286,37 @@
                         </button>
                     </td>
                 </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-3 py-2 text-center text-gray-500 border">
+                            Nothing to see here yet.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
+        <p class="text-sm">
+            Showing {{ $suppliers->firstItem() ?? 0 }} to {{ $suppliers->lastItem() ?? 0 }} of {{ $suppliers->total() }} entries
+        </p>
+        <!-- Previous / Next -->
         <div class="flex gap-2">
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
+            <!-- Previous button -->
+            <a 
+                href="{{ $suppliers->previousPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $suppliers->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                Previous
+            </a>
+
+            <!-- Next button -->
+            <a 
+                href="{{ $suppliers->nextPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $suppliers->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                Next
+            </a>
         </div>
     </div>
 </div>

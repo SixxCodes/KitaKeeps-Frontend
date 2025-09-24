@@ -32,7 +32,9 @@
         <!-- Username and Role (hidden on mobile) -->
         <div class="flex-col hidden sm:flex">
             <span class="text-sm text-black">{{ Auth::user()->username }}</span>
-            <span class="text-xs text-gray-600">{{ Auth::user()->role }} at Branch Name</span>
+            <span class="text-xs text-gray-600">
+                {{ Auth::user()->role }} at {{ Auth::user()->branches->first()->branch_name ?? 'No Branch' }}
+            </span>
         </div>
 
         <!-- Dropdown arrow (hidden on mobile) -->

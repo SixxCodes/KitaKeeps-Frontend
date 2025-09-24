@@ -13,7 +13,7 @@
         <div class="flex items-center space-x-4">
             <button x-on:click="$dispatch('open-modal', 'take-attendance')" class="flex items-center px-5 py-2 text-xs text-black transition-colors bg-white rounded-md shadow hover:bg-blue-300 sm:text-xs md:text-xs lg:text-sm">
                 <i class="fa-solid fa-file-pen"></i>
-                <span class="hidden ml-2 lg:inline whitespace-nowrap">Take Attendance (SUN)</span>
+                <span class="hidden ml-2 lg:inline whitespace-nowrap">Take Attendance (SUN)</span> 
             </button>
         </div>
 
@@ -29,22 +29,55 @@
         <div class="flex items-center space-x-4">
             <button x-on:click="$dispatch('open-modal', 'add-employee')" class="flex items-center px-5 py-2 text-xs text-white transition-colors bg-blue-600 rounded-md shadow hover:bg-blue-800 sm:text-xs md:text-xs lg:text-sm">
                 <i class="fa-solid fa-user-plus"></i>
-                <span class="hidden ml-2 lg:inline whitespace-nowrap">Add Employee</span>
+                <span class="hidden ml-2 lg:inline whitespace-nowrap">Hire Employee</span>
             </button>
         </div>
     </div>
 </div>
 
-<!-- Add Employee Modal -->
+<!-- Hire Employee Modal -->
 <x-modal name="add-employee" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-user-plus"></i>
-            <h2 class="text-xl font-semibold">Add New Employee</h2>
-        </div>
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center">
+                <i class="fa-solid fa-user-plus"></i>
+                <h2 class="text-xl font-semibold">Hire Employee</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-employee')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
+        </div>  
 
         <!-- Form -->
-        <form class="space-y-4 text-sm">
+        <form method="POST" action="/employees" enctype="multipart/form-data" class="space-y-4 text-sm">
+            @csrf <!-- Laravel CSRF -->
+            
+            <!-- Profile Image -->
+            <!-- Add file and see preview -->
+            <div x-data="{ photoUrl: 'assets/images/logo/logo-removebg-preview.png' }" class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img :src="photoUrl"
+                        class="object-cover w-24 h-24 border rounded-full shadow" 
+                        alt="Add employee photo">
+
+                    <!-- Add image button -->
+                    <input type="file" accept="image/*" class="hidden" x-ref="photoInput" 
+                            x-on:change="
+                            const file = $refs.photoInput.files[0];
+                            if(file){ 
+                                const reader = new FileReader();
+                                reader.onload = e => photoUrl = e.target.result;
+                                reader.readAsDataURL(file);
+                    }">
+                    
+                    <button 
+                        x-on:click="$refs.photoInput.click()" class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </button>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
+            </div>
+
             <!-- Personal Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Personal Information</legend>
@@ -115,6 +148,10 @@
 
                 </div>
             </fieldset>
+
+            <!-- Buttons -->
+            <!-- Submitted with the form but not seen by the user -->
+            <!-- <input type="hidden" name="employee_image_path" :value="photoUrl"> -->
 
             <!-- Buttons -->
             <div class="flex justify-end mt-2 space-x-2">

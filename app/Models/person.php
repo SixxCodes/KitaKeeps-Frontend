@@ -27,13 +27,13 @@ class Person extends Model
     // Relationships:
 
     // person hasOne employee
-    public function personhasOneemployee()
+    public function employee()
     {
         return $this->hasOne(Employee::class, 'person_id', 'person_id');
     }
 
     // person hasOne User
-    public function personhasOneUser()
+    public function user()
     {
         return $this->hasOne(User::class, 'person_id', 'person_id');
     }

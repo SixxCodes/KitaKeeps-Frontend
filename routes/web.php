@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\SupplierController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -25,6 +26,9 @@ Route::get('/dashboard', function () {
     return view('layouts.app');
 })->middleware(['auth'])->name('dashboard'); // i-comment ni if di sa maggamit ug auth
 // })->name('dashboard'); // i-comment ni if login is required na
+
+Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
