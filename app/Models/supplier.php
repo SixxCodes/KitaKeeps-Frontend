@@ -19,6 +19,7 @@ class Supplier extends Model
         'supp_address',
         'notes',
         'supp_image_path',
+        'branch_id', // ← add this
     ];
 
     // no updated_at;
@@ -42,4 +43,11 @@ class Supplier extends Model
     {
         return $this->hasMany(Purchase::class, 'supplier_id', 'supplier_id');
     }
+
+    // Supplier model
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
+    }
+
 }

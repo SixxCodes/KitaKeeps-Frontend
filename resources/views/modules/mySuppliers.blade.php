@@ -2,10 +2,15 @@
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
+                {{ Auth::user()->branches->first()->branch_name ?? 'No Branch' }}
+            </h2>
             <button><i class="fa-solid fa-caret-down"></i></button>
         </div>
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
+            {{ Auth::user()->branches->first()->branch_type ?? 'Main Branch' }} • 
+            {{ Auth::user()->branches->first()->city ?? ' ' }}
+        </span>
     </div>
     
     <div class="flex space-x-3">
@@ -222,12 +227,14 @@
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
-            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text" 
-                    placeholder="Search..." 
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search..."
+                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -238,7 +245,8 @@
         <!-- Table -->
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
-                <tr>
+                <tr>   
+                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Supplier Name</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Contact Number</th>
@@ -251,12 +259,22 @@
                 
                 <!-- Supplier Rows -->
                 <tr class="hover:bg-gray-50">
+                    <!-- Auto-incrementing count -->
+                    <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
+                    <td class="px-3 py-2 border bg-blue-50">
+                        {{ $suppliers->firstItem() + $loop->index }}
+                    </td>
+
                     <!-- Supplier ID -->
                     <td class="px-3 py-2 border">{{ $supplier->supplier_id }}</td>
 
-                    <!-- Supplier Name -->
                     <td class="px-3 py-2 border ellipsis whitespace-nowrap">
                         <div class="flex items-center gap-2">
+                            <!-- Circle placeholder icon -->
+                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                            <i class="fa-solid fa-user"></i>
+                            </div>
+                            <!-- Name -->
                             <span class="overflow-hidden whitespace-nowrap text-ellipsis">
                                 {{ $supplier->supp_name }}
                             </span>
