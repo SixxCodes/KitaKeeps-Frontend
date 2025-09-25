@@ -40,7 +40,7 @@ class SupplierController extends Controller
                 'supp_address' => 'nullable|string|max:255',
                 'supp_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
-
+                
             // Handle image upload
             $imagePath = null;
             if ($request->hasFile('supp_image')) {
@@ -67,4 +67,34 @@ class SupplierController extends Controller
             return redirect()->back()->with('error', 'Something went wrong, please try again.');
         }
     }
+
+    public function update(Request $request, Supplier $supplier)
+    {
+        $validated = $request->validate([
+            'supp_name' => 'required|string|max:255',
+            'supp_contact' => 'nullable|string|max:20',
+            'supp_email' => 'nullable|email|max:255',
+            'supp_address' => 'nullable|string|max:255',
+        ]);
+
+        if ($request->hasFile('supp_image')) {
+            $imagePath = $request->file('supp_image')->store('suppliers', 'public');
+            $validated['supp_image_path'] = $imagePath;
+        }
+
+        $supplier->update($validated);
+
+        return redirect()->back()->with('success', 'Supplier updated successfully!');
+    }
+
+    public function destroy(Supplier $supplier)
+    {
+        try {
+            $supplier->delete(); // deletes the supplier
+            return redirect()->back()->with('success', 'Supplier deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete supplier.');
+        }
+    }
+
 }

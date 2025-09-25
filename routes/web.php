@@ -29,6 +29,11 @@ Route::get('/dashboard', function () {
 
 Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+// Update supplier
+Route::patch('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+
+// Delete a supplier
+Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
