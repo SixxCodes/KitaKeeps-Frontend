@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function() {
 });
 Route::put('/branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
 Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy');
+Route::post('/branches/switch/{branch}', [BranchController::class, 'switch'])->name('branches.switch');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

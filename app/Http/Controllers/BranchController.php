@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Branch;
 use App\Models\UserBranch;
+use Illuminate\Support\Facades\Auth;
 
 class BranchController extends Controller
 {
@@ -81,6 +82,18 @@ class BranchController extends Controller
         $branch->delete();
 
         return redirect()->back()->with('success', 'Branch deleted successfully!');
+    }
+
+    public function switch(Request $request, $branchId)
+    {
+        $user = Auth::user(); // now works
+
+        if ($user->branches->contains('branch_id', $branchId)) {
+            session(['current_branch_id' => $branchId]);
+            return back()->with('success', 'Branch switched successfully.');
+        }
+
+        return back()->with('error', 'Unauthorized to switch to this branch.');
     }
 
 }

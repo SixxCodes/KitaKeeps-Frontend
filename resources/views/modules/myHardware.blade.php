@@ -1,19 +1,38 @@
 @php
-    $firstBranch = Auth::user()->branches->first();
+    $userBranches = Auth::user()->branches;
+
+    // The first registered hardware (main branch) = lowest ID
+    $mainBranch = $userBranches->sortBy('branch_id')->first();
+
+    // Current active branch from session (fallback to first branch if not set)
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+        ?? $mainBranch;
+@endphp
+
+@php
+    $currentBranch = Auth::user()->branches->where('branch_id', session('current_branch_id'))->first()
+        ?? Auth::user()->branches->first(); // fallback if no session
 @endphp
 
 <!-- Module Header -->
 <div class="flex items-center justify-between">
+    
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
             <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
-                {{ Auth::user()->branches->first()->branch_name ?? 'No Branch' }}
+                {{ $currentBranch->branch_name ?? 'No Branch' }}
             </h2>
-            <button><i class="fa-solid fa-caret-down"></i></button>
+            
+            <!-- Caret Button to Open Modal -->
+            <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
+                    class="text-gray-600 hover:text-black">
+                <i class="fa-solid fa-caret-down"></i>
+            </button>
         </div>
+
         <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
-            {{ $firstBranch->branch_type ?? 'Main Branch' }} • 
-            {{ $firstBranch->location ?? '' }}
+            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
+            {{ $currentBranch->location ?? '' }}
         </span>
     </div>
     
@@ -35,6 +54,46 @@
         </div>
     </div>
 </div>
+
+<!-- Switch Branch Modal -->
+<x-modal name="switch-branch" :show="false" maxWidth="sm">
+    <div class="p-6">
+        <!-- Header -->
+        <h2 class="mb-4 text-lg font-semibold text-center text-gray-800">
+            Switch Branch
+        </h2>
+
+        <!-- Branch List -->
+        <div class="space-y-2">
+            @foreach(Auth::user()->branches as $branch)
+                <form method="POST" action="{{ route('branches.switch', $branch->branch_id) }}">
+                    @csrf
+                    <button type="submit" 
+                        class="flex items-center justify-between w-full px-4 py-2 text-sm text-left transition border rounded-lg hover:bg-blue-100">
+                        <div>
+                            <span class="font-semibold">{{ $branch->branch_name }}</span>
+                            <span class="text-xs text-gray-500"> • {{ $branch->location }}</span>
+                        </div>
+
+                        <!-- Check if current -->
+                        @if(session('current_branch_id') == $branch->branch_id)
+                            <i class="text-green-600 fa-solid fa-check"></i>
+                        @endif
+                    </button>
+                </form>
+            @endforeach
+        </div>
+
+        <!-- Cancel -->
+        <div class="flex justify-end mt-4">
+            <button 
+                x-on:click="$dispatch('close-modal', 'switch-branch')"
+                class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
+                Cancel
+            </button>
+        </div>
+    </div>
+</x-modal>
 
 <!-- Export -->
  <x-modal name="export-options" :show="false" maxWidth="sm">
@@ -315,7 +374,7 @@
 <x-modal name="edit-branch-{{ $branch->branch_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         <!-- Title -->
-        <div class="flex items-center mb-4 space-x-1 text-green-900">
+        <div class="flex items-center mb-4 space-x-1 text-blue-900">
             <i class="fa-solid fa-code-branch"></i>
             <h2 class="text-xl font-semibold">Edit Branch Details</h2>
         </div>
