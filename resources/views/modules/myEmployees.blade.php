@@ -291,11 +291,6 @@
 
 
 <!-- ==================== ATTENDANCE ==================== -->
-
-
-
-
-
 <h3 class="mt-8 text-blue-600 sm:text-sm md:text-sm lg:text-lg text-shadow-lg">Attendance</h3>
 
 <div class="p-4 mt-3 bg-white rounded-lg shadow">
@@ -443,11 +438,6 @@
 
 
 <!-- ==================== All Employees ==================== -->
-
-
-
-
-
 <h3 class="mt-5 text-blue-600 sm:text-sm md:text-sm lg:text-lg text-shadow-lg">All Employees</h3>
 
 <div class="p-4 mt-3 bg-white rounded-lg shadow pb-50">

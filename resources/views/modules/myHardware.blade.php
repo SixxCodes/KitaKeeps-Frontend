@@ -1,11 +1,20 @@
+@php
+    $firstBranch = Auth::user()->branches->first();
+@endphp
+
 <!-- Module Header -->
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
+                {{ Auth::user()->branches->first()->branch_name ?? 'No Branch' }}
+            </h2>
             <button><i class="fa-solid fa-caret-down"></i></button>
         </div>
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
+            {{ $firstBranch->branch_type ?? 'Main Branch' }} • 
+            {{ $firstBranch->location ?? '' }}
+        </span>
     </div>
     
     <div class="flex space-x-3">
@@ -85,7 +94,8 @@
         </div>
 
         <!-- Form -->
-        <form class="space-y-4 text-sm">
+        <form method="POST" action="{{ route('branches.store') }}" class="space-y-4 text-sm">
+            @csrf
             <!-- Branch Info -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Branch Information</legend>
@@ -95,22 +105,17 @@
                     <!-- Branch Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Branch Name</label>
-                        <input type="text" placeholder="Davao City Branch" 
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="branch_name" placeholder="Davao City Branch" 
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                            required/>
                     </div>
 
                     <!-- Location -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Location</label>
-                        <input type="text" placeholder="123 Main St, Davao City" 
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                    </div>
-
-                    <!-- Stock Quantity -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Stock Quantity</label>
-                        <input type="number" placeholder="100" min="0"
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="location" placeholder="123 Main St, Davao City" 
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                            required/>
                     </div>
                 </div>
             </fieldset>
@@ -139,11 +144,6 @@
 
 
 <!-- All Branches -->
-
-
-
-
-
 <h3 class="mt-8 text-blue-600 sm:text-sm md:text-sm lg:text-lg text-shadow-lg">All Branches</h3>
 
 <div class="p-4 mt-3 bg-white rounded-lg shadow">
@@ -151,20 +151,24 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option>5</option>
+            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
             </select>
-            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm">entries</span>
         </div>
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
-            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text" 
-                    placeholder="Search..." 
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search..."
+                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -176,63 +180,101 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
+                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Branch Name</th>
-                    <th class="px-3 py-2 text-left border whitespace-nowrap">Main Branch</th>
                     <th class="px-3 py-2 text-left border">Location</th>
                     <th class="px-3 py-2 text-left border">Actions</th>
                 </tr>
             </thead>
             <tbody>
+                @forelse($branches as $branch)
                 <!-- Employee Rows -->
                 <tr class="hover:bg-gray-50">
-                    <!-- Customer ID -->
-                    <td class="px-3 py-2 border">1</td>
+                    <!-- Count -->
+                    <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
+                    <td class="px-3 py-2 border bg-blue-50">
+                        {{ $branches->firstItem() + $loop->index }}
+                    </td>
+
+                    <!-- ID -->
+                    <td class="px-3 py-2 border">{{ $branch->branch_id }}</td>
 
                     <!-- Branch Name -->
                     <td class="px-3 py-2 border">
                         <div class="flex items-center gap-2">
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Kenny Hardware</span>
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">{{ $branch->branch_name }}</span>
                         </div>
                     </td>
 
-                    <!-- Main Branch -->
-                    <td class="px-3 py-2 border ellipsis whitespace-nowrap">Zyrile Hardware</td>
-
                     <!-- Location -->
                     <td class="px-3 py-2 border ellipsis whitespace-nowrap">
-                        Mampising, Mabini, Davao de Oro
+                        {{ $branch->location }}
                     </td>
 
                     <!-- Actions -->
                     <td class="flex justify-center gap-2 px-3 py-3 border">
-                        <button x-on:click="$dispatch('open-modal', 'view-branch')"  class="px-2 py-1 text-white bg-blue-500 rounded">
+                        <!-- View btn -->
+                        <button 
+                            x-on:click="$dispatch('open-modal', 'view-branch-{{ $branch->branch_id }}')"  
+                            class="px-2 py-1 text-white bg-blue-500 rounded"
+                        >
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'edit-branch')"  class="px-2 py-1 text-white bg-green-500 rounded">
+
+                        <!-- Edit btn -->
+                        <button 
+                            x-on:click="$dispatch('open-modal', 'edit-branch-{{ $branch->branch_id }}')"  
+                            class="px-2 py-1 text-white bg-green-500 rounded"
+                        >
                             <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'delete-branch')"  class="px-2 py-1 text-white bg-red-500 rounded">
+                        
+                        <!-- Delete btn -->
+                        <button 
+                            x-on:click="$dispatch('open-modal', 'delete-branch-{{ $branch->branch_id }}')" 
+                            class="px-2 py-1 text-white bg-red-500 rounded"
+                        >
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </td>
                 </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-3 py-2 text-center text-gray-500 border">Nothing to see here yet.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
+        <p class="text-sm">
+            Showing {{ $branches->firstItem() ?? 0 }} to {{ $branches->lastItem() ?? 0 }} of {{ $branches->total() }} entries
+        </p>
+        <!-- Previous / Next -->
         <div class="flex gap-2">
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
+            <!-- Previous button -->
+            <a 
+                href="{{ $branches->previousPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $branches->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                Previous
+            </a>
+
+            <!-- Next button -->
+            <a 
+                href="{{ $branches->nextPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $branches->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                Next
+            </a>
         </div>
     </div>
 </div>
 
+@foreach($branches as $branch)
 <!-- View Branch Details Modal -->
-<x-modal name="view-branch" :show="false" maxWidth="sm">
+<x-modal name="view-branch-{{ $branch->branch_id }}" :show="false" maxWidth="sm">
     <div class="p-6">
         <!-- Profile Section -->
         <div class="flex items-center space-x-4">
@@ -243,8 +285,7 @@
 
             <!-- Branch Name -->
             <div>
-                <p class="text-lg font-semibold text-gray-800">Downtown Branch</p>
-                <p class="text-sm text-gray-500">Active since 3-12-2019</p>
+                <p class="text-lg font-semibold text-gray-800">{{ $branch->branch_name }}</p>
             </div>
         </div>
 
@@ -253,15 +294,13 @@
 
         <!-- Branch Details -->
         <div class="space-y-2 text-sm text-gray-700">
-            <p><span class="font-medium">Location:</span> 45 Main Street, Tagum City</p>
-            <p><span class="font-medium">Stock Quantity:</span> 1,250</p>
-            <p><span class="font-medium">Status:</span> <span class="font-semibold text-green-600">Active</span></p>
+            <p><span class="font-medium">Location:</span> {{ $branch->location }}</p>
         </div>
 
         <!-- Close Button -->
         <div class="flex justify-end pt-4">
             <button 
-                x-on:click="$dispatch('close-modal', 'view-branch')"
+                x-on:click="$dispatch('close-modal', 'view-branch-{{ $branch->branch_id }}')"
                 class="px-4 py-2 text-white transition bg-gray-500 rounded hover:bg-gray-600"
             >
                 Close
@@ -269,9 +308,11 @@
         </div>
     </div>
 </x-modal>
+@endforeach
 
+@foreach($branches as $branch)
 <!-- Edit Branch Details Modal -->
-<x-modal name="edit-branch" :show="false" maxWidth="lg">
+<x-modal name="edit-branch-{{ $branch->branch_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         <!-- Title -->
         <div class="flex items-center mb-4 space-x-1 text-green-900">
@@ -279,73 +320,41 @@
             <h2 class="text-xl font-semibold">Edit Branch Details</h2>
         </div>
 
-        <!-- Profile Image -->
-        <div class="flex flex-col items-center mb-6">
-            <div class="relative">
-                <img src="assets/images/logo/logo-removebg-preview.png" 
-                     class="object-cover w-24 h-24 border rounded-full shadow" 
-                     alt="Branch photo">
-
-                <!-- Edit image button -->
-                <button 
-                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-green-600 rounded-full hover:bg-green-700">
-                    <i class="text-xs fa-solid fa-pen"></i>
-                </button>
-            </div>
-            <p class="mt-2 text-sm text-gray-500">Change branch photo</p>
-        </div>
-
         <!-- Form -->
-        <form class="space-y-4 text-sm">
+        <form method="POST" action="{{ route('branches.update', $branch->branch_id) }}" class="space-y-4 text-sm">
+            @csrf
+            @method('PUT')
+
             <!-- Branch Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Branch Information</legend>
 
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
-
-                    <!-- Branch Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Branch Name</label>
-                        <input type="text" value="Main Branch" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="branch_name" value="{{ $branch->branch_name }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
-                    <!-- Location -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Location</label>
-                        <input type="text" value="123 City Road, Davao" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="location" value="{{ $branch->location }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
-
-                    <!-- Status -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Is Active?</label>
-                        <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500">
-                            <option selected>Yes</option>
-                            <option>No</option>
-                        </select>
-                    </div>
-
                 </div>
             </fieldset>
 
             <!-- Buttons -->
             <div class="flex justify-end mt-2 space-x-2">
-                <button type="button" 
-                    x-on:click="$dispatch('close-modal', 'edit-branch')"
-                    class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
-                    Cancel
-                </button>
-
-                <button type="submit" 
-                    class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">
-                    Update
-                </button>
+                <button type="button" x-on:click="$dispatch('close-modal', 'edit-branch-{{ $branch->branch_id }}')" class="px-3 py-1 ...">Cancel</button>
+                <button type="submit" class="px-3 py-1 text-white bg-green-600 rounded hover:bg-green-700">Update</button>
             </div>
         </form>
     </div>
 </x-modal>
+@endforeach
 
-<!-- Delete Branch -->
-<x-modal name="delete-branch" :show="false" maxWidth="sm">
+@foreach($branches as $branch)
+<!-- Delete Branch Modal -->
+<x-modal name="delete-branch-{{ $branch->branch_id }}" :show="false" maxWidth="sm">
     <div class="p-6 space-y-4 text-center">
 
         <!-- Red warning icon -->
@@ -353,23 +362,91 @@
 
         <h2 class="text-lg font-semibold text-gray-800">Delete Branch?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove the branch from the system. This cannot be undone.
+            This action will permanently remove the branch <strong>{{ $branch->branch_name }}</strong>. 
+            This cannot be undone.
         </p>
 
         <div class="flex justify-center mt-4 space-x-3">
             <button
-                x-on:click="$dispatch('close-modal', 'delete-branch')"
+                x-on:click="$dispatch('close-modal', 'delete-branch-{{ $branch->branch_id }}')"
                 class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300"
             >
                 Cancel
             </button>
 
-            <button
-                class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
-            >
-                Yes, Delete
-            </button>
+            <form method="POST" action="{{ route('branches.destroy', $branch->branch_id) }}">
+                @csrf
+                @method('DELETE')
+                <button
+                    type="submit"
+                    class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
+                >
+                    Yes, Delete
+                </button>
+            </form>
         </div>
 
+    </div>
+</x-modal>
+@endforeach
+
+
+
+
+
+
+
+
+
+
+<!-- Feedback Modals -->
+@if(session('feedback'))
+    @php
+        $feedback = session('feedback');
+        $modalName = $feedback['type'] === 'success' ? 'success-modal' : 'error-modal';
+        $message = $feedback['message'];
+    @endphp
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            // Open modal when Alpine is ready
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('open-modal', { detail: '{{ $modalName }}' }));
+                // Update message dynamically
+                const modal = document.querySelector(`[name="{{ $modalName }}"]`);
+                if(modal){
+                    modal.querySelector('h2').innerText = '{{ ucfirst($feedback["type"]) }}!';
+                    modal.querySelector('p').innerText = '{{ $message }}';
+                }
+            }, 100); // small delay to ensure modal exists
+        });
+    </script>
+@endif
+
+<!-- Success Modal -->
+<x-modal name="success-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-green-600 fa-solid fa-circle-check fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Success!</h2>
+        <p class="mt-1 text-gray-600">Operation completed successfully.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-green-600 rounded hover:bg-green-700"
+            x-on:click="$dispatch('close-modal', 'success-modal')">
+            Yay!
+        </button>
+    </div>
+</x-modal>
+
+<!-- Error Modal -->
+<x-modal name="error-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-red-600 fa-solid fa-circle-xmark fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Error!</h2>
+        <p class="mt-1 text-gray-600">Something went wrong. Please try again.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-red-600 rounded hover:bg-red-700"
+            x-on:click="$dispatch('close-modal', 'error-modal')">
+            Try Again
+        </button>
     </div>
 </x-modal>

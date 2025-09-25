@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\BranchController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -31,9 +32,14 @@ Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers
 Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
 // Update supplier
 Route::patch('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
-
 // Delete a supplier
 Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+
+Route::middleware(['auth'])->group(function() {
+    Route::post('/branches', [BranchController::class, 'store'])->name('branches.store');
+});
+Route::put('/branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
+Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

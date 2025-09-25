@@ -1,4 +1,14 @@
 @php
+    use App\Models\Branch;
+
+    $user = auth()->user();
+    $branches = $user->branches()->get();
+
+    // Determine main branch ID (first branch created by this owner)
+    $mainBranchId = $branches->sortBy('branch_id')->first()?->branch_id;
+@endphp
+
+@php
     use App\Models\Supplier;
     $suppliers = Supplier::all();
 @endphp

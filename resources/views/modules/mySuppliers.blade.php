@@ -418,19 +418,19 @@
                     <!-- Supplier Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Supplier Name</label>
-                        <input type="text" name="supp_name" value="{{ $supplier->supp_name }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" name="supp_name" value="{{ $supplier->supp_name }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Contact Number -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" name="supp_contact" value="{{ $supplier->supp_contact }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" name="supp_contact" value="{{ $supplier->supp_contact }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" name="supp_address" value="{{ $supplier->supp_address }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" name="supp_address" value="{{ $supplier->supp_address }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
                 </div>
             </fieldset>
