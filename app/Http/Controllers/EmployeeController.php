@@ -12,8 +12,10 @@ class EmployeeController extends Controller
 {
     public function store(Request $request)
     {
-        // ✅ Validate
-        $validated = $request->validate([
+        $positionLower = strtolower($request->position);
+
+        // Validation rules
+        $rules = [
             'firstname' => 'required|string|max:100',
             'lastname' => 'required|string|max:100',
             'gender' => 'required|string',
@@ -23,7 +25,15 @@ class EmployeeController extends Controller
             'position' => 'required|string',
             'daily_rate' => 'required|numeric|min:0',
             'employee_image_path' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+        ];
+
+        // Conditional rules for Cashier/Admin
+        if (in_array($positionLower, ['cashier', 'admin'])) {
+            $rules['username'] = 'required|string|max:50|unique:user,username';
+            $rules['password'] = 'required|string|min:6';
+        }
+
+        $validated = $request->validate($rules);
 
         // Handle image upload
         $imagePath = null;
@@ -31,7 +41,7 @@ class EmployeeController extends Controller
             $imagePath = $request->file('employee_image_path')->store('employees', 'public');
         }
 
-        // ✅ Create Person
+        // Create Person
         $person = Person::create([
             'firstname' => $validated['firstname'],
             'lastname' => $validated['lastname'],
@@ -41,7 +51,7 @@ class EmployeeController extends Controller
             'gender' => $validated['gender'],
         ]);
 
-        // ✅ Create Employee
+        // Create Employee
         $employee = Employee::create([
             'person_id' => $person->person_id,
             'position' => $validated['position'],
@@ -50,25 +60,25 @@ class EmployeeController extends Controller
             'employee_image_path' => $imagePath,
         ]);
 
-        // ✅ If position is Cashier/Admin → also create system user
-        if (in_array(strtolower($validated['position']), ['cashier', 'admin'])) {
-            // Instead of auto-creating username/password, 
-            // you could open a modal OR allow manual input from the form
-            $username = $request->username ?? strtolower($validated['firstname']) . '.' . strtolower($validated['lastname']);
-            $password = $request->password ?? 'password123';
-
+        // If Cashier/Admin, create system user and assign branch
+        if (in_array($positionLower, ['cashier', 'admin'])) {
             $user = User::create([
-                'username' => $username,
-                'password' => bcrypt($password),
-                'role' => strtolower($validated['position']),
+                'username' => $validated['username'],
+                'password' => bcrypt($validated['password']),
+                'role' => $positionLower,
                 'person_id' => $person->person_id,
                 'is_active' => true,
             ]);
 
-            // ✅ Attach to current branch
-            $branchId = session('current_branch_id'); 
-            if ($branchId) {
-                $user->branches()->attach($branchId);
+            // Determine current branch of owner
+            $owner = Auth::user();
+            $userBranches = $owner->branches;
+            $mainBranch = $userBranches->sortBy('branch_id')->first();
+            $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+                ?? $mainBranch;
+
+            if ($currentBranch) {
+                $user->branches()->sync([$currentBranch->branch_id]); // assign only this branch
             }
         }
 

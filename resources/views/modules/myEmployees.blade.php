@@ -1,11 +1,38 @@
+@php
+    $userBranches = Auth::user()->branches;
+
+    // The first registered hardware (main branch) = lowest ID
+    $mainBranch = $userBranches->sortBy('branch_id')->first();
+
+    // Current active branch from session (fallback to first branch if not set)
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+        ?? $mainBranch;
+@endphp
+
+@php
+    $currentBranch = Auth::user()->branches->where('branch_id', session('current_branch_id'))->first()
+        ?? Auth::user()->branches->first(); // fallback if no session
+@endphp
+
 <!-- Module Header -->
 <div class="flex items-center justify-between" x-data>
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
-            <button><i class="fa-solid fa-caret-down"></i></button>
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
+                {{ $currentBranch->branch_name ?? 'No Branch' }}
+            </h2>
+            
+            <!-- Caret Button to Open Modal -->
+            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
+                class="text-gray-600 hover:text-black">
+                <i class="fa-solid fa-caret-down"></i>
+            </button> -->
         </div>
-        <span class="text-[8px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
+
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
+            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
+            {{ $currentBranch->location ?? '' }}
+        </span>
     </div>
     
     <div class="flex space-x-3">
@@ -48,8 +75,18 @@
             </span>
         </div>  
 
+        @if ($errors->any())
+    <div class="p-2 mb-2 text-red-700 bg-red-100 rounded">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
         <!-- Form -->
-        <form method="POST" action="{{ route('employees.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
+        <form method="POST" action="{{ route('employees.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm"
+            x-data="{ position: '' }">
             @csrf <!-- Laravel CSRF -->
             
             <!-- Profile Image -->
@@ -123,21 +160,36 @@
             <!-- Job Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Job Information</legend>
-
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+                    <!-- Position -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Position</label>
+                        <input type="text" name="position" placeholder="Cashier"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                            x-model="position">
+                    </div>
 
-                <!-- Position -->
-                <div>
-                    <label class="block mb-1 text-gray-800">Position</label>
-                    <input type="text" name="position" placeholder="Cashier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <!-- Daily Salary -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Daily Salary</label>
+                        <input type="number" name="daily_rate" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
                 </div>
+                
+                <div x-show="position.toLowerCase() === 'cashier' || position.toLowerCase() === 'admin'" class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+                    <!-- Username -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Username</label>
+                        <input type="text" name="username" placeholder="e.g., john.doe"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
 
-                <!-- Daily Salary -->
-                <div>
-                    <label class="block mb-1 text-gray-800">Daily Salary</label>
-                    <input type="number" name="daily_rate" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                </div>
-
+                    <!-- Password -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Password</label>
+                        <input type="password" name="password" placeholder="Enter password"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
                 </div>
             </fieldset>
 
