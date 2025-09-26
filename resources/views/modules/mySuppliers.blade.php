@@ -1,15 +1,37 @@
+@php
+    $userBranches = Auth::user()->branches;
+
+    // The first registered hardware (main branch) = lowest ID
+    $mainBranch = $userBranches->sortBy('branch_id')->first();
+
+    // Current active branch from session (fallback to first branch if not set)
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+        ?? $mainBranch;
+@endphp
+
+@php
+    $currentBranch = Auth::user()->branches->where('branch_id', session('current_branch_id'))->first()
+        ?? Auth::user()->branches->first(); // fallback if no session
+@endphp
+
 <!-- Module Header -->
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
             <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
-                {{ Auth::user()->branches->first()->branch_name ?? 'No Branch' }}
+                {{ $currentBranch->branch_name ?? 'No Branch' }}
             </h2>
-            <button><i class="fa-solid fa-caret-down"></i></button>
+            
+            <!-- Caret Button to Open Modal -->
+            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
+                    class="text-gray-600 hover:text-black">
+                <i class="fa-solid fa-caret-down"></i>
+            </button> -->
         </div>
+
         <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
-            {{ Auth::user()->branches->first()->branch_type ?? 'Main Branch' }} • 
-            {{ Auth::user()->branches->first()->city ?? ' ' }}
+            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
+            {{ $currentBranch->location ?? '' }}
         </span>
     </div>
     

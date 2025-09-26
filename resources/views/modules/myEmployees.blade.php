@@ -40,7 +40,7 @@
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         <div class="flex justify-between mb-4 space-x-1 text-blue-900">
             <div class="flex items-center">
-                <i class="fa-solid fa-user-plus"></i>
+                <i class="mr-2 fa-solid fa-user-plus"></i>
                 <h2 class="text-xl font-semibold">Hire Employee</h2>
             </div>
             <span x-on:click="$dispatch('close-modal', 'add-employee')" class="cursor-pointer">
@@ -49,31 +49,23 @@
         </div>  
 
         <!-- Form -->
-        <form method="POST" action="/employees" enctype="multipart/form-data" class="space-y-4 text-sm">
+        <form method="POST" action="{{ route('employees.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
             @csrf <!-- Laravel CSRF -->
             
             <!-- Profile Image -->
-            <!-- Add file and see preview -->
-            <div x-data="{ photoUrl: 'assets/images/logo/logo-removebg-preview.png' }" class="flex flex-col items-center mb-6">
+            <div class="flex flex-col items-center mb-6">
                 <div class="relative">
-                    <img :src="photoUrl"
+                    <img id="preview-employee" src="assets/images/logo/logo-removebg-preview.png" 
                         class="object-cover w-24 h-24 border rounded-full shadow" 
-                        alt="Add employee photo">
+                        alt="Employee photo">
 
-                    <!-- Add image button -->
-                    <input type="file" accept="image/*" class="hidden" x-ref="photoInput" 
-                            x-on:change="
-                            const file = $refs.photoInput.files[0];
-                            if(file){ 
-                                const reader = new FileReader();
-                                reader.onload = e => photoUrl = e.target.result;
-                                reader.readAsDataURL(file);
-                    }">
-                    
-                    <button 
-                        x-on:click="$refs.photoInput.click()" class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
+                    <!-- Upload button -->
+                    <label for="employee_image" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700">
                         <i class="text-xs fa-solid fa-pen"></i>
-                    </button>
+                    </label>
+                    <input type="file" id="employee_image" name="employee_image_path" class="hidden" accept="image/*"
+                        onchange="document.getElementById('preview-employee').src = window.URL.createObjectURL(this.files[0])">
                 </div>
                 <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
             </div>
@@ -87,42 +79,42 @@
                 <!-- First Name -->
                 <div>
                     <label class="block mb-1 text-gray-800">First Name</label>
-                    <input type="text" placeholder="John" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                    <input type="text" name="firstname" placeholder="Kita" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Last Name -->
                 <div>
                     <label class="block mb-1 text-gray-800">Last Name</label>
-                    <input type="text" placeholder="Doe" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                    <input type="text" name="lastname" placeholder="Keeper" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Gender -->
                 <div>
                     <label class="block mb-1 text-gray-800">Gender</label>
-                    <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <select name="gender" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
 
                 <!-- Contact Number -->
                 <div>
                     <label class="block mb-1 text-gray-800">Contact Number</label>
-                    <input type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                    <input name="contact_number" type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Email -->
                 <div class="sm:col-span-2">
                     <label class="block mb-1 text-gray-800">Email</label>
-                    <input type="email" placeholder="example@email.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                    <input type="email" name="email" placeholder="example@email.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Address -->
                 <div class="sm:col-span-2">
                     <label class="block mb-1 text-gray-800">Address</label>
-                    <input type="text" placeholder="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                    <input type="text" name="address" placeholder="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 </div>
@@ -137,21 +129,17 @@
                 <!-- Position -->
                 <div>
                     <label class="block mb-1 text-gray-800">Position</label>
-                    <input type="text" placeholder="Cashier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                    <input type="text" name="position" placeholder="Cashier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Daily Salary -->
                 <div>
                     <label class="block mb-1 text-gray-800">Daily Salary</label>
-                    <input type="number" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                    <input type="number" name="daily_rate" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 </div>
             </fieldset>
-
-            <!-- Buttons -->
-            <!-- Submitted with the form but not seen by the user -->
-            <!-- <input type="hidden" name="employee_image_path" :value="photoUrl"> -->
 
             <!-- Buttons -->
             <div class="flex justify-end mt-2 space-x-2">
@@ -160,7 +148,7 @@
                 class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
 
                 <button type="submit" 
-                class="px-3 py-1 text-white transition bg-blue-600 rounded hover:bg-blue-700">Save</button>
+                class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
             </div>
         </form>
 
@@ -282,6 +270,18 @@
 
     </div>
 </x-modal>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        @if(session('success'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
+        @endif
+
+        @if(session('error'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
+        @endif
+    });
+</script>
 
 
 
@@ -716,6 +716,31 @@
     </div>
 </x-modal>
 
+<!-- Feedback Modals -->
+<!-- Success Modal -->
+<x-modal name="success-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-green-600 fa-solid fa-circle-check fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Success!</h2>
+        <p class="mt-1 text-gray-600">Operation completed successfully.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-green-600 rounded hover:bg-green-700"
+            x-on:click="$dispatch('close-modal', 'success-modal')">
+            Yay!
+        </button>
+    </div>
+</x-modal>
 
-
-
+<!-- Error Modal -->
+<x-modal name="error-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-red-600 fa-solid fa-circle-xmark fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Error!</h2>
+        <p class="mt-1 text-gray-600">Something went wrong. Please try again.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-red-600 rounded hover:bg-red-700"
+            x-on:click="$dispatch('close-modal', 'error-modal')">
+            Try Again
+        </button>
+    </div>
+</x-modal>

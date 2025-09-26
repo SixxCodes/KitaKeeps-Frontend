@@ -6,6 +6,7 @@ use App\Http\Controllers\RegisterUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\EmployeeController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -28,6 +29,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth'])->name('dashboard'); // i-comment ni if di sa maggamit ug auth
 // })->name('dashboard'); // i-comment ni if login is required na
 
+// Suppliers
 Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
 // Update supplier
@@ -35,12 +37,17 @@ Route::patch('/suppliers/{supplier}', [SupplierController::class, 'update'])->na
 // Delete a supplier
 Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
+// Branches
 Route::middleware(['auth'])->group(function() {
     Route::post('/branches', [BranchController::class, 'store'])->name('branches.store');
 });
 Route::put('/branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
 Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy');
 Route::post('/branches/switch/{branch}', [BranchController::class, 'switch'])->name('branches.switch');
+
+// Employees
+Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+Route::post('/employees/{employee}/create-user', [EmployeeController::class, 'createUser'])->name('employees.createUser');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

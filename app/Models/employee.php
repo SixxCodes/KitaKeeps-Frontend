@@ -21,6 +21,9 @@ class Employee extends Model
         'employee_image_path',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts for proper data types
     protected $casts = [
         'daily_rate' => 'decimal:2',
