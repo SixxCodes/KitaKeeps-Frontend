@@ -15,6 +15,7 @@ class Employee extends Model
     // Fillable fields for mass assignment
     protected $fillable = [
         'person_id',
+        'branch_id',
         'daily_rate',
         'hire_date',
         'position',
@@ -37,6 +38,12 @@ class Employee extends Model
     public function person()
     {
         return $this->belongsTo(Person::class, 'person_id', 'person_id');
+    }
+
+    // employees belongsTo branch
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
 }

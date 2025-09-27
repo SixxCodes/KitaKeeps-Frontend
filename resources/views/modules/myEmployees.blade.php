@@ -1,19 +1,3 @@
-@php
-    $userBranches = Auth::user()->branches;
-
-    // The first registered hardware (main branch) = lowest ID
-    $mainBranch = $userBranches->sortBy('branch_id')->first();
-
-    // Current active branch from session (fallback to first branch if not set)
-    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
-        ?? $mainBranch;
-@endphp
-
-@php
-    $currentBranch = Auth::user()->branches->where('branch_id', session('current_branch_id'))->first()
-        ?? Auth::user()->branches->first(); // fallback if no session
-@endphp
-
 <!-- Module Header -->
 <div class="flex items-center justify-between" x-data>
     <div class="flex flex-col mr-5">
@@ -76,14 +60,14 @@
         </div>  
 
         @if ($errors->any())
-    <div class="p-2 mb-2 text-red-700 bg-red-100 rounded">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+            <div class="p-2 mb-2 text-red-700 bg-red-100 rounded">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <!-- Form -->
         <form method="POST" action="{{ route('employees.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm"
             x-data="{ position: '' }">
@@ -497,20 +481,24 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option>5</option>
+            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
             </select>
-            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm">entries</span>
         </div>
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
-            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text" 
-                    placeholder="Search..." 
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search..."
+                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -522,6 +510,7 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
+                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border">Employee Name</th>
                     <th class="px-3 py-2 text-left border">Email</th>
@@ -531,29 +520,54 @@
                 </tr>
             </thead>
             <tbody>
+                @forelse($employees as $employee)
                 <!-- Employee Rows -->
                 <tr class="hover:bg-gray-50">
-                    <td class="px-3 py-2 border">1</td>
+                    <!-- Count -->
+                    <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
+                    <td class="px-3 py-2 border bg-blue-50">
+                        {{ $employees->firstItem() + $loop->index }}
+                    </td>
 
+                    <!-- ID -->
+                    <td class="px-3 py-2 border">{{ $employee->employee_id }}</td>
+
+                    <!-- Image and Name -->
                     <td class="px-3 py-2 border">
                         <div class="flex items-center gap-2">
-                            <!-- Circle placeholder icon -->
-                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                            <i class="fa-solid fa-user"></i>
-                            </div>
+                            <!-- Circle image or placeholder -->
+                            @if($employee->employee_image_path)
+                                <img 
+                                    src="{{ asset('storage/' . $employee->employee_image_path) }}" 
+                                    alt="{{ $employee->employee_name }}" 
+                                    class="object-cover w-8 h-8 rounded-full"
+                                >
+                            @else
+                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            @endif
                             <!-- Name -->
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
+                                {{ $employee->person->firstname }} {{ $employee->person->lastname }}
+                            </span>
                         </div>
                     </td>
 
-                    <td class="px-3 py-2 border">zk@gmail.com</td>
+                    <td class="px-3 py-2 border">{{ $employee->person->email }}</td>
 
-                    <td class="px-3 py-2 border">zkpantyers</td>
+                    <td class="px-3 py-2 border">{{ $employee->person->user->username ?? '-' }}</td>
 
                     <td class="px-3 py-2 border">
-                        <span class="inline-block px-3 py-1 text-xs text-white bg-orange-400 rounded-full">
-                            Cashier
-                        </span>
+                        @if($employee->position == 'Cashier' || $employee->position == 'Admin')
+                            <span class="inline-block px-3 py-1 text-xs text-white bg-orange-400 rounded-full">
+                                {{ $employee->position }}
+                            </span>
+                        @else
+                            <span class="inline-block px-3 py-1 text-xs text-white bg-blue-400 rounded-full">
+                                {{ $employee->position }}
+                            </span>
+                        @endif
                     </td>
 
                     <!-- Actions -->
@@ -569,16 +583,37 @@
                         </button>
                     </td>
                 </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="px-3 py-2 text-center text-gray-500 border">
+                            Nothing to see here yet.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
     
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
+        <p class="text-sm">
+            Showing {{ $employees->firstItem() ?? 0 }} to {{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} entries
+        </p>
+        <!-- Previous / Next -->
         <div class="flex gap-2">
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
+            <!-- Previous button -->
+            <a 
+                href="{{ $employees->previousPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                Previous
+            </a>
+
+            <!-- Next button -->
+            <a 
+                href="{{ $employees->nextPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                Next
+            </a>
         </div>
     </div>
 </div>
