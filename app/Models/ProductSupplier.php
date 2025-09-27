@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProductSupplier extends Model
 {
     // Table name
-    protected $table = 'product_suppliers';
+    protected $table = 'product_supplier';
     // ID (PK)
     protected $primaryKey = 'prodsupp_id';
 
@@ -19,6 +19,9 @@ class ProductSupplier extends Model
         'supplier_cost',
         'preferred',
     ];
+
+    // no updated_at
+    public $timestamps = false;
 
     // Casts
     protected $casts = [

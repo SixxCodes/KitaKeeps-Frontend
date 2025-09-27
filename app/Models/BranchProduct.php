@@ -20,6 +20,9 @@ class BranchProduct extends Model
         'is_active',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts for proper data types
     protected $casts = [
         'stock_qty' => 'integer',
@@ -63,24 +66,5 @@ class BranchProduct extends Model
     public function branch_producthasManysale_item()
     {
         return $this->hasMany(SaleItem::class, 'branch_product_id', 'branch_product_id');
-    }
-
-
-
-    
-
-
-
-    
-
-    
-    
-
-    
-
-    // branch_products hasMany purchase_item
-    public function branch_productshasManypurchase_item()
-    {
-        return $this->hasMany(PurchaseItem::class, 'branch_product_id', 'branch_product_id');
     }
 }

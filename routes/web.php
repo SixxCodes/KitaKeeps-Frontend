@@ -9,6 +9,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\ProductController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -59,6 +60,9 @@ Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('at
 
 // Salary
 Route::post('/pay-salary/{employee}', [PayrollController::class, 'paySalary'])->name('pay-salary');
+
+// Products
+Route::post('/products', [ProductController::class, 'store'])->name('products.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

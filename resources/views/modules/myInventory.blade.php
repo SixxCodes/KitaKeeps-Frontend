@@ -2,10 +2,21 @@
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
-            <button><i class="fa-solid fa-caret-down"></i></button>
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
+                {{ $currentBranch->branch_name ?? 'No Branch' }}
+            </h2>
+            
+            <!-- Caret Button to Open Modal -->
+            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
+                class="text-gray-600 hover:text-black">
+                <i class="fa-solid fa-caret-down"></i>
+            </button> -->
         </div>
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
+
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
+            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
+            {{ $currentBranch->location ?? '' }}
+        </span>
     </div>
     
     <div class="flex space-x-3">
@@ -82,57 +93,72 @@
             <h2 class="text-xl font-semibold">Add New Product</h2>
         </div>
 
-        <!-- Supplier Image (Circle Placeholder) -->
-        <div class="flex flex-col items-center mb-6">
-            <div class="relative">
-                <img src="assets/images/logo/logo-removebg-preview.png" 
-                    class="object-cover w-24 h-24 border rounded-full shadow" 
-                    alt="Employee photo">
-
-                <!-- Edit image button -->
-                <button 
-                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
-                    <i class="text-xs fa-solid fa-pen"></i>
-                </button>
-            </div>
-            <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
-        </div>
-
         <!-- Form -->
-        <form class="space-y-4 text-sm">
+        <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
+            @csrf
+
+            <!-- Product Image (Circle Placeholder) -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="preview-product" src="assets/images/logo/logo-removebg-preview.png" 
+                        class="object-cover w-24 h-24 border rounded-full shadow" 
+                        alt="Product photo">
+
+                    <!-- Upload button -->
+                    <label for="product_image" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-green-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </label>
+                    <input type="file" id="product_image" name="product_image" class="hidden" accept="image/*"
+                        onchange="document.getElementById('preview-product').src = window.URL.createObjectURL(this.files[0])">
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add product photo</p>
+            </div>
 
             <!-- Basic Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Product Information</legend>
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
 
-                    <!-- Product Image -->
-                    <div class="sm:col-span-2">
-                        <label class="block mb-1 text-gray-800">Product Image</label>
-                        <input type="file" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"/>
-                    </div>
-
                     <!-- Product Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">Product Name</label>
-                        <input type="text" placeholder="T-shirt" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"/>
+                        <input name="prod_name" type="text" placeholder="Paint" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                     <!-- Category -->
                     <div>
-                        <label class="block mb-1 text-gray-800">Category</label>
-                        <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
-                            <option value="">Select Category</option>
-                            <option value="clothing">Clothing</option>
-                            <option value="footwear">Footwear</option>
-                            <option value="accessories">Accessories</option>
-                        </select>
+                        <label for="category" class="block mb-1 text-gray-800">Category</label>
+                        <input list="categories" name="category" id="category" placeholder="Pick or type category" 
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
+                        <datalist id="categories">
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->cat_name }}"></option>
+                            @endforeach
+                        </datalist>
                     </div>
 
                     <!-- Description -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Description</label>
-                        <textarea rows="3" placeholder="Write product details..." class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"></textarea>
+                        <textarea name="prod_description" rows="3" placeholder="Write product details..." class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"></textarea>
+                    </div>
+
+                    <!-- Product Supplier -->
+                    <div>
+                        <label for="supplier" class="block mb-1 text-gray-800">Product Supplier</label>
+                        <select name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
+                            <option value="">Select a supplier</option>
+                            @foreach($userSuppliers as $supplier)
+                                <option value="{{ $supplier->supplier_id }}">{{ $supplier->supp_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Product Quantity -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Stock Quantity</label>
+                        <input type="number" name="quantity" placeholder="143" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                 </div>
@@ -146,13 +172,13 @@
                     <!-- Unit Cost -->
                     <div>
                         <label class="block mb-1 text-gray-800">Unit Cost</label>
-                        <input type="number" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"/>
+                        <input type="number" name="unit_cost" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                     <!-- Selling Price -->
                     <div>
                         <label class="block mb-1 text-gray-800">Selling Price</label>
-                        <input type="number" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"/>
+                        <input type="number" name="selling_price" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                 </div>
@@ -170,6 +196,18 @@
         </form>
     </div>
 </x-modal>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        @if(session('success'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
+        @endif
+
+        @if(session('error'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
+        @endif
+    });
+</script>
 
 
 
@@ -483,3 +521,37 @@
 
     </div>
 </x-modal>
+
+<!-- Feedback Modals -->
+<!-- Success Modal -->
+<x-modal name="success-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-green-600 fa-solid fa-circle-check fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Success!</h2>
+        <p class="mt-1 text-gray-600">Operation completed successfully.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-green-600 rounded hover:bg-green-700"
+            x-on:click="$dispatch('close-modal', 'success-modal')">
+            Yay!
+        </button>
+    </div>
+</x-modal>
+
+<!-- Error Modal -->
+<x-modal name="error-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-red-600 fa-solid fa-circle-xmark fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Error!</h2>
+        <p class="mt-1 text-gray-600">Something went wrong. Please try again.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-red-600 rounded hover:bg-red-700"
+            x-on:click="$dispatch('close-modal', 'error-modal')">
+            Try Again
+        </button>
+    </div>
+</x-modal>
+
+<!-- Footer Branding -->
+<footer class="py-4 text-sm text-center text-gray-400 border-t">
+    © 2025 KitaKeeps. All rights reserved.
+</footer>

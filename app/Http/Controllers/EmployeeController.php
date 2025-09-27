@@ -14,46 +14,18 @@ class EmployeeController extends Controller
 {
     public function store(Request $request)
     {
-        $positionLower = strtolower($request->position);
-
-        // Validation rules
-        $rules = [
-            'firstname' => 'required|string|max:100',
-            'lastname'  => 'required|string|max:100',
-            'gender'    => 'required|string',
-            'contact_number' => 'required|string|max:20',
-            'email'     => 'required|email|unique:person,email',
-            'address'   => 'required|string',
-            'position'  => 'required|string',
-            'daily_rate'=> 'required|numeric|min:0',
-            'employee_image_path' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ];
-
-        // Extra rules for Cashier/Admin
-        if (in_array($positionLower, ['cashier', 'admin'])) {
-            $rules['username'] = 'required|string|max:50|unique:user,username';
-            $rules['password'] = 'required|string|min:6';
-        }
-
-        $validated = $request->validate($rules);
-
-        // Handle image upload
-        $imagePath = null;
-        if ($request->hasFile('employee_image_path')) {
-            $imagePath = $request->file('employee_image_path')->store('employees', 'public');
-        }
-
-        // Create Person
-        $person = Person::create([
-            'firstname' => $validated['firstname'],
-            'lastname'  => $validated['lastname'],
-            'contact_number' => $validated['contact_number'],
-            'email'     => $validated['email'],
-            'address'   => $validated['address'],
-            'gender'    => $validated['gender'],
+        $request->validate([
+            'prod_name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'prod_description' => 'nullable|string',
+            'quantity' => 'required|integer|min:0',
+            'unit_cost' => 'required|numeric|min:0',
+            'selling_price' => 'required|numeric|min:0',
+            'product_image' => 'nullable|image|max:2048',
+            'supplier' => 'required|exists:supplier,supplier_id',
         ]);
 
-        // Determine current branch of owner
+        // Determine current branch of owner/admin
         $owner = Auth::user();
         $userBranches = $owner->branches;
         $mainBranch = $userBranches->sortBy('branch_id')->first();
@@ -64,33 +36,52 @@ class EmployeeController extends Controller
             return redirect()->back()->withErrors('No active branch found for this owner.');
         }
 
-        // Prepare employee data
-        $employeeData = [
-            'person_id' => $person->person_id,
-            'position'  => $validated['position'],
-            'daily_rate'=> $validated['daily_rate'],
-            'hire_date' => now(),
-            'employee_image_path' => $imagePath,
-            'branch_id' => $currentBranch->branch_id, // ✅ Always assign branch_id
-        ];
+        $branchId = $currentBranch->branch_id; // use this for category, product, and branch_product
 
-        $employee = Employee::create($employeeData);
+        // Create category if it doesn't exist for this branch
+        $category = Category::firstOrCreate(
+            [
+                'cat_name' => $request->category,
+                'branch_id' => $branchId,
+            ],
+            [
+                'cat_description' => ''
+            ]
+        );
 
-        // If Cashier/Admin → also create User + assign branch via pivot
-        if (in_array($positionLower, ['cashier', 'admin'])) {
-            $user = User::create([
-                'username'  => $validated['username'],
-                'password'  => bcrypt($validated['password']),
-                'role'      => $positionLower,
-                'person_id' => $person->person_id,
-                'is_active' => true,
-            ]);
+        // Handle image upload
+        $imagePath = $request->hasFile('product_image')
+            ? $request->file('product_image')->store('products', 'public')
+            : null;
 
-            // Assign this branch in pivot
-            $user->branches()->sync([$currentBranch->branch_id]);
-        }
+        // Create product
+        $product = Product::create([
+            'prod_name' => $request->prod_name,
+            'prod_description' => $request->prod_description,
+            'category_id' => $category->category_id,
+            'unit_cost' => $request->unit_cost,
+            'selling_price' => $request->selling_price,
+            'prod_image_path' => $imagePath,
+            'is_active' => true,
+        ]);
 
-        return redirect()->back()->with('success', 'Employee hired successfully!');
+        // Assign product to branch
+        BranchProduct::create([
+            'branch_id' => $branchId,
+            'product_id' => $product->product_id,
+            'stock_qty' => $request->quantity,
+            'reorder_level' => 0,
+            'is_active' => true,
+        ]);
+
+        // Link supplier
+        ProductSupplier::create([
+            'product_id' => $product->product_id,
+            'supplier_id' => $request->supplier,
+            'preferred' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'Product added successfully!');
     }
 
     public function index()

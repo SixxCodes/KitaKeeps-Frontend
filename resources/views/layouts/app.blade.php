@@ -54,6 +54,27 @@ if (!$currentBranch) {
 }
 @endphp
 
+@php
+    use App\Models\Category;
+    use Illuminate\Support\Facades\Auth;
+
+    $owner = Auth::user();
+    $userBranches = $owner->branches;
+    $mainBranch = $userBranches->sortBy('branch_id')->first();
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+        ?? $mainBranch;
+
+    $categories = $currentBranch
+        ? Category::where('branch_id', $currentBranch->branch_id)->get()
+        : collect(); // empty collection if no branch
+
+    // Get current user's branches
+    $userBranches = auth()->user()->branches;
+
+    // Get suppliers for branches the user owns
+    $userSuppliers = Supplier::whereIn('branch_id', $userBranches->pluck('branch_id'))->get();
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

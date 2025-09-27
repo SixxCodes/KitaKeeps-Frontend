@@ -171,11 +171,6 @@
 
 
 <!-- Customer Summary -->
-
-
-
-
-
 <div class="overflow-x-auto table-pretty-scrollbar">
     <div class="flex gap-6 p-6 mt-1 min-w-max">
         <!-- Customers with Credit -->
@@ -220,11 +215,6 @@
 
 
 <!-- ALL CUSTOMERS w/ CREDIT -->
-
-
-
-
-
 <h3 class="mt-2 text-blue-600 sm:text-sm md:text-sm lg:text-lg text-shadow-lg">Customer Credits</h3>
 
 <div class="p-4 mt-3 bg-white rounded-lg shadow">
@@ -404,11 +394,6 @@
 
 
 <!-- ALL CUSTOMERS -->
-
-
-
-
-
 <h3 class="mt-8 text-blue-600 sm:text-sm md:text-sm lg:text-lg text-shadow-lg">All Customers</h3>
 
 <div class="p-4 mt-3 bg-white rounded-lg shadow">

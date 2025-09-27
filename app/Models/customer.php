@@ -19,6 +19,9 @@ class Customer extends Model
         'notes',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts for proper data types
     protected $casts = [
         'created_at' => 'datetime',

@@ -35,20 +35,20 @@ class Product extends Model
     // Relationships
 
     // product hasMany branch_product
-    public function productshasManybranch_product()
+    public function branch_product()
     {
         return $this->hasMany(BranchProduct::class, 'product_id', 'product_id');
     }
 
     // product belongsTo category
-    public function productbelongsTocategory()
+    public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
 
     // product hasMany product_supplier
-    public function producthasManyproduct_supplier()
-    {
-        return $this->hasMany(ProductSupplier::class, 'product_id', 'product_id');
-    }
+    // public function product_supplier()
+    // {
+    //     return $this->hasMany(ProductSupplier::class, 'product_id', 'product_id');
+    // }
 }

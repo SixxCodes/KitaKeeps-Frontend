@@ -15,6 +15,7 @@ class Category extends Model
     protected $fillable = [
         'cat_name',
         'cat_description',
+        'branch_id',
     ];
 
     // Casts for proper data types
@@ -27,9 +28,14 @@ class Category extends Model
     // Relationships
 
     // category hasMany product
-    public function categoryhasManyproduct()
+    public function product()
     {
-        return $this->hasMany(Product::class, 'customer_id', 'customer_id');
+        return $this->hasMany(Product::class, 'category_id', 'category_id');
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
     
 }

@@ -28,13 +28,13 @@ class Branch extends Model
     // Relationships:
 
     // branch hasMany branch_product
-    public function branchhasManybranch_product()
+    public function branchproducts()
     {
         return $this->hasMany(BranchProduct::class, 'branch_id', 'branch_id');
     }
 
     // branch hasMany purchase
-    public function branchhasManypurchase()
+    public function purchases()
     {
         return $this->hasMany(Purchase::class, 'branch_id', 'branch_id');
     }
@@ -52,8 +52,14 @@ class Branch extends Model
     }
 
     // branch hasMany sale
-    public function branchhasManysale()
+    public function sales()
     {
         return $this->hasMany(Sale::class, 'branch_id', 'branch_id');
+    }
+
+    // branch hasMany category
+    public function categories()
+    {
+        return $this->hasMany(Category::class, 'branch_id', 'branch_id');
     }
 }
