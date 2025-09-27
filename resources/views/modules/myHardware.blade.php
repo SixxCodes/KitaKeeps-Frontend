@@ -509,3 +509,8 @@
         </button>
     </div>
 </x-modal>
+
+<!-- Footer Branding -->
+<footer class="py-4 text-sm text-center text-gray-400 border-t">
+    © 2025 KitaKeeps. All rights reserved.
+</footer>

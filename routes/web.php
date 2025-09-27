@@ -64,6 +64,8 @@ Route::post('/pay-salary/{employee}', [PayrollController::class, 'paySalary'])->
 // Products
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+Route::patch('/products/{product}', [ProductController::class, 'update'])->name('products.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
