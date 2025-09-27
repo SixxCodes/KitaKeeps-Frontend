@@ -139,4 +139,67 @@ class EmployeeController extends Controller
         return view('employees.index', compact('employees', 'currentBranch', 'perPage', 'search'));
     }
 
+    public function update(Request $request, $employee_id)
+    {
+        $employee = Employee::findOrFail($employee_id);
+        $person = $employee->person;
+
+        // Validate input
+        $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'gender' => 'nullable|string',
+            'contact_number' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string|max:255',
+            'daily_rate' => 'required|numeric|min:0',
+            'employee_image' => 'nullable|image|max:2048', // 2MB max
+        ]);
+
+        // Update person
+        $person->update([
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'gender' => $request->gender,
+            'contact_number' => $request->contact_number,
+            'email' => $request->email,
+            'address' => $request->address,
+        ]);
+
+        // Update employee
+        $employee->update([
+            'daily_rate' => $request->daily_rate,
+        ]);
+
+        // Update profile image if uploaded
+        if ($request->hasFile('employee_image')) {
+            $path = $request->file('employee_image')->store('employees', 'public');
+            $employee->update(['employee_image_path' => $path]);
+        }
+
+        return redirect()->back()->with('success', 'Employee updated successfully!');
+    }
+
+    public function destroy($employee_id)
+    {
+        $employee = Employee::findOrFail($employee_id);
+
+        // Optionally delete linked Person record too
+        $person = $employee->person;
+
+        // Delete employee image from storage if exists
+        if ($employee->employee_image_path && \Storage::disk('public')->exists($employee->employee_image_path)) {
+            \Storage::disk('public')->delete($employee->employee_image_path);
+        }
+
+        $employee->delete();
+
+        // If you want to delete the person record as well (optional)
+        if ($person) {
+            $person->delete();
+        }
+
+        return redirect()->back()->with('success', 'Employee has been removed.');
+    }
+
 }

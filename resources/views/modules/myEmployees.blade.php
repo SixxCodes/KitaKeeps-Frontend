@@ -572,13 +572,13 @@
 
                     <!-- Actions -->
                     <td class="flex justify-center gap-2 px-3 py-3 border">
-                        <button x-on:click="$dispatch('open-modal', 'view-employee')" class="px-2 py-1 text-white bg-blue-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'view-employee-{{ $employee->employee_id }}')" class="px-2 py-1 text-white bg-blue-500 rounded">
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'edit-employee')"  class="px-2 py-1 text-white bg-green-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'edit-employee-{{ $employee->employee_id }}')"  class="px-2 py-1 text-white bg-green-500 rounded">
                             <i class="fa-solid fa-user-pen"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'delete-employee')" class="px-2 py-1 text-white bg-red-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'delete-employee-{{ $employee->employee_id }}')" class="px-2 py-1 text-white bg-red-500 rounded">
                             <i class="fa-solid fa-user-minus"></i>
                         </button>
                     </td>
@@ -618,20 +618,29 @@
     </div>
 </div>
 
+@foreach($employees as $employee)
 <!-- View Employee Details Modal -->
-<x-modal name="view-employee" :show="false" maxWidth="sm">
+<x-modal name="view-employee-{{ $employee->employee_id }}" :show="false" maxWidth="sm">
     <div class="p-6">
         <!-- Profile Section -->
         <div class="flex items-center space-x-4">
-            <!-- User Icon -->
-            <div class="flex items-center justify-center w-20 h-20 text-3xl text-white bg-blue-400 rounded-full">
-                <i class="fa-solid fa-user"></i>
+            <!-- Employee Icon / Image -->
+            <div class="flex items-center justify-center w-20 h-20 overflow-hidden text-3xl text-white bg-blue-400 rounded-full">
+                @if($employee->employee_image_path)
+                    <img src="{{ asset('storage/' . $employee->employee_image_path) }}" 
+                         alt="{{ $employee->person->firstname }} {{ $employee->person->lastname }}" 
+                         class="object-cover w-full h-full rounded-full">
+                @else
+                    <i class="fa-solid fa-user"></i>
+                @endif
             </div>
 
             <!-- Name + Role -->
             <div>
-                <p class="text-lg font-semibold text-gray-800">John Doe</p>
-                <p class="text-sm text-gray-500">Cashier</p>
+                <p class="text-lg font-semibold text-gray-800">
+                    {{ $employee->person->firstname }} {{ $employee->person->lastname }}
+                </p>
+                <p class="text-sm text-gray-500">{{ $employee->position }}</p>
             </div>
         </div>
 
@@ -639,18 +648,37 @@
         <div class="my-4 border-t"></div>
 
         <!-- Contact Details -->
-        <div class="space-y-2 text-sm text-gray-700">
-            <p><span class="font-medium">Gender:</span> Male</p>
-            <p><span class="font-medium">Contact Number:</span> +63 912 345 6789</p>
-            <p><span class="font-medium">Email:</span> john@example.com</p>
-            <p><span class="font-medium">Address:</span> 123 Main St, City</p>
-            <p><span class="font-medium">Daily Salary:</span> ₱500</p>
+        <div class="space-y-4 text-sm text-gray-700">
+
+            <!-- Personal Info -->
+            <div>
+                <h3 class="mb-2 text-xs font-semibold tracking-wide text-blue-500 uppercase">Personal Information</h3>
+                <div class="flex flex-col space-y-2">
+                    <p><span class="font-medium">Gender:</span> {{ $employee->person->gender ?? 'N/A' }}</p>
+                    <p><span class="font-medium">Contact:</span> {{ $employee->person->contact_number ?? 'N/A' }}</p>
+                    <p><span class="font-medium">Email:</span> {{ $employee->person->email ?? 'N/A' }}</p>
+                    <p><span class="font-medium">Address:</span> {{ $employee->person->address ?? 'N/A' }}</p>
+                </div>
+            </div>
+
+            <!-- Employment Info -->
+            <div>
+                <h3 class="mb-2 text-xs font-semibold tracking-wide text-blue-500 uppercase">Employment Information</h3>
+                <div class="flex flex-col space-y-2">
+                    <p><span class="font-medium">Position:</span> {{ $employee->position ?? 'N/A' }}</p>
+                    <p><span class="font-medium">Hire Date:</span> {{ $employee->hire_date?->format('M d, Y') ?? 'N/A' }}</p>
+                    <p><span class="font-medium">Daily Salary:</span> ₱{{ number_format($employee->daily_rate, 2) }}</p>
+                </div>
+            </div>
+
         </div>
+
+
 
         <!-- Close Button -->
         <div class="flex justify-end pt-4">
             <button 
-                x-on:click="$dispatch('close-modal', 'view-employee')"
+                x-on:click="$dispatch('close-modal', 'view-employee-{{ $employee->employee_id }}')"
                 class="px-4 py-2 text-white transition bg-blue-600 rounded hover:bg-blue-700"
             >
                 Close
@@ -658,108 +686,101 @@
         </div>
     </div>
 </x-modal>
+@endforeach
 
 <!-- Edit Employee Details Modal -->
-<x-modal name="edit-employee" :show="false" maxWidth="lg">
+@foreach($employees as $employee)
+<x-modal name="edit-employee-{{ $employee->employee_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         <div class="flex items-center mb-4 space-x-1 text-blue-900">
             <i class="fa-solid fa-user-pen"></i>
             <h2 class="text-xl font-semibold">Edit Employee Details</h2>
         </div>
 
-        <!-- Profile Image -->
-        <div class="flex flex-col items-center mb-6">
-            <div class="relative">
-                <img src="assets/images/logo/logo-removebg-preview.png" 
-                     class="object-cover w-24 h-24 border rounded-full shadow" 
-                     alt="Employee photo">
+        <form action="{{ route('employees.update', $employee->employee_id) }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-sm">
+            @csrf
+            @method('PUT')
 
-                <!-- Edit image button -->
-                <button 
-                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
-                    <i class="text-xs fa-solid fa-pen"></i>
-                </button>
+            <!-- Profile Image -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img src="{{ $employee->employee_image_path ? asset('storage/' . $employee->employee_image_path) : 'assets/images/logo/logo-removebg-preview.png' }}" 
+                         class="object-cover w-24 h-24 border rounded-full shadow" 
+                         alt="Employee photo">
+                    <input type="file" name="employee_image" class="absolute bottom-0 right-0 w-8 h-8 opacity-0 cursor-pointer"/>
+                    <div class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full pointer-events-none hover:bg-blue-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Change profile photo</p>
             </div>
-            <p class="mt-2 text-sm text-gray-500">Change profile photo</p>
-        </div>
 
-        <!-- Form -->
-        <form class="space-y-4 text-sm">
             <!-- Personal Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Personal Information</legend>
-
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
-
-                    <!-- First Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">First Name</label>
-                        <input type="text" value="John" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" name="firstname" value="{{ $employee->person->firstname }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
-                    <!-- Last Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">Last Name</label>
-                        <input type="text" value="Doe" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" name="lastname" value="{{ $employee->person->lastname }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
-                    <!-- Gender -->
                     <div>
                         <label class="block mb-1 text-gray-800">Gender</label>
-                        <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <select name="gender" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select Gender</option>
-                            <option value="male" selected>Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
+                            <option value="Male" {{ $employee->person->gender=='Male' ? 'selected' : '' }}>Male</option>
+                            <option value="Female" {{ $employee->person->gender=='Female' ? 'selected' : '' }}>Female</option>
+                            <option value="Other" {{ $employee->person->gender=='Other' ? 'selected' : '' }}>Other</option>
                         </select>
                     </div>
 
-                    <!-- Contact Number -->
                     <div>
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" value="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" name="contact_number" value="{{ $employee->person->contact_number }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
-                    <!-- Email -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Email</label>
-                        <input type="email" value="john@example.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="email" name="email" value="{{ $employee->person->email }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
-                    <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" value="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" name="address" value="{{ $employee->person->address }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
-
                 </div>
             </fieldset>
 
             <!-- Job Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Job Information</legend>
+                <div class="mt-2 mb-2 text-sm text-red-600">
+                    <i class="mr-1 fa-solid fa-triangle-exclamation"></i>
+                    To change the position, delete this employee and add a new one.
+                </div>
 
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
-
-                    <!-- Position -->
                     <div>
                         <label class="block mb-1 text-gray-800">Position</label>
-                        <input type="text" value="Cashier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" value="{{ $employee->position }}" disabled class="w-full px-2 py-1 bg-gray-100 border border-gray-300 rounded cursor-not-allowed"/>
                     </div>
 
-                    <!-- Daily Salary -->
                     <div>
                         <label class="block mb-1 text-gray-800">Daily Salary</label>
-                        <input type="number" value="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="number" name="daily_rate" value="{{ $employee->daily_rate }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
-
                 </div>
             </fieldset>
 
             <!-- Buttons -->
             <div class="flex justify-end mt-2 space-x-2">
                 <button type="button" 
-                    x-on:click="$dispatch('close-modal', 'edit-employee')"
+                    x-on:click="$dispatch('close-modal', 'edit-employee-{{ $employee->employee_id }}')"
                     class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
                     Cancel
                 </button>
@@ -772,36 +793,41 @@
         </form>
     </div>
 </x-modal>
+@endforeach
 
-<!-- Delete/Fire Employee Modal-->
-<x-modal name="delete-employee" :show="false" maxWidth="sm">
-    <div class="p-6 space-y-4 text-center">
+@foreach($employees as $employee)
+<!-- Delete/Fire Employee Modal -->
+<x-modal name="delete-employee-{{ $employee->employee_id }}" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
 
         <!-- Red warning icon -->
-        <i class="mx-auto text-4xl text-red-500 fa-solid fa-triangle-exclamation"></i>
+        <i class="mb-2 text-4xl text-red-500 mx-a uto fa-solid fa-triangle-exclamation"></i>
 
-        <h2 class="text-lg font-semibold text-gray-800">Fire Employee?</h2>
+        <h2 class="mb-2 text-lg font-semibold text-gray-800">Fire {{ $employee->person->firstname }} {{ $employee->person->lastname }}?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove the employee from the system. This cannot be undone.
+            This action will permanently remove <span class="font-medium">{{ $employee->person->firstname }} {{ $employee->person->lastname }}</span> from the system. This cannot be undone.
         </p>
 
-        <div class="flex justify-center mt-4 space-x-3">
-            <button
-                x-on:click="$dispatch('close-modal', 'delete-employee')"
-                class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300"
-            >
+        <form action="{{ route('employees.destroy', $employee->employee_id) }}" method="POST" class="flex justify-center mt-4 space-x-3">
+            @csrf
+            @method('DELETE')
+
+            <!-- Cancel -->
+            <button type="button"
+                x-on:click="$dispatch('close-modal', 'delete-employee-{{ $employee->employee_id }}')"
+                class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
                 Cancel
             </button>
 
-            <button
-                class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
-            >
+            <!-- Confirm Delete -->
+            <button type="submit"
+                class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700">
                 Yes, Fire
             </button>
-        </div>
-
+        </form>
     </div>
 </x-modal>
+@endforeach
 
 <!-- Feedback Modals -->
 <!-- Success Modal -->
@@ -831,3 +857,8 @@
         </button>
     </div>
 </x-modal>
+
+<!-- Footer Branding -->
+<footer class="py-4 text-sm text-center text-gray-400 border-t">
+    © 2025 KitaKeeps. All rights reserved.
+</footer>

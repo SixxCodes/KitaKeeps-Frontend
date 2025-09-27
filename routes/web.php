@@ -48,6 +48,8 @@ Route::post('/branches/switch/{branch}', [BranchController::class, 'switch'])->n
 // Employees
 Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
 Route::post('/employees/{employee}/create-user', [EmployeeController::class, 'createUser'])->name('employees.createUser');
+Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
