@@ -39,13 +39,13 @@ class BranchProduct extends Model
     }
 
     // branch_product belongs to branch
-    public function branch_productBelongsTobranch()
+    public function branch()
     {
         return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
     // branch_product belongs to product
-    public function branch_productBelongsToproduct()
+    public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }

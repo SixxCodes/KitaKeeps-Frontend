@@ -75,6 +75,34 @@ if (!$currentBranch) {
     $userSuppliers = Supplier::whereIn('branch_id', $userBranches->pluck('branch_id'))->get();
 @endphp
 
+@php
+    use App\Models\Product;
+
+    $owner = auth()->user();
+
+    // get current branch from session (or fallback to first branch)
+    $userBranches = $owner->branches; 
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+        ?? $userBranches->sortBy('branch_id')->first();
+
+    $products = Product::with([
+            'product_supplier.supplier',
+            'branch_products' => function($q) use ($currentBranch) {
+                $q->where('branch_id', $currentBranch->branch_id);
+            }
+        ])
+        ->whereHas('branch_products', function($q) use ($currentBranch) {
+            $q->where('branch_id', $currentBranch->branch_id);
+        })
+        ->when($search, function ($q) use ($search) {
+            $q->where('prod_name', 'like', "%{$search}%");
+        })
+        ->orderBy('product_id', 'desc')
+        ->paginate($perPage)
+        ->withQueryString();
+
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

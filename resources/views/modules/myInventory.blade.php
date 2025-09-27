@@ -231,21 +231,26 @@
     <!-- Search + Entries -->
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
-            <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option>5</option>
+            <label class="mr-2 text-sm">Show</label>
+            <select onchange="window.location.href='?per_page='+this.value+'&search={{ request('search') }}'" 
+                class="px-5 py-1 text-sm border rounded">
+                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
             </select>
-            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm">entries</span>
         </div>
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
-            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text" 
-                    placeholder="Search..." 
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search..."
+                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -257,10 +262,11 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
+                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Product Name</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Product Supplier</th>
-                    <th class="px-3 py-2 text-left border whitespace-nowrap">Category</th>
+                    <th class="px-3 py-2 text-left border">Category</th>
                     <th class="px-3 py-2 text-left border">Qty.</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Selling Price</th>
                     <th class="px-3 py-2 text-left border">Status</th>
@@ -268,51 +274,79 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Product Rows -->
+                @forelse($products as $product)
                 <tr class="hover:bg-gray-50">
-                    <!-- Customer ID -->
-                    <td class="px-3 py-2 border">1</td>
+                    <!-- Count -->
+                    <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
+                    <td class="px-3 py-2 border bg-blue-50">
+                        {{ $products->firstItem() + $loop->index }}
+                    </td>
 
-                    <!-- Product Image and Name -->
+                    <!-- ID -->
+                    <td class="px-3 py-2 border">{{ $product->product_id }}</td>
+
+                    <!-- Product Image + Name -->
                     <td class="px-3 py-2 border">
                         <div class="flex items-center gap-2">
-                            <!-- Circle placeholder icon -->
-                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                            <i class="fa-solid fa-user"></i>
-                            </div>
-                            <!-- Product Name -->
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Sherlux Spray Paint Red</span>
+                            @if($product->prod_image_path)
+                                <img src="{{ asset('storage/'.$product->prod_image_path) }}" 
+                                     alt="{{ $product->product_name }}" 
+                                     class="object-cover w-8 h-8 rounded-full">
+                            @else
+                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                    <i class="fa-solid fa-box"></i>
+                                </div>
+                            @endif
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
+                                {{ $product->prod_name }}
+                            </span>
                         </div>
                     </td>
 
-                    <!-- Product Supplier -->
-                    <td class="px-3 py-2 border">KP Hardware</td>
+                    <!-- Supplier -->
+                    <td class="px-3 py-2 border">
+                        {{ $product->product_supplier->first()?->supplier?->supp_name ?? 'N/A' }}
+                    </td>
 
                     <!-- Category -->
                     <td class="px-3 py-2 border whitespace-nowrap">
-                        Spray Paint
+                        {{ $product->category->cat_name ?? 'N/A' }}
                     </td>
 
                     <!-- Quantity -->
                     <td class="px-3 py-2 border">
-                        50
+                        {{ $product->branch_products->first()?->stock_qty ?? 0 }}
                     </td>
 
                     <!-- Selling Price -->
                     <td class="px-3 py-2 border">
-                        P130.00
+                        P{{ number_format($product->selling_price, 2) }}
                     </td>
 
                     <!-- Status -->
                     <td class="px-3 py-2 border">
-                        <span class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full whitespace-nowrap">
-                            In Stock
-                        </span>
+                        @php
+                            $stock = $product->branch_products->first()?->stock_qty ?? 0;
+                        @endphp
+
+                        @if($stock == 0)
+                            <span class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full whitespace-nowrap">
+                                Out of Stock
+                            </span>
+                        @elseif($stock < 20)
+                            <span class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full whitespace-nowrap">
+                                Low Stock
+                            </span>
+                        @else
+                            <span class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full whitespace-nowrap">
+                                In Stock
+                            </span>
+                        @endif
                     </td>
 
                     <!-- Actions -->
                     <td class="flex justify-center gap-2 px-3 py-3 border">
-                        <button x-on:click="$dispatch('open-modal', 'view-product')"  class="px-2 py-1 text-white bg-blue-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'view-product')" class="px-2 py-1 text-white bg-blue-500 rounded">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                         <button x-on:click="$dispatch('open-modal', 'edit-product')" class="px-2 py-1 text-white bg-green-500 rounded">
@@ -323,16 +357,31 @@
                         </button>
                     </td>
                 </tr>
+                @empty
+                <tr>
+                    <td colspan="9" class="px-3 py-2 text-center text-gray-500 border">
+                        Nothing to see here yet.
+                    </td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
+        <p class="text-sm">
+            Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} entries
+        </p>
         <div class="flex gap-2">
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
+            <a href="{{ $products->previousPageUrl() }}" 
+               class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $products->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                Previous
+            </a>
+            <a href="{{ $products->nextPageUrl() }}" 
+               class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $products->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                Next
+            </a>
         </div>
     </div>
 </div>

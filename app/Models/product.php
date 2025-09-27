@@ -35,7 +35,7 @@ class Product extends Model
     // Relationships
 
     // product hasMany branch_product
-    public function branch_product()
+    public function branch_products()
     {
         return $this->hasMany(BranchProduct::class, 'product_id', 'product_id');
     }
@@ -47,8 +47,8 @@ class Product extends Model
     }
 
     // product hasMany product_supplier
-    // public function product_supplier()
-    // {
-    //     return $this->hasMany(ProductSupplier::class, 'product_id', 'product_id');
-    // }
+    public function product_supplier()
+    {
+        return $this->hasMany(ProductSupplier::class, 'product_id', 'product_id');
+    }
 }

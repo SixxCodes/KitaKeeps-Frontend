@@ -63,6 +63,7 @@ Route::post('/pay-salary/{employee}', [PayrollController::class, 'paySalary'])->
 
 // Products
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

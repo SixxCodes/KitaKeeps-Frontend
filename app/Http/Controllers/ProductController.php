@@ -90,15 +90,33 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $branchId = session('current_branch_id'); // current branch
+        $perPage = $request->get('per_page', 5);
+        $search  = $request->get('search', '');
 
-        // Branch-specific categories for datalist
-        $categories = Category::where('branch_id', $branchId)->get();
+        $owner = auth()->user();
 
-        // Suppliers belonging to this branch
-        $userSuppliers = Supplier::where('branch_id', $branchId)->get();
+        // get current branch from session (or fallback to first branch)
+        $userBranches = $owner->branches; 
+        $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+            ?? $userBranches->sortBy('branch_id')->first();
 
-        return view('inventory.index', compact('categories', 'userSuppliers'));
+        $products = Product::with([
+                'product_suppliers.supplier',
+                'branch_products' => function($q) use ($currentBranch) {
+                    $q->where('branch_id', $currentBranch->branch_id);
+                }
+            ])
+            ->whereHas('branch_products', function($q) use ($currentBranch) {
+                $q->where('branch_id', $currentBranch->branch_id);
+            })
+            ->when($search, function ($q) use ($search) {
+                $q->where('prod_name', 'like', "%{$search}%");
+            })
+            ->orderBy('product_id', 'desc')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('products.index', compact('products', 'currentBranch'));
     }
 
 }
