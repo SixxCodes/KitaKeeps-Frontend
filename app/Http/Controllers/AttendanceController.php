@@ -13,8 +13,21 @@ class AttendanceController extends Controller
     {
         $today = Carbon::today();
 
+        // === Branch ID logic ===
+        $branchId = session('current_branch_id');
+
+        if (!$branchId) {
+            $branchId = auth()->user()->branches->sortBy('branch_id')->first()->branch_id ?? null;
+            session(['current_branch_id' => $branchId]);
+        }
+
+        if (!$branchId) {
+            return back()->with('error', 'No active branch selected.');
+        }
+        // ======================
+
         // Get all employees for this branch (so we can mark absent if not checked)
-        $employees = Employee::where('branch_id', session('current_branch_id'))->get();
+        $employees = Employee::where('branch_id', $branchId)->get();
 
         // IDs of employees marked present
         $presentIds = $request->input('present', []); // array of employee_ids
@@ -38,7 +51,21 @@ class AttendanceController extends Controller
     {
         $today = Carbon::today();
 
-        $employees = Employee::where('branch_id', session('current_branch_id'))
+        // === Branch ID logic ===
+        $branchId = session('current_branch_id');
+
+        if (!$branchId) {
+            $branchId = auth()->user()->branches->sortBy('branch_id')->first()->branch_id ?? null;
+            session(['current_branch_id' => $branchId]);
+        }
+
+        if (!$branchId) {
+            return back()->with('error', 'No active branch selected.');
+        }
+        // ======================
+
+        // Then use $branchId instead of session('current_branch_id')
+        $employees = Employee::where('branch_id', $branchId)
             ->with(['attendance' => function($query) use ($today) {
                 $query->where('att_date', $today);
             }])
@@ -46,36 +73,4 @@ class AttendanceController extends Controller
 
         return view('attendance.index', compact('employees'));
     }
-
-    public function pay(Employee $employee)
-    {
-        $startOfWeek = now()->startOfWeek();
-        $endOfWeek   = now()->endOfWeek();
-
-        // Get the total salary for this week
-        $attendances = $employee->attendance()
-            ->whereBetween('att_date', [$startOfWeek, $endOfWeek])
-            ->where('status', 'Present')
-            ->get();
-
-        $totalSalary = $attendances->sum('daily_rate');
-
-        // Optionally, save to payroll table
-        \App\Models\Payroll::create([
-            'employee_id' => $employee->employee_id,
-            'period_start' => $startOfWeek,
-            'period_end'   => $endOfWeek,
-            'gross_pay'    => $totalSalary,
-            'deductions'   => 0, // add logic if needed
-            'net_pay'      => $totalSalary,
-        ]);
-
-        // Delete or reset attendance for this week
-        Attendance::where('employee_id', $employee->employee_id)
-            ->whereBetween('att_date', [$startOfWeek, $endOfWeek])
-            ->delete();
-
-        return back()->with('success', 'Salary has been paid!');
-    }
-
 }

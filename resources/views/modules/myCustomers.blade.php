@@ -2,10 +2,21 @@
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
-            <button><i class="fa-solid fa-caret-down"></i></button>
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
+                {{ $currentBranch->branch_name ?? 'No Branch' }}
+            </h2>
+            
+            <!-- Caret Button to Open Modal -->
+            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
+                class="text-gray-600 hover:text-black">
+                <i class="fa-solid fa-caret-down"></i>
+            </button> -->
         </div>
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
+
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
+            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
+            {{ $currentBranch->location ?? '' }}
+        </span>
     </div>
     
     <div class="flex space-x-3">
@@ -654,3 +665,8 @@
 
     </div>
 </x-modal>
+
+<!-- Footer Branding -->
+<footer class="py-4 text-sm text-center text-gray-400 border-t">
+    © 2025 KitaKeeps. All rights reserved.
+</footer>

@@ -518,7 +518,7 @@
                 </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-3 py-2 text-center text-gray-500 border">
+                        <td colspan="12" class="px-3 py-2 text-center text-gray-500 border">
                             Nothing to see here yet.
                         </td>
                     </tr>
