@@ -704,15 +704,22 @@
             <!-- Profile Image -->
             <div class="flex flex-col items-center mb-6">
                 <div class="relative">
-                    <img src="{{ $employee->employee_image_path ? asset('storage/' . $employee->employee_image_path) : 'assets/images/logo/logo-removebg-preview.png' }}" 
-                         class="object-cover w-24 h-24 border rounded-full shadow" 
-                         alt="Employee photo">
-                    <input type="file" name="employee_image" class="absolute bottom-0 right-0 w-8 h-8 opacity-0 cursor-pointer"/>
-                    <div class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full pointer-events-none hover:bg-blue-700">
+                    <!-- Employee image preview -->
+                    <img id="employeeImagePreview-{{ $employee->employee_id }}" 
+                        src="{{ $employee->employee_image_path ? asset('storage/' . $employee->employee_image_path) : 'assets/images/logo/logo-removebg-preview.png' }}" 
+                        class="object-cover w-24 h-24 border rounded-full shadow" 
+                        alt="{{ $employee->person->firstname }} {{ $employee->person->lastname }}">
+
+                    <!-- Edit image button -->
+                    <label for="employee_image_{{ $employee->employee_id }}" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-green-700">
                         <i class="text-xs fa-solid fa-pen"></i>
-                    </div>
+                    </label>
+
+                    <input type="file" name="employee_image" id="employee_image_{{ $employee->employee_id }}" class="hidden" 
+                        onchange="previewEmployeeImage(event, {{ $employee->employee_id }})">
                 </div>
-                <p class="mt-2 text-sm text-gray-500">Change profile photo</p>
+                <p class="mt-2 text-sm text-gray-500">Change employee photo</p>
             </div>
 
             <!-- Personal Information -->
@@ -794,6 +801,17 @@
     </div>
 </x-modal>
 @endforeach
+
+<script>
+    function previewEmployeeImage(event, employeeId) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById(`employeeImagePreview-${employeeId}`);
+            output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
 
 @foreach($employees as $employee)
 <!-- Delete/Fire Employee Modal -->

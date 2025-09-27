@@ -183,8 +183,6 @@ class EmployeeController extends Controller
     public function destroy($employee_id)
     {
         $employee = Employee::findOrFail($employee_id);
-
-        // Optionally delete linked Person record too
         $person = $employee->person;
 
         // Delete employee image from storage if exists
@@ -192,14 +190,20 @@ class EmployeeController extends Controller
             \Storage::disk('public')->delete($employee->employee_image_path);
         }
 
+        // If employee is Cashier or Admin, delete their linked User account
+        if (in_array($employee->position, ['Cashier', 'Admin']) && $person && $person->user) {
+            $person->user->delete();
+        }
+
+        // Delete the employee record
         $employee->delete();
 
-        // If you want to delete the person record as well (optional)
+        // Optionally delete person record (only if you want)
         if ($person) {
             $person->delete();
         }
 
-        return redirect()->back()->with('success', 'Employee has been removed.');
+        return redirect()->back()->with('success', 'Employee and related account (if any) have been removed.');
     }
 
 }
