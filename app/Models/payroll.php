@@ -21,6 +21,9 @@ class Payroll extends Model
         'net_pay',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts for proper data types
     protected $casts = [
         'period_start' => 'date',

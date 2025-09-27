@@ -24,7 +24,7 @@
         <div class="flex items-center space-x-4">
             <button x-on:click="$dispatch('open-modal', 'take-attendance')" class="flex items-center px-5 py-2 text-xs text-black transition-colors bg-white rounded-md shadow hover:bg-blue-300 sm:text-xs md:text-xs lg:text-sm">
                 <i class="fa-solid fa-file-pen"></i>
-                <span class="hidden ml-2 lg:inline whitespace-nowrap">Take Attendance (SUN)</span> 
+                <span class="hidden ml-2 lg:inline whitespace-nowrap">Take Attendance</span> 
             </button>
         </div>
 
@@ -244,66 +244,140 @@
 
         <h2 class="text-xl font-semibold text-center text-gray-800">Attendance for Today</h2>
         <p class="mb-5 text-sm text-center text-gray-500">
-            Take attendance for <span class="font-medium">September 21, 2025 (Sunday)</span>.
+            Take attendance for <span class="font-medium">{{ now()->format('F d, Y (l)') }}</span>.
         </p>
+        
+        <div class="flex items-center justify-between mb-4 whitespace-nowrap">
+            <div>
+                <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
+                <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+                    <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                    <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                    <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
+                </select>
+                <span class="ml-2 text-sm">entries</span>
+            </div>
+
+            <!-- Search Bar --> 
+            <div class="flex items-center space-x-2">
+                <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
+                    <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Search..."
+                        onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
+                        class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
+                    />
+                </div>
+            </div>
+        </div>
 
         <!-- Table Container -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm border">
-                <thead class="bg-blue-50">
-                    <tr>
-                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">ID</th>
-                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Employee Name</th>
-                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Role</th>
-                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Attendance</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-x divide-y divide-blue-100">
-                    <!-- Row 1 -->
-                    <tr class="hover:bg-gray-100">
-                        <!-- ID -->
-                        <td class="px-3 py-2 border">1</td>
+        <form method="POST" action="{{ route('attendance.mark')}}"> 
+            @csrf
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm border">
+                    <thead class="bg-blue-50">
+                        <tr>
+                            <th class="px-3 py-2 text-left border">#</th>
+                            <th class="px-3 py-2 border">ID</th>
+                            <th class="px-3 py-2 border">Employee Name</th>
+                            <th class="px-3 py-2 border">Role</th>
+                            <th class="px-3 py-2 border">Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-x divide-y divide-blue-100">
+                        @forelse($employees as $employee)
+                            <tr class="hover:bg-gray-100">
+                                <!-- Count -->
+                                <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
+                                <td class="px-3 py-2 border bg-blue-50">
+                                    {{ $employees->firstItem() + $loop->index }}
+                                </td>
 
-                        <!-- Employee Name -->
-                        <td class="px-3 py-2 border">
-                            <div class="flex items-center gap-2">
-                                <!-- Circle placeholder icon -->
-                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                                <i class="fa-solid fa-user"></i>
-                                </div>
+                                <!-- ID -->
+                                <td class="px-3 py-2 border">{{ $employee->employee_id }}</td>
+
                                 <!-- Name -->
-                                <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
-                            </div>
-                        </td>
+                                <td class="px-3 py-2 border">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <span class="overflow-hidden whitespace-nowrap text-ellipsis">
+                                            {{ $employee->person->firstname }} {{ $employee->person->lastname }}
+                                        </span>
+                                    </div>
+                                </td>
 
-                        <!-- Role -->
-                        <td class="px-3 py-2 border">
-                            <span class="inline-block px-3 py-1 text-xs text-white bg-orange-400 rounded-full">
-                                Cashier
-                            </span>
-                        </td>
-                        
-                        <!-- Attendance Buttons -->
-                        <td class="px-4 py-3 text-center">
-                            <button class="inline-flex items-center justify-center w-5 h-5 text-white transition bg-red-500 rounded hover:bg-red-600">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                                <!-- Position -->
+                                <td class="px-3 py-2 border">
+                                    <span class="inline-block px-3 py-1 text-xs text-white {{ in_array($employee->position,['Cashier','Admin']) ? 'bg-orange-400' : 'bg-blue-400' }} rounded-full">
+                                        {{ $employee->position }}
+                                    </span>
+                                </td>
 
-        <!-- Save / Cancel -->
-        <div class="flex justify-end mt-4 space-x-2">
-            <button 
-                x-on:click="$dispatch('close-modal', 'take-attendance')"
-                class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+                                <!-- Actions -->
+                                <td class="px-3 py-2 text-center border">
+                                    <input 
+                                        type="checkbox" 
+                                        name="present[]" 
+                                        value="{{ $employee->employee_id }}" 
+                                        class="w-5 h-5 text-green-600"
+                                        @if($employee->attendance->first() && $employee->attendance->first()->status === 'Present') checked @endif
+                                    >
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-3 py-2 text-center text-gray-500 border">
+                                    Nothing to see here yet.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-            <button 
-                class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
-        </div>
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-4">
+                <p class="text-sm">
+                    Showing {{ $employees->firstItem() ?? 0 }} to {{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} entries
+                </p>
+                <!-- Previous / Next -->
+                <div class="flex gap-2">
+                    <!-- Previous button -->
+                    <a 
+                        href="{{ $employees->previousPageUrl() }}" 
+                        class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                        Previous
+                    </a>
 
+                    <!-- Next button -->
+                    <a 
+                        href="{{ $employees->nextPageUrl() }}" 
+                        class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                        Next
+                    </a>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-4 space-x-2">
+                <button 
+                    x-on:click="$dispatch('close-modal', 'take-attendance')"
+                    type="button"
+                    class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
+                    Cancel
+                </button>
+
+                <button type="submit" 
+                    class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700">
+                    Save
+                </button>
+            </div>
+        </form>
     </div>
 </x-modal>
 
@@ -334,20 +408,24 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option>5</option>
+            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
             </select>
-            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm">entries</span>
         </div>
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
-            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text" 
-                    placeholder="Search..." 
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search..."
+                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -359,6 +437,7 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
+                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border">Employee Name</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Daily Rate</th>
@@ -366,6 +445,7 @@
                     <th class="px-3 py-2 text-left border">Tue</th>
                     <th class="px-3 py-2 text-left border">Wed</th>
                     <th class="px-3 py-2 text-left border">Thu</th>
+                    <th class="px-3 py-2 text-left border">Fri</th>
                     <th class="px-3 py-2 text-left border">Sat</th>
                     <th class="px-3 py-2 text-left border">Sun</th>
                     <th class="px-3 py-2 text-left border">Total Salary</th>
@@ -373,96 +453,140 @@
             </thead>
             <tbody>
                 <!-- Employee Rows -->
+                @forelse($employees as $employee)
                 <tr class="hover:bg-gray-50">
-                    <td class="px-3 py-2 border">1</td>
+                    <!-- Count -->
+                    <td class="px-3 py-2 border">{{ $loop->iteration }}</td>
 
+                    <!-- ID -->
+                    <td class="px-3 py-2 border">{{ $employee->employee_id }}</td>
+
+                    <!-- Image and Name -->
                     <td class="px-3 py-2 border">
                         <div class="flex items-center gap-2">
-                            <!-- Circle placeholder icon -->
-                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                            <i class="fa-solid fa-user"></i>
-                            </div>
+                            <!-- Circle image or placeholder -->
+                            @if($employee->employee_image_path)
+                                <img 
+                                    src="{{ asset('storage/' . $employee->employee_image_path) }}" 
+                                    alt="{{ $employee->employee_name }}" 
+                                    class="object-cover w-8 h-8 rounded-full"
+                                >
+                            @else
+                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            @endif
                             <!-- Name -->
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
+                                {{ $employee->person->firstname }} {{ $employee->person->lastname }}
+                            </span>
                         </div>
                     </td>
 
-                    <td class="px-3 py-2 border">400</td>
+                    <td class="px-3 py-2 border">{{ number_format($employee->daily_rate, 2) }}</td>
 
+                    @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $day)
                     <td class="px-3 py-2 text-center border">
-                        <i class="text-green-500 fa-solid fa-circle-check"></i>
+                        @php
+                            $att = $employee->attendance->where('att_date', now()->startOfWeek()->addDays(array_search($day,['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))->first();
+                        @endphp
+                        @if($att && $att->status === 'Present')
+                            <i class="text-green-500 fa-solid fa-circle-check"></i>
+                        @elseif($att && $att->status === 'Absent')
+                            <i class="text-red-500 fa-solid fa-circle-xmark"></i>
+                        @else
+                            <i class="text-gray-400 fa-solid fa-minus"></i>
+                        @endif
                     </td>
+                    @endforeach
 
-                    <td class="px-3 py-2 text-center border">
-                        <i class="text-red-500 fa-solid fa-circle-xmark"></i>
-                    </td>
-
-                    <td class="px-3 py-2 text-center border">
-                        <i class="text-green-500 fa-solid fa-circle-check"></i>
-                    </td>
-                    
-                    <td class="px-3 py-2 text-center border">
-                        <i class="text-green-500 fa-solid fa-circle-check"></i>
-                    </td>
-
-                    <td class="px-3 py-2 text-center border">
-                        <i class="text-red-500 fa-solid fa-circle-xmark"></i>
-                    </td>
-
-                    <td class="px-3 py-2 text-center border">
-                        <i class="text-gray-400 fa-solid fa-minus"></i>
-                    </td>
+                    @php
+                        $totalSalary = $employee->attendance
+                            ->whereBetween('att_date', [now()->startOfWeek(), now()->endOfWeek()])
+                            ->where('status', 'Present')
+                            ->count() * $employee->daily_rate;
+                    @endphp
 
                     <td class="px-3 py-2 text-right border whitespace-nowrap">
-                        P1200
-                        <button x-on:click="$dispatch('open-modal', 'pay-salary-confirm')" class="px-2 py-1 text-white bg-green-500 rounded">
+                        P{{ number_format($totalSalary, 2) }}
+
+                        <button x-on:click="$dispatch('open-modal', 'pay-salary-confirm-{{ $employee->employee_id }}')" 
+                            class="px-2 py-1 text-white bg-green-500 rounded">
                             <i class="fa-solid fa-money-bill"></i>
                         </button>
                     </td>
                 </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="px-3 py-2 text-center text-gray-500 border">
+                            Nothing to see here yet.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
+        <p class="text-sm">
+            Showing {{ $employees->firstItem() ?? 0 }} to {{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} entries
+        </p>
+        <!-- Previous / Next -->
         <div class="flex gap-2">
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
+            <!-- Previous button -->
+            <a 
+                href="{{ $employees->previousPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                Previous
+            </a>
+
+            <!-- Next button -->
+            <a 
+                href="{{ $employees->nextPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                Next
+            </a>
         </div>
     </div>
     
 </div>
 
 <!-- Pay Salary Confirmation Modal -->
-<x-modal name="pay-salary-confirm" :show="false" maxWidth="sm">
+@foreach($employees as $employee)
+<x-modal name="pay-salary-confirm-{{ $employee->employee_id }}" :show="false" maxWidth="sm">
     <div class="p-6 space-y-4 text-center">
 
         <i class="mx-auto text-4xl text-yellow-400 fa-solid fa-triangle-exclamation"></i>
 
         <h2 class="text-lg font-semibold text-gray-800">Are you sure?</h2>
         <p class="text-sm text-gray-500">
-            This will process the salary for the selected employee(s). This action cannot be undone.
+            This will process the salary for <span class="font-medium">{{ $employee->person->firstname }} {{ $employee->person->lastname }}</span>. 
+            This action cannot be undone.
         </p>
 
         <div class="flex justify-center mt-4 space-x-3">
             <button
-                x-on:click="$dispatch('close-modal', 'pay-salary-confirm')"
+                x-on:click="$dispatch('close-modal', 'pay-salary-confirm-{{ $employee->employee_id }}')"
                 class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300"
             >
                 Cancel
             </button>
 
-            <button
-                class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700"
-            >
-                Yes, Pay
-            </button>
+            <form method="POST" action="{{ route('pay-salary', $employee->employee_id) }}">
+                @csrf
+                <button
+                    type="submit"
+                    class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700"
+                >
+                    Yes, Pay
+                </button>
+            </form>
         </div>
 
     </div>
 </x-modal>
+@endforeach
 
 
 

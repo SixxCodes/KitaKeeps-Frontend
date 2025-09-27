@@ -71,12 +71,8 @@ class EmployeeController extends Controller
             'daily_rate'=> $validated['daily_rate'],
             'hire_date' => now(),
             'employee_image_path' => $imagePath,
+            'branch_id' => $currentBranch->branch_id, // ✅ Always assign branch_id
         ];
-
-        // Non-login employees → store branch_id directly
-        if (!in_array($positionLower, ['cashier', 'admin'])) {
-            $employeeData['branch_id'] = $currentBranch->branch_id;
-        }
 
         $employee = Employee::create($employeeData);
 

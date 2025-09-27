@@ -19,6 +19,9 @@ class Attendance extends Model
         'note',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Cast dates
     protected $casts = [
         'att_date' => 'date',

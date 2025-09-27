@@ -34,11 +34,13 @@
             <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Home
             </p>
+            @if($role === 'Owner' || $role === 'Admin')
             <a href="#" @click.prevent="changePage('Dashboard')" 
                 :class="{'font-bold bg-blue-800': currentPage === 'Dashboard'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-1 text-2xl fa-solid fa-grip"></i>
                 Dashboard
             </a>
+            @endif
             <a href="#" @click.prevent="changePage('POS')" 
                 :class="{'font-bold bg-blue-800': currentPage === 'POS'}"
                 class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
@@ -48,6 +50,7 @@
         </div>
 
         <!-- Business Intelligence Section -->
+        @if($role === 'Owner' || $role === 'Admin')
         <div>
             <p class="mb-2 text-xs font-semibold text-blue-300 uppercase select-none">
                 Business Intelligence
@@ -58,6 +61,7 @@
                 Reports &amp; Analytics
             </a>
         </div>
+        @endif
 
         <!-- Management Section -->
         <div>
@@ -72,11 +76,13 @@
             </a>
             @endif
             
+            @if($role === 'Owner' || $role === 'Admin')
             <a href="#" @click.prevent="changePage('My Inventory')" 
                 :class="{'font-bold bg-blue-800': currentPage === 'My Inventory'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
                 <i class="mr-2 text-xl fa-solid fa-clipboard-list"></i>
                 My Inventory
             </a>
+            @endif
 
             @if($role === 'Owner' || $role === 'Admin')
             <a href="#" @click.prevent="changePage('My Suppliers')" 

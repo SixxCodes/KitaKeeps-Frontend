@@ -46,4 +46,9 @@ class Employee extends Model
         return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class, 'employee_id', 'employee_id');
+    }
+
 }

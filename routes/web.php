@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\PayrollController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -50,6 +52,13 @@ Route::post('/employees', [EmployeeController::class, 'store'])->name('employees
 Route::post('/employees/{employee}/create-user', [EmployeeController::class, 'createUser'])->name('employees.createUser');
 Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+
+// Attendance
+Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance.mark');
+
+// Salary
+Route::post('/pay-salary/{employee}', [PayrollController::class, 'paySalary'])->name('pay-salary');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
