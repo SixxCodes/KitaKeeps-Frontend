@@ -326,7 +326,7 @@
                                         name="present[]" 
                                         value="{{ $employee->employee_id }}" 
                                         class="w-5 h-5 text-green-600"
-                                        @if($employee->attendance->first() && $employee->attendance->first()->status === 'Present') checked @endif
+                                        @if($employee->todayAttendance && $employee->todayAttendance->status === 'Present') checked @endif
                                     >
                                 </td>
                             </tr>

@@ -14,44 +14,44 @@
 @endphp
 
 @php
-use App\Models\Employee;
+    use App\Models\Employee;
 
-$owner = Auth::user();
+    $owner = Auth::user();
 
-// Determine current branch
-$userBranches = $owner->branches;
-$perPage = request()->query('per_page', 5);   // <--- use request() helper
-$search  = request()->query('search');
+    // Determine current branch
+    $userBranches = $owner->branches;
+    $perPage = request()->query('per_page', 5);   // <--- use request() helper
+    $search  = request()->query('search');
 
-$mainBranch = $userBranches->sortBy('branch_id')->first();
-$currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
-    ?? $mainBranch;
+    $mainBranch = $userBranches->sortBy('branch_id')->first();
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+        ?? $mainBranch;
 
-if (!$currentBranch) {
-    // handle gracefully in view
-    $employees = collect();
-} else {
-    $employees = Employee::with('person.user')
-        ->where(function($query) use ($currentBranch) {
-            // Login employees → filtered via user branches
-            $query->whereHas('person.user.branches', function($q) use ($currentBranch) {
-                $q->where('user_branch.branch_id', $currentBranch->branch_id);
+    if (!$currentBranch) {
+        // handle gracefully in view
+        $employees = collect();
+    } else {
+        $employees = Employee::with('person.user')
+            ->where(function($query) use ($currentBranch) {
+                // Login employees → filtered via user branches
+                $query->whereHas('person.user.branches', function($q) use ($currentBranch) {
+                    $q->where('user_branch.branch_id', $currentBranch->branch_id);
+                })
+                // Non-login employees → filter by branch_id directly
+                ->orWhere(function($q) use ($currentBranch) {
+                    $q->whereNotIn('position', ['Cashier', 'Admin'])
+                    ->where('branch_id', $currentBranch->branch_id);
+                });
             })
-            // Non-login employees → filter by branch_id directly
-            ->orWhere(function($q) use ($currentBranch) {
-                $q->whereNotIn('position', ['Cashier', 'Admin'])
-                  ->where('branch_id', $currentBranch->branch_id);
-            });
-        })
-        ->when($search, function($query, $search) {
-            $query->whereHas('person', function($q) use ($search) {
-                $q->where('firstname', 'like', "%{$search}%")
-                  ->orWhere('lastname',  'like', "%{$search}%")
-                  ->orWhere('email',     'like', "%{$search}%");
-            });
-        })
-        ->paginate($perPage);
-}
+            ->when($search, function($query, $search) {
+                $query->whereHas('person', function($q) use ($search) {
+                    $q->where('firstname', 'like', "%{$search}%")
+                    ->orWhere('lastname',  'like', "%{$search}%")
+                    ->orWhere('email',     'like', "%{$search}%");
+                });
+            })
+            ->paginate($perPage);
+    }
 @endphp
 
 @php

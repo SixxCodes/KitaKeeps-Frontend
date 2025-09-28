@@ -51,4 +51,10 @@ class Employee extends Model
         return $this->hasMany(Attendance::class, 'employee_id', 'employee_id');
     }
 
+    public function todayAttendance()
+    {
+        return $this->hasOne(Attendance::class, 'employee_id', 'employee_id')
+            ->where('att_date', \Carbon\Carbon::today()->toDateString());
+    }
+
 }

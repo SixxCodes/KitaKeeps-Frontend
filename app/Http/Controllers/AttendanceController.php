@@ -66,9 +66,7 @@ class AttendanceController extends Controller
 
         // Then use $branchId instead of session('current_branch_id')
         $employees = Employee::where('branch_id', $branchId)
-            ->with(['attendance' => function($query) use ($today) {
-                $query->where('att_date', $today);
-            }])
+            ->with('todayAttendance')
             ->paginate($request->per_page ?? 5);
 
         return view('attendance.index', compact('employees'));
