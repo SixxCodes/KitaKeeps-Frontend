@@ -24,6 +24,9 @@ class Sale extends Model
         'notes',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts for proper data types
     protected $casts = [
         'total_amount' => 'decimal:2',

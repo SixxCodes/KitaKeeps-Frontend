@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\View;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Branch;
+use Illuminate\Support\Facades\Session;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -76,6 +77,26 @@ class AppServiceProvider extends ServiceProvider
                     'search' => $search,
                 ]);
             }
+        });
+
+        View::composer('*', function ($view) {
+            $branchId = session('current_branch_id');
+            $branch = null;
+
+            if ($branchId) {
+                $branch = Branch::with(['branchproducts.product.product_supplier.supplier'])
+                    ->where('branch_id', $branchId)
+                    ->first();
+            }
+
+            $view->with('branch', $branch);
+        });
+
+        // Share cart globally
+        View::composer('*', function ($view) {
+            // You can store cart in session, DB, or wherever you prefer
+            $cart = Session::get('cart', []);  // default empty array if none
+            $view->with('cart', $cart);
         });
     }
 }
