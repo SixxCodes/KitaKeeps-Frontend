@@ -12,7 +12,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
-{
+{   
+    // Store
     public function store(Request $request)
     {
         $request->validate([
@@ -119,6 +120,7 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'currentBranch'));
     }
 
+    // Delete
     public function destroy(Product $product)
     {
         // Optional: delete the product image from storage
@@ -138,6 +140,7 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'Product deleted successfully!');
     }
 
+    // Update
     public function update(Request $request, Product $product)
     {
         $request->validate([

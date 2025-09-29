@@ -10,7 +10,6 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\POSController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -67,15 +66,6 @@ Route::post('/products', [ProductController::class, 'store'])->name('products.st
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 Route::patch('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-
-// POS
-Route::middleware(['auth'])->group(function () {
-    // Show POS screen
-    Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
-
-    // Checkout (AJAX POST)
-    Route::post('/pos/checkout', [POSController::class, 'checkout'])->name('pos.checkout');
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
