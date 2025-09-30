@@ -1,3 +1,46 @@
+@php
+    use App\Models\Product;
+
+    $owner = auth()->user();
+
+    // Get current branch from session (or fallback to first branch)
+    $userBranches  = $owner->branches;
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+                    ?? $userBranches->sortBy('branch_id')->first();
+
+    // Selected category from query string (?category=...)
+    $selectedCategory = request('category');
+
+    // Distinct categories for this branch
+    $categories = Product::whereHas('branch_products', function($q) use ($currentBranch) {
+            $q->where('branch_id', $currentBranch->branch_id);
+        })
+        ->whereNotNull('category')
+        ->distinct()
+        ->orderBy('category')
+        ->pluck('category');
+
+    // Products for POS, filtered by branch + optional category
+    $posProducts = Product::with([
+            'product_supplier.supplier',
+            'branch_products' => function($q) use ($currentBranch) {
+                $q->where('branch_id', $currentBranch->branch_id);
+            }
+        ])
+        ->whereHas('branch_products', function($q) use ($currentBranch) {
+            $q->where('branch_id', $currentBranch->branch_id);
+        })
+        ->when($selectedCategory, function($q) use ($selectedCategory) {
+            $q->where('category', $selectedCategory);
+        })
+        ->when(request('pos_search'), function ($q, $posSearch) {
+            $q->where('prod_name', 'like', "%{$posSearch}%")
+            ->orWhere('category', 'like', "%{$posSearch}%");
+        })
+        ->orderBy('product_id', 'asc')
+        ->get();
+@endphp
+
 <!-- Module Header -->
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
@@ -20,17 +63,19 @@
     </div>
 
     <!-- Search Bar --> 
-    <div class="flex items-center space-x-2">
+    <form method="GET" action="{{ url()->current() }}" class="flex items-center space-x-2">
         <i class="text-blue-800 fa-solid fa-filter"></i>
         <div class="flex items-center px-2 py-1 bg-white rounded shadow w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
             <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
             <input
                 type="text" 
+                name="pos_search"
+                value="{{ request('pos_search') }}"
                 placeholder="Search..." 
                 class="w-full py-0 text-sm bg-white border-none outline-none sm:py-0 md:py-1"
             />
         </div>
-    </div>
+    </form>
 </div>
 
 
@@ -46,99 +91,46 @@
     <div class="w-full lg:w-2/3">
         
         <!-- Categories -->
-        <div class="flex pb-2 space-x-2 overflow-x-auto table-pretty-scrollbar">
-            <button class="px-4 py-1 text-sm bg-white rounded-full">All</button>
-            <button class="px-4 py-1 text-sm text-white bg-blue-500 rounded-full">Paint</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Cement</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plumbing</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Electrical</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plywoods</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plywoods</button>
-            <button class="px-4 py-1 text-sm bg-white rounded-full">Plywoods</button>
+        <div class="flex pb-2 space-x-2 overflow-x-auto whitespace-nowrap">
+            <a href="{{ url()->current() }}" 
+            class="whitespace-nowrap px-4 py-1 text-sm rounded-full {{ request('category') ? 'bg-white' : 'bg-blue-500 text-white' }}">
+                All
+            </a>
+
+            @foreach($categories as $category)
+                <a href="{{ url()->current() }}?category={{ urlencode($category) }}" 
+                class="whitespace-nowrap px-4 py-1 text-sm rounded-full {{ request('category') == $category ? 'bg-blue-500 text-white' : 'bg-white' }}">
+                    {{ $category }}
+                </a>
+            @endforeach
         </div>
 
         <!-- Products Grid -->
-        <div class="grid grid-cols-2 gap-4 mt-4 sm:grid-cols-3 md:grid-cols-4">
+        <div class="grid grid-cols-2 gap-4 mt-4 overflow-y-auto sm:grid-cols-3 md:grid-cols-4" style="max-height: 75vh;">
+            @forelse($posProducts as $product)
             <!-- Card -->
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
+            <div class="p-4 bg-white bg-gray-100 rounded shadow cursor-pointer hover:shadow-lg hover:bg-gray-100">
                 <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
+                    @if($product->prod_image_path)
+                        <img src="{{ asset('storage/'.$product->prod_image_path) }}" 
+                                alt="{{ $product->product_name }}" 
+                                class="object-cover w-full h-full rounded">
+                    @else
+                        <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                            <i class="fa-solid fa-box fa-2x"></i>
+                        </div>
+                    @endif
                 </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
+                <div class="mt-2 text-sm font-bold">{{ $product->prod_name }}</div>
+                <div class="text-xs text-gray-500">{{ $product->product_supplier->first()?->supplier?->supp_name ?? 'N/A' }}</div>
+                <div class="text-xs text-gray-500">Stocks: {{ $product->branch_products->first()?->stock_qty ?? 0 }}</div>
+                <div class="mt-1 font-semibold">₱{{ number_format($product->selling_price, 2) }}</div>
             </div>
-
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
-                <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
-                </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
+            @empty
+            <div class="col-span-4 px-3 py-2 text-center">
+                <span class="text-gray-500">Nothing to see here yet.</span>
             </div>
-
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
-                <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
-                </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
-            </div>
-
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
-                <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
-                </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
-            </div>
-
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
-                <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
-                </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
-            </div>
-
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
-                <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
-                </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
-            </div>
-
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
-                <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
-                </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
-            </div>
-
-            <div class="p-4 bg-white bg-gray-100 rounded shadow">
-                <div class="flex items-center justify-center w-full h-24 bg-blue-300 rounded">
-                    <i class="text-white fa-solid fa-image fa-2x"></i>
-                </div>
-                <div class="mt-2 text-sm font-bold">Product Name</div>
-                <div class="text-xs text-gray-500">Supplier Name</div>
-                <div class="text-xs text-gray-500">Stocks: 5</div>
-                <div class="mt-1 font-semibold">₱100</div>
-            </div>
+            @endforelse
         </div>
     </div>
 

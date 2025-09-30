@@ -54,27 +54,7 @@
     }
 @endphp
 
-@php
-    use App\Models\Category;
-    use Illuminate\Support\Facades\Auth;
-
-    $owner = Auth::user();
-    $userBranches = $owner->branches;
-    $mainBranch = $userBranches->sortBy('branch_id')->first();
-    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
-        ?? $mainBranch;
-
-    $categories = $currentBranch
-        ? Category::where('branch_id', $currentBranch->branch_id)->get()
-        : collect(); // empty collection if no branch
-
-    // Get current user's branches
-    $userBranches = auth()->user()->branches;
-
-    // Get suppliers for branches the user owns
-    $userSuppliers = Supplier::whereIn('branch_id', $userBranches->pluck('branch_id'))->get();
-@endphp
-
+<!-- My Inventory Index -->
 @php
     use App\Models\Product;
 
@@ -97,10 +77,57 @@
         ->when($search, function ($q) use ($search) {
             $q->where('prod_name', 'like', "%{$search}%");
         })
-        ->orderBy('product_id', 'desc')
+        ->orderBy('product_id', 'asc')
         ->paginate($perPage)
         ->withQueryString();
 
+@endphp
+
+@php
+    use Illuminate\Support\Facades\Auth;
+
+    $owner = Auth::user();
+
+    // get current branch from session (or fallback to first branch)
+    $userBranches = $owner->branches; 
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+        ?? $userBranches->sortBy('branch_id')->first();
+
+    $selectedCategory = request()->query('category');
+
+    if ($currentBranch) {
+        // ✅ distinct categories pulled directly from products table
+        $categories = Product::whereHas('branch_products', function ($q) use ($currentBranch) {
+                $q->where('branch_id', $currentBranch->branch_id);
+            })
+            ->whereNotNull('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+
+        // For POS (all products, no pagination)
+        $posProducts = Product::with([
+                'product_supplier.supplier',
+                'branch_products' => function($q) use ($currentBranch) {
+                    $q->where('branch_id', $currentBranch->branch_id);
+                }
+            ])
+            ->whereHas('branch_products', function($q) use ($currentBranch) {
+                $q->where('branch_id', $currentBranch->branch_id);
+            })
+            ->when($selectedCategory, function ($q) use ($selectedCategory) {
+                $q->where('category', $selectedCategory);
+            })
+            ->orderBy('product_id', 'asc')
+            ->get();
+
+        // Get suppliers for branches the user owns
+        $userSuppliers = Supplier::whereIn('branch_id', $userBranches->pluck('branch_id'))->get();
+    } else {
+        $categories = collect();
+        $posProducts = collect();
+        $userSuppliers = collect();
+    }
 @endphp
 
 <!DOCTYPE html>

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Category;
 use App\Models\BranchProduct;
 use App\Models\ProductSupplier;
 use Illuminate\Support\Facades\Storage;
@@ -39,15 +38,6 @@ class ProductController extends Controller
 
         $branchId = $currentBranch->branch_id;
 
-        // Create category if it doesn't exist for this branch
-        $category = Category::firstOrCreate(
-            [
-                'cat_name' => $request->category,
-                'branch_id' => $branchId, // tie category to branch
-            ],
-            ['cat_description' => '']
-        );
-
         // Handle image upload
         $imagePath = $request->hasFile('product_image')
             ? $request->file('product_image')->store('products', 'public')
@@ -60,10 +50,10 @@ class ProductController extends Controller
 
         // Create product
         $product = Product::create([
-            'sku' => $sku, // auto-generated
+            'sku' => $sku,
             'prod_name' => $request->prod_name,
             'prod_description' => $request->prod_description,
-            'category_id' => $category->category_id,
+            'category' => $request->category, // directly saved now
             'unit_cost' => $request->unit_cost,
             'selling_price' => $request->selling_price,
             'prod_image_path' => $imagePath,
@@ -111,7 +101,8 @@ class ProductController extends Controller
                 $q->where('branch_id', $currentBranch->branch_id);
             })
             ->when($search, function ($q) use ($search) {
-                $q->where('prod_name', 'like', "%{$search}%");
+                $q->where('prod_name', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%");
             })
             ->orderBy('product_id', 'desc')
             ->paginate($perPage)
@@ -167,7 +158,6 @@ class ProductController extends Controller
 
         // Handle image upload
         if ($request->hasFile('product_image')) {
-            // Delete old image if exists
             if ($product->prod_image_path && \Storage::disk('public')->exists($product->prod_image_path)) {
                 \Storage::disk('public')->delete($product->prod_image_path);
             }
@@ -179,10 +169,7 @@ class ProductController extends Controller
         $product->update([
             'prod_name' => $request->prod_name,
             'prod_description' => $request->prod_description,
-            'category_id' => \App\Models\Category::firstOrCreate(
-                ['cat_name' => $request->category, 'branch_id' => $branchId],
-                ['cat_description' => '']
-            )->category_id,
+            'category' => $request->category, // updated directly
             'unit_cost' => $request->unit_cost,
             'selling_price' => $request->selling_price,
         ]);
@@ -194,7 +181,6 @@ class ProductController extends Controller
                 'stock_qty' => $request->stock_qty
             ]);
         } else {
-            // If not exists, create new record for this branch
             \App\Models\BranchProduct::create([
                 'branch_id' => $branchId,
                 'product_id' => $product->product_id,
@@ -218,5 +204,4 @@ class ProductController extends Controller
 
         return redirect()->back()->with('success', 'Product updated successfully!');
     }
-
 }

@@ -129,13 +129,20 @@
                     <!-- Category -->
                     <div>
                         <label for="category" class="block mb-1 text-gray-800">Category</label>
-                        <input list="categories" name="category" id="category" placeholder="Pick or type category" 
+                        <select name="category" id="category" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
-                        <datalist id="categories">
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->cat_name }}"></option>
-                            @endforeach
-                        </datalist>
+                            <option value="">Select category</option>
+                            <option value="Building Materials">Building Materials</option>
+                            <option value="Construction Materials">Construction Materials</option>
+                            <option value="Decor">Decor</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Garden & Landscaping">Garden & Landscaping</option>
+                            <option value="Paints & Finishes">Paints & Finishes</option>
+                            <option value="Plumbing & Sanitary">Plumbing & Sanitary</option>
+                            <option value="Security & Safety">Security & Safety</option>
+                            <option value="Tools">Tools</option>
+                        </select>
                     </div>
 
                     <!-- Description -->
@@ -305,7 +312,7 @@
 
                     <!-- Category -->
                     <td class="px-3 py-2 border whitespace-nowrap">
-                        {{ $product->category->cat_name ?? 'N/A' }}
+                        {{ $product->category ?? 'N/A' }}
                     </td>
 
                     <!-- Quantity -->
@@ -401,7 +408,7 @@
             <!-- Product Name & Category -->
             <div>
                 <p class="text-lg font-semibold text-gray-800">{{ $product->prod_name }}</p>
-                <p class="text-sm text-gray-500">Category: {{ $product->category->cat_name ?? 'N/A' }}</p>
+                <p class="text-sm text-gray-500">Category: {{ $product->category ?? 'N/A' }}</p>
             </div>
         </div>
 
@@ -494,13 +501,22 @@
                     </div>
 
                     <!-- Category -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Category</label>
-                        <select name="category" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->cat_name }}" @if($product->category?->cat_name == $cat->cat_name) selected @endif>{{ $cat->cat_name }}</option>
-                            @endforeach
-                        </select>
+                    <div class="flex pb-2 space-x-2 overflow-x-auto no-scrollbar">
+                        <!-- All -->
+                        <a href="{{ route('products.index') }}" 
+                        class="px-4 py-1 text-sm whitespace-nowrap rounded-full 
+                                {{ request('category') ? 'bg-white' : 'bg-blue-500 text-white' }}">
+                            All
+                        </a>
+
+                        <!-- Dynamic categories -->
+                        @foreach($categories as $category)
+                            <a href="{{ route('products.index', ['category' => $category]) }}" 
+                            class="px-4 py-1 text-sm whitespace-nowrap rounded-full 
+                                    {{ request('category') == $category ? 'bg-blue-500 text-white' : 'bg-white' }}">
+                                {{ $category }}
+                            </a>
+                        @endforeach
                     </div>
 
                     <!-- Description -->

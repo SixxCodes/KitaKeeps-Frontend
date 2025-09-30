@@ -16,7 +16,7 @@ class Product extends Model
         'sku',
         'prod_name',
         'prod_description',
-        'category_id',
+        'category',
         'unit_cost',
         'selling_price',
         'is_active',
@@ -38,12 +38,6 @@ class Product extends Model
     public function branch_products()
     {
         return $this->hasMany(BranchProduct::class, 'product_id', 'product_id');
-    }
-
-    // product belongsTo category
-    public function category()
-    {
-        return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
 
     // product hasMany product_supplier

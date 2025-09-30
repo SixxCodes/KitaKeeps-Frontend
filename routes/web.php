@@ -10,6 +10,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\POSController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
