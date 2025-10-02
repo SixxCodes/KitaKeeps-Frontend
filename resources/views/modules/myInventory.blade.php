@@ -453,9 +453,9 @@
 </x-modal>
 @endforeach
 
-<!-- Edit Product Details Modal -->
+
 @foreach($products as $product)
-<!-- Edit Product Modal -->
+<!-- Edit Product Details Modal -->
 <x-modal name="edit-product-{{ $product->product_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         <div class="flex items-center mb-4 space-x-1 text-blue-900">
@@ -501,22 +501,23 @@
                     </div>
 
                     <!-- Category -->
-                    <div class="flex pb-2 space-x-2 overflow-x-auto no-scrollbar">
-                        <!-- All -->
-                        <a href="{{ route('products.index') }}" 
-                        class="px-4 py-1 text-sm whitespace-nowrap rounded-full 
-                                {{ request('category') ? 'bg-white' : 'bg-blue-500 text-white' }}">
-                            All
-                        </a>
-
-                        <!-- Dynamic categories -->
-                        @foreach($categories as $category)
-                            <a href="{{ route('products.index', ['category' => $category]) }}" 
-                            class="px-4 py-1 text-sm whitespace-nowrap rounded-full 
-                                    {{ request('category') == $category ? 'bg-blue-500 text-white' : 'bg-white' }}">
-                                {{ $category }}
-                            </a>
-                        @endforeach
+                    <div>
+                        <label class="block mb-1 text-gray-800">Category</label>
+                        <select name="category" 
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
+                            <option value="">Select category</option>
+                            @php
+                                $allCategories = [
+                                    'Building Materials','Construction Materials','Decor','Electrical',
+                                    'Furniture','Garden & Landscaping','Paints & Finishes',
+                                    'Plumbing & Sanitary','Security & Safety','Tools'
+                                ];
+                                $selectedCategory = old('category', $product->category);
+                            @endphp
+                            @foreach($allCategories as $cat)
+                                <option value="{{ $cat }}" {{ $selectedCategory === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <!-- Description -->

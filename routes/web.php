@@ -11,6 +11,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\POSController;
+use App\Http\Controllers\CustomerController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -67,6 +68,11 @@ Route::post('/products', [ProductController::class, 'store'])->name('products.st
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 Route::patch('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+
+// Customers
+Route::post('/customers/store', [CustomerController::class, 'store'])->name('customers.store');
+Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

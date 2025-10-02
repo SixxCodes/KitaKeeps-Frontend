@@ -1,3 +1,38 @@
+@php
+    use App\Models\Customer;
+
+    $owner = auth()->user();
+    $userBranches = $owner ? $owner->branches : collect();
+
+    // current branch (session fallback to first branch)
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+                    ?? $userBranches->sortBy('branch_id')->first();
+
+    // request params
+    $perPage = (int) request('per_page', 5);
+    $search  = trim(request('search', ''));
+
+    // build query
+    $query = Customer::query();
+
+    // scope to branch when available
+    if ($currentBranch) {
+        $query->where('branch_id', $currentBranch->branch_id);
+    }
+
+    // search across name / contact / address
+    if ($search !== '') {
+        $query->where(function($q) use ($search) {
+            $q->where('cust_name', 'like', "%{$search}%")
+              ->orWhere('cust_contact', 'like', "%{$search}%")
+              ->orWhere('cust_address', 'like', "%{$search}%");
+        });
+    }
+
+    // paginate and keep query string for links, descending order
+    $customers = $query->orderBy('customer_id', 'desc')->paginate($perPage)->appends(request()->query());
+@endphp
+
 <!-- Module Header -->
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
@@ -86,7 +121,7 @@
 </x-modal>
 
 <!-- Add Customer -->
- <x-modal name="add-customer" :show="false" maxWidth="lg">
+<x-modal name="add-customer" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         
         <!-- Title -->
@@ -95,24 +130,32 @@
             <h2 class="text-xl font-semibold">Add New Customer</h2>
         </div>
 
-        <!-- Customer Image (Circle Placeholder) -->
-        <div class="flex flex-col items-center mb-6">
-            <div class="relative">
-                <img src="assets/images/logo/logo-removebg-preview.png" 
-                    class="object-cover w-24 h-24 border rounded-full shadow" 
-                    alt="Customer photo">
-
-                <!-- Edit image button -->
-                <button 
-                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
-                    <i class="text-xs fa-solid fa-pen"></i>
-                </button>
-            </div>
-            <p class="mt-2 text-sm text-gray-500">Add customer photo</p>
-        </div>
-
         <!-- Form -->
-        <form class="space-y-4 text-sm">
+        <form action="{{ route('customers.store') }}" enctype="multipart/form-data" method="POST" class="space-y-4 text-sm">
+            @csrf
+
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="customerImagePreview"
+                        src="assets/images/logo/logo-removebg-preview.png"
+                        class="object-cover w-24 h-24 border rounded-full shadow"
+                        alt="Customer photo">
+
+                    <!-- Hidden File Input -->
+                    <input type="file" name="cust_image_path" id="cust_image_path"
+                        class="hidden" accept="image/*"
+                        onchange="previewCustomerImage(event)">
+
+                    <!-- Edit image button -->
+                    <button type="button"
+                        onclick="document.getElementById('cust_image_path').click();"
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-green-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </button>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add customer photo</p>
+            </div>
+
             <!-- Customer Info -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Customer Information</legend>
@@ -122,22 +165,22 @@
                     <!-- Customer Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Customer Name</label>
-                        <input type="text" placeholder="Juan Dela Cruz" 
-                               class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="cust_name" placeholder="Juan Dela Cruz"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" required />
                     </div>
 
                     <!-- Contact Number -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" placeholder="+63 912 345 6789" 
-                               class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="cust_contact" placeholder="+63 912 345 6789"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
                     </div>
 
                     <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" placeholder="123 Main St, City" 
-                               class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" name="cust_address" placeholder="123 Main St, City"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
                     </div>
 
                 </div>
@@ -159,6 +202,22 @@
         </form>
     </div>
 </x-modal>
+
+<script>
+    function previewCustomerImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('customerImagePreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+</script>
+
+
+
 
 
 
@@ -400,22 +459,27 @@
     <!-- Search + Entries -->
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
-            <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option>5</option>
+            <label class="mr-2 text-sm">Show</label>
+            <select onchange="window.location.href='?per_page='+this.value+'&search={{ request('search') }}'" 
+                class="px-5 py-1 text-sm border rounded">
+                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
             </select>
-            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm">entries</span>
         </div>
 
-        <!-- Search Bar --> 
+        <!-- Search Bar -->
         <div class="flex items-center space-x-2">
-            <i class="text-blue-800 fa-solid fa-filter"></i>
-            <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
+            <div class="flex items-center px-2 py-1 border rounded w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text" 
-                    placeholder="Search..." 
-                    class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search..."
+                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
+                    class="w-full py-0 text-sm bg-transparent border-none outline-none"
                 />
             </div>
         </div>
@@ -426,6 +490,7 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
+                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Customer Name</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Contact Number</th>
@@ -434,73 +499,116 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Employee Rows -->
+                @forelse($customers as $customer)
                 <tr class="hover:bg-gray-50">
-                    <!-- Customer ID -->
-                    <td class="px-3 py-2 border">1</td>
+                    <!-- Auto-increment row number -->
+                    <td class="px-3 py-2 border bg-blue-50">
+                        {{ $customers->firstItem() + $loop->index }}
+                    </td>
 
-                    <!-- Customer Profile and Name -->
-                    <td class="px-3 py-2 border">
+                    <!-- Customer ID -->
+                    <td class="px-3 py-2 border">{{ $customer->customer_id }}</td>
+
+                    <!-- Customer Name with Image -->
+                    <td class="px-3 py-2 border ellipsis whitespace-nowrap">
                         <div class="flex items-center gap-2">
-                            <!-- Circle placeholder icon -->
-                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                            <i class="fa-solid fa-user"></i>
-                            </div>
-                            <!-- Name -->
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
+                            @if($customer->cust_image_path)
+                                <img 
+                                    src="{{ asset('storage/' . $customer->cust_image_path) }}" 
+                                    alt="{{ $customer->cust_name }}" 
+                                    class="object-cover w-8 h-8 rounded-full"
+                                >
+                            @else
+                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            @endif
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
+                                {{ $customer->cust_name }}
+                            </span>
                         </div>
                     </td>
 
                     <!-- Contact Number -->
-                    <td class="px-3 py-2 border ellipses whitespace-nowrap">0926 281 1138</td>
+                    <td class="px-3 py-2 border ellipsis whitespace-nowrap">
+                        {{ $customer->cust_contact }}
+                    </td>
 
-                    <!-- Customer Address -->
-                    <td class="px-3 py-2 border ellipses whitespace-nowrap">
-                        Prk.Makugihon, Brgy. Cuambog, Mabini, Davao de Oro
+                    <!-- Address -->
+                    <td class="px-3 py-2 border ellipsis whitespace-nowrap">
+                        {{ $customer->cust_address }}
                     </td>
 
                     <!-- Actions -->
                     <td class="flex justify-center gap-2 px-3 py-3 border">
-                        <button x-on:click="$dispatch('open-modal', 'view-customer')"  class="px-2 py-1 text-white bg-blue-500 rounded">
+                        <button x-data
+                            x-on:click="$dispatch('open-modal', 'view-customer-{{ $customer->customer_id }}')" 
+                            class="px-2 py-1 text-white bg-blue-500 rounded">
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'edit-customer')"  class="px-2 py-1 text-white bg-green-500 rounded">
+                        <button x-data
+                            x-on:click="$dispatch('open-modal', 'edit-customer-{{ $customer->customer_id }}')" 
+                            class="px-2 py-1 text-white bg-green-500 rounded">
                             <i class="fa-solid fa-user-pen"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'delete-customer')"  class="px-2 py-1 text-white bg-red-500 rounded">
+                        <button x-data
+                            x-on:click="$dispatch('open-modal', 'delete-customer-{{ $customer->customer_id }}')" 
+                            class="px-2 py-1 text-white bg-red-500 rounded">
                             <i class="fa-solid fa-user-minus"></i>
                         </button>
                     </td>
                 </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-3 py-2 text-center text-gray-500 border">
+                            Nothing to see here yet.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
+        <p class="text-sm">
+            Showing {{ $customers->firstItem() ?? 0 }} to {{ $customers->lastItem() ?? 0 }} of {{ $customers->total() }} entries
+        </p>
         <div class="flex gap-2">
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
+            <a href="{{ $customers->previousPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $customers->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                Previous
+            </a>
+            <a href="{{ $customers->nextPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $customers->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                Next
+            </a>
         </div>
     </div>
-    
 </div>
 
+@foreach($customers as $customer)
 <!-- View Customer Details Modal -->
-<x-modal name="view-customer" :show="false" maxWidth="sm">
+<x-modal name="view-customer-{{ $customer->customer_id }}" :show="false" maxWidth="sm">
     <div class="p-6">
         <!-- Profile Section -->
         <div class="flex items-center space-x-4">
-            <!-- User Icon -->
-            <div class="flex items-center justify-center w-20 h-20 text-2xl text-white bg-green-400 rounded-full">
-                <i class="fa-solid fa-user"></i>
+            <!-- Customer Icon / Image -->
+            <div class="flex items-center justify-center w-20 h-20 overflow-hidden text-3xl text-white bg-blue-400 rounded-full">
+                @if($customer->cust_image_path)
+                    <img src="{{ asset('storage/' . $customer->cust_image_path) }}" 
+                         alt="{{ $customer->cust_name }}" 
+                         class="object-cover w-full h-full rounded-full">
+                @else
+                    <i class="fa-solid fa-user"></i>
+                @endif
             </div>
 
-            <!-- Name + Customer Type -->
+            <!-- Name -->
             <div>
-                <p class="text-lg font-semibold text-gray-800">Jane Smith</p>
-                <p class="text-sm text-gray-500">Regular Customer</p>
+                <p class="text-lg font-semibold text-gray-800">
+                    {{ $customer->cust_name }}
+                </p>
             </div>
         </div>
 
@@ -508,18 +616,20 @@
         <div class="my-4 border-t"></div>
 
         <!-- Customer Details -->
-        <div class="space-y-2 text-sm text-gray-700">
-            <p><span class="font-medium">Gender:</span> Female</p>
-            <p><span class="font-medium">Contact Number:</span> +63 987 654 3210</p>
-            <p><span class="font-medium">Email:</span> jane@example.com</p>
-            <p><span class="font-medium">Address:</span> 456 Market Road, City</p>
-            <p><span class="font-medium">Credit Balance:</span> ₱2,500</p>
+        <div class="space-y-4 text-sm text-gray-700">
+            <div>
+                <h3 class="mb-2 text-xs font-semibold tracking-wide text-green-500 uppercase">Customer Information</h3>
+                <div class="flex flex-col space-y-2">
+                    <p><span class="font-medium">Contact:</span> {{ $customer->cust_contact ?? 'N/A' }}</p>
+                    <p><span class="font-medium">Address:</span> {{ $customer->cust_address ?? 'N/A' }}</p>
+                </div>
+            </div>
         </div>
 
         <!-- Close Button -->
         <div class="flex justify-end pt-4">
             <button 
-                x-on:click="$dispatch('close-modal', 'view-customer')"
+                x-on:click="$dispatch('close-modal', 'view-customer-{{ $customer->customer_id }}')"
                 class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700"
             >
                 Close
@@ -527,87 +637,89 @@
         </div>
     </div>
 </x-modal>
+@endforeach
 
-<!-- Edit Customer Details Modal -->
-<x-modal name="edit-customer" :show="false" maxWidth="lg">
+@foreach($customers as $customer)
+<!-- Edit Customer Modal -->
+<x-modal name="edit-customer-{{ $customer->customer_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex items-center mb-4 space-x-1 text-green-900">
+        <div class="flex items-center mb-4 space-x-1 text-blue-900">
             <i class="fa-solid fa-user-pen"></i>
-            <h2 class="text-xl font-semibold">Edit Customer Details</h2>
-        </div>
-
-        <!-- Profile Image -->
-        <div class="flex flex-col items-center mb-6">
-            <div class="relative">
-                <img src="assets/images/logo/logo-removebg-preview.png" 
-                     class="object-cover w-24 h-24 border rounded-full shadow" 
-                     alt="Customer photo">
-
-                <!-- Edit image button -->
-                <button 
-                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-green-600 rounded-full hover:bg-green-700">
-                    <i class="text-xs fa-solid fa-pen"></i>
-                </button>
-            </div>
-            <p class="mt-2 text-sm text-gray-500">Change profile photo</p>
+            <h2 class="text-xl font-semibold">Edit Customer</h2>
         </div>
 
         <!-- Form -->
-        <form class="space-y-4 text-sm">
-            <!-- Personal Information -->
+        <form action="{{ route('customers.update', $customer->customer_id) }}" 
+              method="POST" 
+              enctype="multipart/form-data"
+              class="space-y-4 text-sm">
+            @csrf
+            @method('PUT')
+
+            <!-- Profile Image -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="customerImagePreview-{{ $customer->customer_id }}"
+                         src="{{ $customer->cust_image_path ? asset('storage/' . $customer->cust_image_path) : asset('assets/images/logo/logo-removebg-preview.png') }}"
+                         class="object-cover w-24 h-24 border rounded-full shadow" 
+                         alt="Customer photo">
+
+                    <!-- Hidden File Input -->
+                    <input type="file" 
+                           name="cust_image_path" 
+                           id="cust_image_path_{{ $customer->customer_id }}" 
+                           class="hidden" 
+                           accept="image/*"
+                           onchange="previewCustomerImage(event, '{{ $customer->customer_id }}')">
+
+                    <!-- Edit image button -->
+                    <button type="button"
+                        onclick="document.getElementById('cust_image_path_{{ $customer->customer_id }}').click();"
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-green-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </button>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Change profile photo</p>
+            </div>
+
+            <!-- Customer Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
-                <legend class="font-semibold text-gray-700">Personal Information</legend>
+                <legend class="font-semibold text-gray-700">Customer Information</legend>
 
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
-
-                    <!-- First Name -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">First Name</label>
-                        <input type="text" value="Jane" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                    </div>
-
-                    <!-- Last Name -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Last Name</label>
-                        <input type="text" value="Smith" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                    </div>
-
-                    <!-- Gender -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Gender</label>
-                        <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500">
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female" selected>Female</option>
-                            <option value="other">Other</option>
-                        </select>
+                    <!-- Name -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Name</label>
+                        <input type="text" 
+                               name="cust_name" 
+                               value="{{ $customer->cust_name }}" 
+                               class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Contact Number -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" value="+63 987 654 3210" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                    </div>
-
-                    <!-- Email -->
                     <div class="sm:col-span-2">
-                        <label class="block mb-1 text-gray-800">Email</label>
-                        <input type="email" value="jane@example.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <label class="block mb-1 text-gray-800">Contact Number</label>
+                        <input type="text" 
+                               name="cust_contact" 
+                               value="{{ $customer->cust_contact }}" 
+                               class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" value="456 Customer Ave, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input type="text" 
+                               name="cust_address" 
+                               value="{{ $customer->cust_address }}" 
+                               class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
-
                 </div>
             </fieldset>
 
             <!-- Buttons -->
             <div class="flex justify-end mt-2 space-x-2">
                 <button type="button" 
-                    x-on:click="$dispatch('close-modal', 'edit-customer')"
+                    x-on:click="$dispatch('close-modal', 'edit-customer-{{ $customer->customer_id }}')"
                     class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
                     Cancel
                 </button>
@@ -620,34 +732,99 @@
         </form>
     </div>
 </x-modal>
+@endforeach
 
-<!-- Delete Customer -->
-<x-modal name="delete-customer" :show="false" maxWidth="sm">
+<script>
+    function previewCustomerImage(event, id) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById(`customerImagePreview-${id}`).src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+
+@foreach($customers as $customer)
+<!-- Delete Customer Modal -->
+<x-modal name="delete-customer-{{ $customer->customer_id }}" :show="false" maxWidth="sm">
     <div class="p-6 space-y-4 text-center">
 
         <!-- Red warning icon -->
         <i class="mx-auto text-4xl text-red-500 fa-solid fa-triangle-exclamation"></i>
 
-        <h2 class="text-lg font-semibold text-gray-800">Fire Customer?</h2>
+        <h2 class="text-lg font-semibold text-gray-800">Delete {{ $customer->cust_name }}?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove the customer from the system. This cannot be undone.
+            This action will permanently remove <span class="font-semibold text-red-600">{{ $customer->cust_name }}</span> 
+            and all of their related records from the system. This cannot be undone.
         </p>
 
         <div class="flex justify-center mt-4 space-x-3">
+            <!-- Cancel -->
             <button
-                x-on:click="$dispatch('close-modal', 'delete-customer')"
+                x-on:click="$dispatch('close-modal', 'delete-customer-{{ $customer->customer_id }}')"
                 class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300"
             >
                 Cancel
             </button>
 
-            <button
-                class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
-            >
-                Yes, Delete
-            </button>
+            <!-- Delete -->
+            <form action="{{ route('customers.destroy', $customer->customer_id) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button
+                    type="submit"
+                    class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
+                >
+                    Yes, Delete
+                </button>
+            </form>
         </div>
 
+    </div>
+</x-modal>
+@endforeach
+
+<!-- script for feedback modals -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        @if(session('success'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
+        @endif
+
+        @if(session('error'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
+        @endif
+    });
+</script>
+
+<!-- Feedback Modals -->
+<!-- Success Modal -->
+<x-modal name="success-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-green-600 fa-solid fa-circle-check fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Success!</h2>
+        <p class="mt-1 text-gray-600">Operation completed successfully.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-green-600 rounded hover:bg-green-700"
+            x-on:click="$dispatch('close-modal', 'success-modal')">
+            Yay!
+        </button>
+    </div>
+</x-modal>
+
+<!-- Error Modal -->
+<x-modal name="error-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-red-600 fa-solid fa-circle-xmark fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Error!</h2>
+        <p class="mt-1 text-gray-600">Something went wrong. Please try again.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-red-600 rounded hover:bg-red-700"
+            x-on:click="$dispatch('close-modal', 'error-modal')">
+            Try Again
+        </button>
     </div>
 </x-modal>
 

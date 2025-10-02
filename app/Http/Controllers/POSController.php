@@ -51,5 +51,5 @@ class POSController extends Controller
 
         return view('pos.index', compact('categories', 'posProducts', 'selectedCategory', 'currentBranch'));
     }
-
+    
 }
