@@ -18,6 +18,9 @@ class AuditLog extends Model
         'details',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts
     protected $casts = [
         'created_at' => 'datetime',

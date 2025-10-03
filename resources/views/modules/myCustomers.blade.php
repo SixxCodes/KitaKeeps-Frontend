@@ -33,6 +33,59 @@
     $customers = $query->orderBy('customer_id', 'desc')->paginate($perPage)->appends(request()->query());
 @endphp
 
+@php
+    use App\Models\Sale;
+
+    $owner = auth()->user();
+    $userBranches = $owner ? $owner->branches : collect();
+
+    // Current branch (session fallback to first branch)
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+                    ?? $userBranches->sortBy('branch_id')->first();
+
+    // Request params
+    $perPage = (int) request('per_page', 5);
+    $search  = trim(request('search', ''));
+
+    // Build query for customers who have at least one credit sale
+    $query = Customer::query();
+
+    // Scope to branch when available
+    if ($currentBranch) {
+        $query->where('branch_id', $currentBranch->branch_id);
+    }
+
+    // Search across name / contact / address
+    if ($search !== '') {
+        $query->where(function($q) use ($search) {
+            $q->where('cust_name', 'like', "%{$search}%")
+            ->orWhere('cust_contact', 'like', "%{$search}%")
+            ->orWhere('cust_address', 'like', "%{$search}%");
+        });
+    }
+
+    // Only customers with at least one sale of type Credit
+    $query->whereHas('sales', function($q) {
+        $q->where('payment_type', 'Credit');
+    });
+
+    $creditCustomers = Customer::with(['sales' => function($q) use ($currentBranch) {
+        $q->where('payment_type', 'Credit');
+        if ($currentBranch) {
+            $q->where('branch_id', $currentBranch->branch_id);
+        }
+        $q->orderBy('due_date', 'asc');
+    }])
+    ->whereHas('sales', function($q) use ($currentBranch) {
+        $q->where('payment_type', 'Credit');
+        if ($currentBranch) {
+            $q->where('branch_id', $currentBranch->branch_id);
+        }
+    })
+    ->paginate($perPage);
+
+@endphp
+
 <!-- Module Header -->
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
@@ -204,16 +257,18 @@
 </x-modal>
 
 <script>
-    function previewCustomerImage(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+    document.addEventListener("DOMContentLoaded", () => {
+        window.previewCustomerImage = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('customerImagePreview').src = e.target.result;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('customerImagePreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(file);
-    }
+    });
 </script>
 
 
@@ -229,40 +284,101 @@
 
 
 
+@php
+    $currentBranchId = session('current_branch_id') 
+    ?? auth()->user()->branches->sortBy('branch_id')->first()?->branch_id;
+
+    // Customers with Credit (current branch)
+    $customersWithCredit = \App\Models\Customer::whereHas('sales', function($query) use ($currentBranchId) {
+        $query->where('payment_type', 'Credit')
+            ->where('branch_id', $currentBranchId);
+    })->count();
+
+    // Customers with Credit last week (for % change)
+    $lastWeekCustomers = \App\Models\Customer::whereHas('sales', function($query) use ($currentBranchId) {
+        $query->where('payment_type', 'Credit')
+            ->where('branch_id', $currentBranchId)
+            ->whereBetween('due_date', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()]);
+    })->count();
+
+    // Percentage change for Customers with Credit
+    $customersPercent = $lastWeekCustomers
+        ? round((($customersWithCredit - $lastWeekCustomers) / $lastWeekCustomers) * 100, 1)
+        : 0;
+
+    // Credit sales due this week
+    $dueThisWeek = \App\Models\Sale::where('payment_type', 'Credit')
+        ->where('branch_id', $currentBranchId)
+        ->whereBetween('due_date', [now()->startOfWeek(), now()->endOfWeek()])
+        ->count();
+
+    // Credit sales due last week
+    $dueLastWeek = \App\Models\Sale::where('payment_type', 'Credit')
+        ->where('branch_id', $currentBranchId)
+        ->whereBetween('due_date', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+        ->count();
+
+    // Percentage change for Due This Week
+    $duePercent = $dueLastWeek ? round((($dueThisWeek - $dueLastWeek) / $dueLastWeek) * 100, 1) : 0;
+
+    // Total receivables (current branch)
+    $totalReceivables = \App\Models\Sale::where('payment_type', 'Credit')
+        ->where('branch_id', $currentBranchId)
+        ->sum('total_amount');
+
+    // Total receivables last week (for % change)
+    $lastWeekReceivables = \App\Models\Sale::where('payment_type', 'Credit')
+        ->where('branch_id', $currentBranchId)
+        ->whereBetween('due_date', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+        ->sum('total_amount');
+
+    // Percentage change for Total Receivables
+    $totalPercent = $lastWeekReceivables
+        ? round((($totalReceivables - $lastWeekReceivables) / $lastWeekReceivables) * 100, 1)
+        : 0;
+@endphp
+
 <!-- Customer Summary -->
 <div class="overflow-x-auto table-pretty-scrollbar">
     <div class="flex gap-6 p-6 mt-1 min-w-max">
         <!-- Customers with Credit -->
         <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[270px]">
-        <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500">Customers with Credit</span>
-            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
-        </div>
-        <h2 class="text-2xl font-bold text-gray-900">47</h2>
-        <p class="mt-1 text-sm text-green-500">▲ 6.3% <span class="text-gray-500">this week</span></p>
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">Customers with Credit</span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">{{ $customersWithCredit }}</h2>
+            <p class="mt-1 text-sm {{ $customersPercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
+                {{ $customersPercent >= 0 ? '▲' : '▼' }} {{ abs($customersPercent) }}% 
+                <span class="text-gray-500">this week</span>
+            </p>
         </div>
 
         <!-- Due This Week -->
         <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[270px]">
-        <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500">Due This Week</span>
-            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
-        </div>
-        <h2 class="text-2xl font-bold text-gray-900">39</h2>
-        <p class="mt-1 text-sm text-green-500">▲ 12% <span class="text-gray-500">this week</span></p>
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">Due This Week</span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">{{ $dueThisWeek }}</h2>
+            <p class="mt-1 text-sm {{ $duePercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
+                {{ $duePercent >= 0 ? '▲' : '▼' }} {{ abs($duePercent) }}% 
+                <span class="text-gray-500">this week</span>
+            </p>
         </div>
 
         <!-- Total Receivables -->
         <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[270px]">
-        <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500">Total Receivables</span>
-            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
-        </div>
-        <h2 class="text-2xl font-bold text-gray-900">₱64,222.00</h2>
-        <p class="mt-1 text-sm text-red-500">▼ 2.4% <span class="text-gray-500">this week</span></p>
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">Total Receivables</span>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">₱{{ number_format($totalReceivables, 2) }}</h2>
+            <p class="mt-1 text-sm {{ $totalPercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
+                {{ $totalPercent >= 0 ? '▲' : '▼' }} {{ abs($totalPercent) }}% 
+                <span class="text-gray-500">this week</span>
+            </p>
         </div>
     </div>
 </div>
+
 
 
 
@@ -281,8 +397,10 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">
-                <option>5</option>
+            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base" onchange="window.location.href='?per_page='+this.value">
+                @foreach([5,10,25,50] as $size)
+                    <option value="{{ $size }}" @if(request('per_page', 5) == $size) selected @endif>{{ $size }}</option>
+                @endforeach
             </select>
             <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
         </div>
@@ -296,6 +414,8 @@
                     type="text" 
                     placeholder="Search..." 
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
+                    onkeydown="if(event.key==='Enter'){window.location.href='?search='+this.value;}"
+                    value="{{ request('search') }}"
                 />
             </div>
         </div>
@@ -308,140 +428,185 @@
                 <tr>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Customer Name</th>
-                    <th class="px-3 py-2 text-left border whitespace-nowrap">Total Amount</th>
-                    <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Incoming Due Date</th>
+                    <th class="px-3 py-2 text-left border whitespace-nowrap">Total Credit</th>
+                    <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Next Due Date</th>
                     <th class="px-3 py-2 text-left border">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Employee Rows -->
-                <tr class="hover:bg-gray-50">
-                    <!-- Customer ID -->
-                    <td class="px-3 py-2 border">1</td>
+                @forelse($creditCustomers as $customer)
+                    @php
+                        $creditSales = $customer->sales; // already loaded
+                        $totalCredit = $creditSales->sum('total_amount');
+                        $nextDueSale = $creditSales->first(); // earliest due
+                    @endphp
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-2 border">{{ $customer->customer_id }}</td>
 
-                    <!-- Customer Profile and Name -->
-                    <td class="px-3 py-2 border">
-                        <div class="flex items-center gap-2">
-                            <!-- Circle placeholder icon -->
-                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                            <i class="fa-solid fa-user"></i>
+                        <td class="px-3 py-2 border">
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <span class="overflow-hidden whitespace-nowrap text-ellipsis">{{ $customer->cust_name }}</span>
                             </div>
-                            <!-- Name -->
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
-                        </div>
-                    </td>
+                        </td>
 
-                    <!-- Total Amount -->
-                    <td class="px-3 py-2 border ellipses whitespace-nowrap">P2005</td>
+                        <td class="px-3 py-2 border ellipses whitespace-nowrap">
+                            P{{ number_format($totalCredit, 2) }}
+                        </td>
 
-                    <!-- Due Date -->
-                    <td class="px-3 py-2 border ellipses whitespace-nowrap">
-                        10-10-25
-                    </td>
+                        <td class="px-3 py-2 border ellipses whitespace-nowrap">
+                            {{ $nextDueSale?->due_date?->format('m-d-y') ?? '-' }}
+                        </td>
 
-                    <!-- Actions -->
-                    <td class="flex justify-center gap-2 px-3 py-3 border">
-                        <button x-on:click="$dispatch('open-modal', 'customer-credits')" class="px-2 py-1 text-white bg-blue-500 rounded">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
+                        <td class="flex justify-center gap-2 px-3 py-3 border">
+                            <button 
+                                x-on:click="$dispatch('open-modal', 'customer-credits-{{ $customer->customer_id }}')"
+                                class="px-2 py-1 text-white bg-blue-500 rounded"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-3 py-2 text-center text-gray-500 border">
+                            No credit customers found.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
+        <p class="text-sm">
+            Showing {{ $customers->firstItem() ?? 0 }} to {{ $customers->lastItem() ?? 0 }} of {{ $customers->total() }} entries
+        </p>
         <div class="flex gap-2">
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
-        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
+            <a href="{{ $customers->previousPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $customers->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
+                Previous
+            </a>
+            <a href="{{ $customers->nextPageUrl() }}" 
+                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $customers->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
+                Next
+            </a>
         </div>
     </div>
-    
 </div>
 
 <!-- View Customer Credit Modal -->
-<x-modal name="customer-credits" :show="false" maxWidth="2xl">
-    <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <!-- Title -->
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-credit-card"></i>
-            <h2 class="text-xl font-semibold">Customer Credits</h2>
+@foreach($creditCustomers as $customer)
+    <x-modal name="customer-credits-{{ $customer->customer_id }}" :show="false" maxWidth="2xl">
+        <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+            <!-- Title -->
+            <div class="flex items-center mb-4 space-x-1 text-blue-900">
+                <i class="fa-solid fa-credit-card"></i>
+                <h2 class="text-xl font-semibold">{{ $customer->cust_name }}'s Credits</h2>
+            </div>
+
+            <!-- Credits Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm border">
+                    <thead class="bg-blue-50">
+                        <tr>
+                            <th class="px-3 py-2 text-left border">Credit ID</th>
+                            <th class="px-3 py-2 text-left border whitespace-nowrap">Due Date</th>
+                            <th class="px-3 py-2 text-left border whitespace-nowrap">Sale Date</th>
+                            <th class="px-3 py-2 text-left border whitespace-nowrap">Amount</th>
+                            <th class="px-3 py-2 text-center border">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $totalAmount = 0; @endphp
+                        @foreach($customer->sales as $sale)
+                            @php $totalAmount += $sale->total_amount; @endphp
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-3 py-2 border">{{ $sale->sale_id }}</td>
+                                <td class="px-3 py-2 border">{{ $sale->due_date?->format('Y-m-d') ?? '-' }}</td>
+                                <td class="px-3 py-2 border">{{ $sale->sale_date?->format('Y-m-d') ?? '-' }}</td>
+                                <td class="px-3 py-2 border whitespace-nowrap">₱{{ number_format($sale->total_amount, 2) }}</td>
+                                <td class="flex justify-center gap-2 px-3 py-2 border">
+
+                                    <!-- Pay Form -->
+                                    <form action="{{ route('sales.pay', $sale->sale_id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" 
+                                            class="px-2 py-1 text-white bg-green-500 rounded hover:bg-green-600"
+                                            onclick="return confirm('Are you sure you want to pay this credit?')"
+                                        >
+                                            <i class="fa-solid fa-peso-sign"></i> Pay
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete Form -->
+                                    <form action="{{ route('sales.destroy', $sale->sale_id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                            class="px-2 py-1 text-white bg-red-500 rounded hover:bg-red-600"
+                                            onclick="return confirm('Are you sure you want to delete this credit?')"
+                                        >
+                                            <i class="fa-solid fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+
+                                </td>
+                            </tr>
+                        @endforeach
+
+                        <!-- Total Row -->
+                        <tr class="font-semibold bg-gray-100">
+                            <td colspan="3" class="px-3 py-2 text-right border">Total Amount:</td>
+                            <td class="px-3 py-2 border">₱{{ number_format($totalAmount, 2) }}</td>
+                            <td class="flex justify-center gap-2 px-3 py-2 border">
+
+                                <!-- Pay All Form -->
+                                <form action="{{ route('sales.payAll', $customer->customer_id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" 
+                                        class="px-2 py-1 text-white bg-green-600 rounded hover:bg-green-700"
+                                        onclick="return confirm('Are you sure you want to pay all credits?')"
+                                    >
+                                        <i class="fa-solid fa-money-bill-wave"></i> Pay All
+                                    </button>
+                                </form>
+
+                                <!-- Delete All Form -->
+                                <form action="{{ route('sales.destroyAll', $customer->customer_id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                        class="px-2 py-1 text-white bg-red-600 rounded hover:bg-red-700"
+                                        onclick="return confirm('Are you sure you want to delete all credits?')"
+                                    >
+                                        <i class="fa-solid fa-trash"></i> Delete All
+                                    </button>
+                                </form>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Button -->
+            <div class="flex justify-end mt-4">
+                <button 
+                    x-on:click="$dispatch('close-modal', 'customer-credits-{{ $customer->customer_id }}')"
+                    class="px-4 py-2 text-white transition bg-blue-600 rounded hover:bg-blue-700"
+                >
+                    Close
+                </button>
+            </div>
         </div>
+    </x-modal>
+@endforeach
 
-        <!-- Credits Table -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm border">
-                <thead class="bg-blue-50">
-                    <tr>
-                        <th class="px-3 py-2 text-left border">Credit ID</th>
-                        <th class="px-3 py-2 text-left border whitespace-nowrap">Due Date</th>
-                        <th class="px-3 py-2 text-left border whitespace-nowrap">Sale Date</th>
-                        <th class="px-3 py-2 text-left border whitespace-nowrap">Amount</th>
-                        <th class="px-3 py-2 text-center border">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Row Example -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-3 py-2 border">CRED-001</td>
-                        <td class="px-3 py-2 border">2025-10-15</td>
-                        <td class="px-3 py-2 border">2025-09-20</td>
-                        <td class="px-3 py-2 border whitespace-nowrap">₱1,200</td>
-                        <td class="flex justify-center gap-2 px-3 py-2 border">
-                            <button class="px-2 py-1 text-white bg-green-500 rounded hover:bg-green-600">
-                                <i class="fa-solid fa-peso-sign"></i> Pay
-                            </button>
-                            <button class="px-2 py-1 text-white bg-red-500 rounded hover:bg-red-600">
-                                <i class="fa-solid fa-trash"></i> Delete
-                            </button>
-                        </td>
-                    </tr>
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-3 py-2 border">CRED-002</td>
-                        <td class="px-3 py-2 border">2025-11-01</td>
-                        <td class="px-3 py-2 border">2025-09-22</td>
-                        <td class="px-3 py-2 border whitespace-nowrap">₱805</td>
-                        <td class="flex justify-center gap-2 px-3 py-2 border">
-                            <button class="px-2 py-1 text-white bg-green-500 rounded hover:bg-green-600">
-                                <i class="fa-solid fa-peso-sign"></i> Pay
-                            </button>
-                            <button class="px-2 py-1 text-white bg-red-500 rounded hover:bg-red-600">
-                                <i class="fa-solid fa-trash"></i> Delete
-                            </button>
-                        </td>
-                    </tr>
-
-                    <!-- Total Row -->
-                    <tr class="font-semibold bg-gray-100">
-                        <td colspan="3" class="px-3 py-2 text-right border">Total Amount:</td>
-                        <td class="px-3 py-2 border">₱2,005</td>
-                        <td class="flex justify-center gap-2 px-3 py-2 border">
-                            <button class="px-2 py-1 text-white bg-green-600 rounded hover:bg-green-700">
-                                <i class="fa-solid fa-money-bill-wave"></i> Pay All
-                            </button>
-                            <button class="px-2 py-1 text-white bg-red-600 rounded hover:bg-red-700">
-                                <i class="fa-solid fa-trash"></i> Delete All
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Footer Button -->
-        <div class="flex justify-end mt-4">
-            <button 
-                x-on:click="$dispatch('close-modal', 'customer-credits')"
-                class="px-4 py-2 text-white transition bg-blue-600 rounded hover:bg-blue-700"
-            >
-                Close
-            </button>
-        </div>
-    </div>
-</x-modal>
 
 
 
@@ -659,7 +824,7 @@
             <!-- Profile Image -->
             <div class="flex flex-col items-center mb-6">
                 <div class="relative">
-                    <img id="customerImagePreview-{{ $customer->customer_id }}"
+                    <img id="customerImagePreviewEdit-{{ $customer->customer_id }}"
                          src="{{ $customer->cust_image_path ? asset('storage/' . $customer->cust_image_path) : asset('assets/images/logo/logo-removebg-preview.png') }}"
                          class="object-cover w-24 h-24 border rounded-full shadow" 
                          alt="Customer photo">
@@ -670,7 +835,7 @@
                            id="cust_image_path_{{ $customer->customer_id }}" 
                            class="hidden" 
                            accept="image/*"
-                           onchange="previewCustomerImage(event, '{{ $customer->customer_id }}')">
+                           onchange="previewCustomerImageEdit(event, '{{ $customer->customer_id }}')">
 
                     <!-- Edit image button -->
                     <button type="button"
@@ -735,12 +900,12 @@
 @endforeach
 
 <script>
-    function previewCustomerImage(event, id) {
+    function previewCustomerImageEdit(event, id) {
         const file = event.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById(`customerImagePreview-${id}`).src = e.target.result;
+            document.getElementById(`customerImagePreviewEdit-${id}`).src = e.target.result;
         };
         reader.readAsDataURL(file);
     }

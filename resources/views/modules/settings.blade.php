@@ -123,6 +123,6 @@
 
     <!-- Footer Branding -->
     <footer class="py-4 text-sm text-center text-gray-400 border-t mt-15">
-        © 2025 CKC Systems. All rights reserved.
+        © 2025 KitaKeeps. All rights reserved.
     </footer>
 </div>

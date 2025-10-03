@@ -12,6 +12,8 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\SalesController;
+use App\Http\Controllers\CustomerCreditController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -73,6 +75,15 @@ Route::patch('/products/{product}', [ProductController::class, 'update'])->name(
 Route::post('/customers/store', [CustomerController::class, 'store'])->name('customers.store');
 Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
 Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+Route::get('/customers/{customer}/credits', [CustomerController::class, 'credits']);
+
+// Sales
+Route::post('/sales', [SalesController::class, 'store'])->name('sales.store');
+Route::post('/sale/{sale}/pay-credit', [SalesController::class, 'payCredit'])->name('sale.pay-credit');
+Route::post('/sales/{sale}/pay', [SalesController::class, 'pay'])->name('sales.pay');
+Route::delete('/sales/{sale}', [SalesController::class, 'destroy'])->name('sales.destroy');
+Route::post('/customers/{customer}/credits/pay-all', [SalesController::class, 'payAll'])->name('sales.payAll');
+Route::delete('/customers/{customer}/credits/delete-all', [SalesController::class, 'destroyAll'])->name('sales.destroyAll');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

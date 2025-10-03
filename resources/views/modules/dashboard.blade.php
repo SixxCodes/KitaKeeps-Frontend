@@ -2,21 +2,59 @@
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
-            <button><i class="fa-solid fa-caret-down"></i></button>
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
+                {{ $currentBranch->branch_name ?? 'No Branch' }}
+            </h2>
+            
+            <!-- Caret Button to Open Modal -->
+            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
+                class="text-gray-600 hover:text-black">
+                <i class="fa-solid fa-caret-down"></i>
+            </button> -->
         </div>
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
+
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
+            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
+            {{ $currentBranch->location ?? '' }}
+        </span>
     </div>
 
     <!-- Top: Clock + Date -->
     <div class="flex items-end justify-end">
         <div class="flex flex-col items-end">
-            <span id="clock" class="text-xl font-semibold text-blue-600">12:45:32</span>
-            <span id="date" class="text-sm text-gray-500">September 22, 2025</span>
+            <span id="clock" class="text-xl font-semibold text-blue-600"></span>
+            <span id="date" class="text-sm text-gray-500"></span>
         </div>
     </div>
 </div>
 
+<!-- Clock Script -->
+<script>
+    function updateClockAndDate() {
+        const now = new Date();
+
+        // Format time as 12-hour HH:MM:SS AM/PM
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12; // convert 0 to 12
+        const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+        // Format date as Month Day, Year
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const dateString = now.toLocaleDateString(undefined, options);
+
+        document.getElementById('clock').textContent = timeString;
+        document.getElementById('date').textContent = dateString;
+    }
+
+    // Initial call
+    updateClockAndDate();
+
+    // Update every second
+    setInterval(updateClockAndDate, 1000);
+</script>
 
 
 
@@ -26,12 +64,8 @@
 
 
 
-<!-- Customer Summary -->
 
-
-
-
-
+<!-- Summary -->
 <div class="overflow-x-auto table-pretty-scrollbar">
     <div class="flex gap-6 p-6 mt-1 min-w-max">
         <!-- Total Inventory Value -->
@@ -84,6 +118,7 @@
 
 
 
+<!-- Charts & Graphs -->
 <div class="flex justify-center mb-20 space-x-5 overflow-x-auto table-pretty-scrollbar">
     <!-- Pie Chart -->
     <div class="w-64 p-4 p-5 bg-white shadow-md rounded-2xl">

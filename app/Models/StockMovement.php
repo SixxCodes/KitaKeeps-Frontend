@@ -23,6 +23,9 @@ class StockMovement extends Model
         'created_by',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts for proper data types
     protected $casts = [
         'reference_id' => 'integer',

@@ -65,4 +65,23 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Customer deleted successfully with all related records.');
     }
 
+    public function credits(Customer $customer)
+    {
+        $creditSales = $customer->sales()->where('payment_type', 'Credit')->get();
+
+        $credits = $creditSales->map(function($sale){
+            return [
+                'id' => $sale->sale_id,
+                'due_date' => $sale->due_date->format('Y-m-d'),
+                'sale_date' => $sale->sale_date->format('Y-m-d'),
+                'amount' => '₱' . number_format($sale->total_amount, 2),
+            ];
+        });
+
+        return response()->json([
+            'customer_name' => $customer->cust_name,
+            'credits' => $credits
+        ]);
+    }
+
 }

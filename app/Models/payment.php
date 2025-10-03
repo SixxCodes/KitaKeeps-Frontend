@@ -20,6 +20,9 @@ class Payment extends Model
         'notes',
     ];
 
+    // no updated_at
+    public $timestamps = false;
+
     // Casts
     protected $casts = [
         'payment_date' => 'datetime',

@@ -51,7 +51,7 @@ class Sale extends Model
     }
 
     // sale hasMany sale_item
-    public function salehasManysale_item()
+    public function sale_items()
     {
         return $this->hasMany(SaleItem::class, 'sale_id', 'sale_id');
     }

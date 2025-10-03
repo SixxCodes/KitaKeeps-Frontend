@@ -33,7 +33,7 @@ class BranchProduct extends Model
     // Relationships:
 
     // branch_product hasMany forecast
-    public function branch_producthasManyforecast()
+    public function forecasts()
     {
         return $this->hasMany(Forecast::class, 'branch_product_id', 'branch_product_id');
     }

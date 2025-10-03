@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class POSController extends Controller
 {
+    // pang get lng ni sa products sa POS
     public function index(Request $request)
     {
         $owner = auth()->user();
