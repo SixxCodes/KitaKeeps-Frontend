@@ -1,3 +1,85 @@
+@php
+    use Carbon\Carbon;
+    use App\Models\BranchProduct;
+    use App\Models\Product;
+    use App\Models\User;
+    use App\Models\Sale;
+    use App\Models\Employee;
+    use App\Models\Attendance;
+
+    // --- Branch-awareness ---
+    $owner = auth()->user();
+    $userBranches = $owner ? $owner->branches : collect();
+    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
+                ?? $userBranches->sortBy('branch_id')->first();
+    $branchId = $currentBranch ? $currentBranch->branch_id : null;
+
+    // --- Date ranges ---
+    $now = Carbon::now();
+    $startOfWeek = $now->copy()->startOfWeek();
+    $startOfLastWeek = $startOfWeek->copy()->subWeek();
+    $endOfLastWeek = $startOfWeek->copy()->subDay();
+
+    // --- Helper for percentage change ---
+    function percentChange($current, $previous) {
+        if ($previous == 0) return $current > 0 ? 100 : 0;
+        return round((($current - $previous) / $previous) * 100, 1);
+    }
+
+    // --- Metrics ---
+
+    // Total inventory value (from BranchProduct × Product)
+    $totalInventoryValue = BranchProduct::where('branch_id', $branchId)
+        ->join('product', 'branch_product.product_id', '=', 'product.product_id')
+        ->sum(\DB::raw('branch_product.stock_qty * product.selling_price'));
+
+    // Low stock count (1–19)
+    $lowStockCount = BranchProduct::where('branch_id', $branchId)
+        ->whereBetween('stock_qty', [1, 19])
+        ->count();
+
+    // Sold out count
+    $soldOutCount = BranchProduct::where('branch_id', $branchId)
+        ->where('stock_qty', 0)
+        ->count();
+
+    // --- Weekly percentage changes (simulated or derived) ---
+    $currentWeekSales = Sale::where('branch_id', $branchId)
+        ->whereBetween('sale_date', [$startOfWeek, $now])
+        ->sum('total_amount');
+
+    $lastWeekSales = Sale::where('branch_id', $branchId)
+        ->whereBetween('sale_date', [$startOfLastWeek, $endOfLastWeek])
+        ->sum('total_amount');
+
+    $inventoryChange = percentChange($currentWeekSales, $lastWeekSales);
+    $lowStockChange = percentChange($lowStockCount, $lowStockCount - 2);
+    $soldOutChange = percentChange($soldOutCount, $soldOutCount - 1);
+
+    // --- Today's date ---
+    $today = Carbon::today()->toDateString();
+
+    // --- Active employees today ---
+    $activeEmployeesToday = Employee::where('branch_id', $branchId)
+        ->whereHas('attendance', function ($query) use ($today) {
+            $query->whereDate('att_date', $today)
+                ->where('status', 'present');
+        })
+        ->count();
+
+    // --- Active employees this week ---
+    $startOfWeek = Carbon::now()->startOfWeek();
+    $endOfWeek = Carbon::now()->endOfWeek();
+
+    $activeEmployeesThisWeek = Employee::where('branch_id', $branchId)
+        ->whereHas('attendance', function ($query) use ($startOfWeek, $endOfWeek) {
+            $query->whereBetween('att_date', [$startOfWeek, $endOfWeek])
+                ->where('status', 'present');
+        })
+        ->distinct('employee_id')
+        ->count();
+@endphp
+
 <!-- Module Header -->
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
@@ -67,49 +149,57 @@
 
 <!-- Summary -->
 <div class="overflow-x-auto table-pretty-scrollbar">
-    <div class="flex gap-6 p-6 mt-1 min-w-max">
-        <!-- Total Inventory Value -->
-        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-        <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500">Total Inventory Value</span>
-            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
-        </div>
-        <h2 class="text-2xl font-bold text-blue-500">₱64,222.00</h2>
-        <p class="mt-1 text-sm text-red-500">▼ 2.4% <span class="text-gray-500">this week</span></p>
-        </div>
+  <div class="flex gap-6 p-6 mt-1 min-w-max">
 
-        <!-- Customers with Credit -->
-        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-        <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500">Low Stock</span>
-            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
-        </div>
-        <h2 class="text-2xl font-bold text-red-500">47</h2>
-        <p class="mt-1 text-sm text-green-500">▲ 6.3% <span class="text-gray-500">this week</span></p>
-        </div>
-
-        <!-- Due This Week -->
-        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-        <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500">Incoming Deliveries</span>
-            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
-        </div>
-        <h2 class="text-2xl font-bold text-purple-700">39</h2>
-        <p class="mt-1 text-sm text-gray-400">Today</p>
-        </div>
-
-        <!-- Total Receivables -->
-        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-        <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500">Active Employees</span>
-            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
-        </div>
-        <h2 class="text-2xl font-bold text-green-500">12</h2>
-        <p class="mt-1 text-sm text-gray-400">Present Today</p>
-        </div>
+    <!-- Total Inventory Value -->
+    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500">Total Inventory Value</span>
+      </div>
+      <h2 class="text-2xl font-bold text-blue-500">₱{{ number_format($totalInventoryValue, 2) }}</h2>
+      <p class="mt-1 text-sm {{ $inventoryChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
+        {{ $inventoryChange >= 0 ? '▲' : '▼' }} {{ abs($inventoryChange) }}%
+        <span class="text-gray-500">this week</span>
+      </p>
     </div>
-</div>
 
+    <!-- Low Stock -->
+    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500">Low Stock</span>
+      </div>
+      <h2 class="text-2xl font-bold text-yellow-500">{{ $lowStockCount }}</h2>
+      <p class="mt-1 text-sm {{ $lowStockChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
+        {{ $lowStockChange >= 0 ? '▲' : '▼' }} {{ abs($lowStockChange) }}%
+        <span class="text-gray-500">this week</span>
+      </p>
+    </div>
+
+    <!-- Sold Out -->
+    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500">Sold Out</span>
+      </div>
+      <h2 class="text-2xl font-bold text-red-500">{{ $soldOutCount }}</h2>
+      <p class="mt-1 text-sm {{ $soldOutChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
+        {{ $soldOutChange >= 0 ? '▲' : '▼' }} {{ abs($soldOutChange) }}%
+        <span class="text-gray-500">this week</span>
+      </p>
+    </div>
+
+    <!-- Active Employees -->
+    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+    <div class="flex items-center justify-between">
+        <span class="text-sm text-gray-500">Active Employees</span>
+    </div>
+    <h2 class="text-2xl font-bold text-green-500">{{ $activeEmployeesToday }}</h2>
+    <p class="mt-1 text-sm">
+        {{ $activeEmployeesThisWeek }}
+        <span class="text-gray-500">this week</span>
+    </p>
+    </div>
+  </div>
+</div>
 
 
 
