@@ -44,6 +44,13 @@
         ->where('stock_qty', 0)
         ->count();
 
+    // Total number of products (for percentage calculations)
+    $totalProducts = BranchProduct::where('branch_id', $branchId)->count();
+
+    // Avoid division by zero
+    $lowStockPercent = $totalProducts > 0 ? ($lowStockCount / $totalProducts) * 100 : 0;
+    $soldOutPercent = $totalProducts > 0 ? ($soldOutCount / $totalProducts) * 100 : 0;
+
     // --- Weekly percentage changes (simulated or derived) ---
     $currentWeekSales = Sale::where('branch_id', $branchId)
         ->whereBetween('sale_date', [$startOfWeek, $now])
@@ -54,8 +61,6 @@
         ->sum('total_amount');
 
     $inventoryChange = percentChange($currentWeekSales, $lastWeekSales);
-    $lowStockChange = percentChange($lowStockCount, $lowStockCount - 2);
-    $soldOutChange = percentChange($soldOutCount, $soldOutCount - 1);
 
     // --- Today's date ---
     $today = Carbon::today()->toDateString();
@@ -94,46 +99,45 @@
 
     // Graph 
     // --- Prepare last 7 days ---
-$dates = collect(range(6, 0))->map(fn($i) => Carbon::today()->subDays($i));
+    $dates = collect(range(6, 0))->map(fn($i) => Carbon::today()->subDays($i));
 
-// --- Collect data for each day ---
-$salesData = $dates->map(function ($date) use ($branchId) {
-    // Get all sales for this branch and date
-    $sales = Sale::where('branch_id', $branchId)
-        ->whereDate('sale_date', $date)
-        ->get();
+    // --- Collect data for each day ---
+    $salesData = $dates->map(function ($date) use ($branchId) {
+        // Get all sales for this branch and date
+        $sales = Sale::where('branch_id', $branchId)
+            ->whereDate('sale_date', $date)
+            ->get();
 
-    $saleIds = $sales->pluck('sale_id');
+        $saleIds = $sales->pluck('sale_id');
 
-    // Total sales amount
-    $totalSales = $sales->sum('total_amount');
+        // Total sales amount
+        $totalSales = $sales->sum('total_amount');
 
-    // Calculate income (profit)
-    $items = SaleItem::whereIn('sale_id', $saleIds)
-        ->with('sale_itembelongsTobranch_product.product') // ✅ chain to reach product through branch_product
-        ->get();
+        // Calculate income (profit)
+        $items = SaleItem::whereIn('sale_id', $saleIds)
+            ->with('sale_itembelongsTobranch_product.product') // ✅ chain to reach product through branch_product
+            ->get();
 
-    $income = $items->sum(function ($item) {
-        $product = $item->sale_itembelongsTobranch_product?->product;
-        if (!$product) return 0;
+        $income = $items->sum(function ($item) {
+            $product = $item->sale_itembelongsTobranch_product?->product;
+            if (!$product) return 0;
 
-        $selling = $product->selling_price ?? 0;
-        $cost = $product->unit_cost ?? 0;
-        return ($selling - $cost) * ($item->quantity ?? 0);
+            $selling = $product->selling_price ?? 0;
+            $cost = $product->unit_cost ?? 0;
+            return ($selling - $cost) * ($item->quantity ?? 0);
+        });
+
+        return [
+            'date' => $date->format('M d'),
+            'sales' => $totalSales,
+            'income' => $income,
+        ];
     });
 
-    return [
-        'date' => $date->format('M d'),
-        'sales' => $totalSales,
-        'income' => $income,
-    ];
-});
-
-// --- Prepare data for chart ---
-$labels = $salesData->pluck('date')->toArray();
-$salesValues = $salesData->pluck('sales')->toArray();
-$incomeValues = $salesData->pluck('income')->toArray();
-@endphp
+    // --- Prepare data for chart ---
+    $labels = $salesData->pluck('date')->toArray();
+    $salesValues = $salesData->pluck('sales')->toArray();
+    $incomeValues = $salesData->pluck('income')->toArray();
 @endphp
 
 <!-- Module Header -->
@@ -221,26 +225,26 @@ $incomeValues = $salesData->pluck('income')->toArray();
 
     <!-- Low Stock -->
     <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-      <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between">
         <span class="text-sm text-gray-500">Low Stock</span>
-      </div>
-      <h2 class="text-2xl font-bold text-yellow-500">{{ $lowStockCount }}</h2>
-      <p class="mt-1 text-sm {{ $lowStockChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
-        {{ $lowStockChange >= 0 ? '▲' : '▼' }} {{ abs($lowStockChange) }}%
-        <span class="text-gray-500">this week</span>
-      </p>
+    </div>
+    <h2 class="text-2xl font-bold text-yellow-500">{{ $lowStockCount }}</h2>
+    <p class="mt-1 text-sm text-gray-600">
+        {{ round($lowStockPercent, 1) }}%
+        <span class="text-gray-500">of inventory</span>
+    </p>
     </div>
 
     <!-- Sold Out -->
     <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-      <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between">
         <span class="text-sm text-gray-500">Sold Out</span>
-      </div>
-      <h2 class="text-2xl font-bold text-red-500">{{ $soldOutCount }}</h2>
-      <p class="mt-1 text-sm {{ $soldOutChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
-        {{ $soldOutChange >= 0 ? '▲' : '▼' }} {{ abs($soldOutChange) }}%
-        <span class="text-gray-500">this week</span>
-      </p>
+    </div>
+    <h2 class="text-2xl font-bold text-red-500">{{ $soldOutCount }}</h2>
+    <p class="mt-1 text-sm text-gray-600">
+        {{ round($soldOutPercent, 1) }}%
+        <span class="text-gray-500">of inventory</span>
+    </p>
     </div>
 
     <!-- Active Employees -->
