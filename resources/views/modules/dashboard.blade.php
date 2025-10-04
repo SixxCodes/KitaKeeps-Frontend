@@ -6,6 +6,7 @@
     use App\Models\Sale;
     use App\Models\Employee;
     use App\Models\Attendance;
+    use App\Models\SaleItem;
 
     // --- Branch-awareness ---
     $owner = auth()->user();
@@ -78,6 +79,61 @@
         })
         ->distinct('employee_id')
         ->count();
+
+    // --- Inventory totals ---
+    $totalStockQty = BranchProduct::where('branch_id', $branchId)->sum('stock_qty');
+    $totalSoldQty = SaleItem::whereHas('sale_itembelongsTosale', function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })
+        ->sum('quantity');
+
+    // --- Calculate percentages ---
+    $totalUnits = $totalStockQty + $totalSoldQty;
+    $soldPercent = $totalUnits > 0 ? round(($totalSoldQty / $totalUnits) * 100, 1) : 0;
+    $availablePercent = 100 - $soldPercent;
+
+    // Graph 
+    // --- Prepare last 7 days ---
+$dates = collect(range(6, 0))->map(fn($i) => Carbon::today()->subDays($i));
+
+// --- Collect data for each day ---
+$salesData = $dates->map(function ($date) use ($branchId) {
+    // Get all sales for this branch and date
+    $sales = Sale::where('branch_id', $branchId)
+        ->whereDate('sale_date', $date)
+        ->get();
+
+    $saleIds = $sales->pluck('sale_id');
+
+    // Total sales amount
+    $totalSales = $sales->sum('total_amount');
+
+    // Calculate income (profit)
+    $items = SaleItem::whereIn('sale_id', $saleIds)
+        ->with('sale_itembelongsTobranch_product.product') // ✅ chain to reach product through branch_product
+        ->get();
+
+    $income = $items->sum(function ($item) {
+        $product = $item->sale_itembelongsTobranch_product?->product;
+        if (!$product) return 0;
+
+        $selling = $product->selling_price ?? 0;
+        $cost = $product->unit_cost ?? 0;
+        return ($selling - $cost) * ($item->quantity ?? 0);
+    });
+
+    return [
+        'date' => $date->format('M d'),
+        'sales' => $totalSales,
+        'income' => $income,
+    ];
+});
+
+// --- Prepare data for chart ---
+$labels = $salesData->pluck('date')->toArray();
+$salesValues = $salesData->pluck('sales')->toArray();
+$incomeValues = $salesData->pluck('income')->toArray();
+@endphp
 @endphp
 
 <!-- Module Header -->
@@ -211,85 +267,123 @@
 <!-- Charts & Graphs -->
 <div class="flex justify-center mb-20 space-x-5 overflow-x-auto table-pretty-scrollbar">
     <!-- Pie Chart -->
-    <div class="w-64 p-4 p-5 bg-white shadow-md rounded-2xl">
+    <div class="w-64 p-5 bg-white shadow-md rounded-2xl">
         <h3 class="mb-3 text-sm font-semibold text-gray-700">Inventory Values</h3>
 
         <div class="flex items-center justify-center">
             <!-- Pie Chart -->
-            <div class="relative w-24 h-24 rounded-full"
-                style="background: conic-gradient(#1e3a8a 0% 68%, #cbd5e1 68% 100%);">
+            <div class="relative h-24 rounded-full w-28"
+                style="background: conic-gradient(#1e3a8a 0% {{ $availablePercent }}%, #cbd5e1 {{ $availablePercent }}% 100%);">
                 <!-- Percent Labels -->
-                <span class="absolute text-xs font-semibold text-white bottom-[25%] right-[30%]">68%</span>
-                <span class="absolute text-xs font-semibold text-gray-800 top-[25%] left-[20%]">32%</span>
+                <span class="absolute text-xs font-semibold text-white bottom-[25%] right-[30%]">
+                    {{ $availablePercent }}%
+                </span>
+                <span class="absolute text-xs font-semibold text-gray-800 top-[25%] left-[20%]">
+                    {{ $soldPercent }}%
+                </span>
             </div>
 
             <!-- Legend -->
             <div class="ml-6 space-y-2 text-sm">
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 rounded bg-slate-300"></div>
-                    <span class="text-gray-600">Sold units</span>
+                    <span class="text-xs text-gray-600">Sold units</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 bg-blue-900 rounded"></div>
-                    <span class="text-gray-600">Total units</span>
+                    <span class="text-xs text-gray-600">Available units</span>
                 </div>
             </div>
         </div>
 
-        <p class="mt-5 text-sm text-gray-500">This shows that 32% of the total units have been sold, leaving 68% of the units still available.</p>
+        <p class="mt-5 text-sm text-gray-500">
+            {{ $soldPercent }}% of total units have been sold, leaving {{ $availablePercent }}% still available.
+        </p>
     </div>
 
     <!-- Graph -->
     <div class="p-4 w-[500px] bg-white shadow-md rounded-2xl">
         <!-- Header -->
         <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-semibold text-gray-700">Sale VS Profit</h3>
-            <span class="text-xs text-gray-500">Last 6 months</span>
+            <h3 class="text-sm font-semibold text-gray-700">Sales vs Income</h3>
+            <span class="text-xs text-gray-500">Last 7 Days</span>
         </div>
 
         <!-- Chart -->
         <div class="relative w-full h-48">
-            <svg viewBox="0 0 500 200" class="w-full h-full">
+            @php
+                // Normalize chart values for SVG scaling
+                $maxValue = max(max($salesValues ?: [0]), max($incomeValues ?: [0]), 1);
+                $width = 450;
+                $height = 160;
+
+                $xStep = $width / max(count($labels) - 1, 1);
+
+                $salesPoints = '';
+                $incomePoints = '';
+
+                foreach ($salesValues as $i => $value) {
+                    $x = $i * $xStep;
+                    $y = $height - (($value / $maxValue) * $height);
+                    $salesPoints .= "$x,$y ";
+                }
+
+                foreach ($incomeValues as $i => $value) {
+                    $x = $i * $xStep;
+                    $y = $height - (($value / $maxValue) * $height);
+                    $incomePoints .= "$x,$y ";
+                }
+            @endphp
+
+            <svg viewBox="0 0 {{ $width }} {{ $height + 40 }}" class="w-full h-full">
                 <!-- Grid Lines -->
                 <g stroke="#e5e7eb" stroke-width="1">
-                    <line x1="0" y1="40" x2="500" y2="40" />
-                    <line x1="0" y1="80" x2="500" y2="80" />
-                    <line x1="0" y1="120" x2="500" y2="120" />
-                    <line x1="0" y1="160" x2="500" y2="160" />
+                    @for ($i = 1; $i <= 4; $i++)
+                        <line x1="0" y1="{{ $i * ($height / 4) }}" x2="{{ $width }}" y2="{{ $i * ($height / 4) }}" />
+                    @endfor
                 </g>
 
-                <!-- Profit Line (blue) -->
-                <path d="M 0 130 Q 80 100, 160 120 T 320 90 T 500 70" 
-                    fill="none" stroke="#1e40af" stroke-width="2"/>
-                <circle cx="500" cy="70" r="4" fill="#1e40af"/>
+                <!-- Sales Line (Orange) -->
+                <polyline
+                    fill="none"
+                    stroke="#f97316"
+                    stroke-width="2"
+                    points="{{ trim($salesPoints) }}" />
                 
-                <!-- Expense Line (red/orange) -->
-                <path d="M 0 120 Q 80 140, 160 110 T 320 100 T 500 120" 
-                    fill="none" stroke="#f97316" stroke-width="2"/>
-                <circle cx="320" cy="100" r="4" fill="#f97316"/>
+                <!-- Income Line (Violet) -->
+                <polyline
+                    fill="none"
+                    stroke="#7c3aed"
+                    stroke-width="2"
+                    points="{{ trim($incomePoints) }}" />
 
                 <!-- Labels -->
-                <text x="330" y="95" font-size="10" fill="#f97316" class="font-semibold">Highest Sale</text>
-                <text x="430" y="90" font-size="10" fill="#1e40af" class="font-semibold">Highest Profit</text>
+                @foreach ($labels as $i => $label)
+                    <text x="{{ $i * $xStep }}" y="{{ $height + 20 }}" font-size="10" fill="#000000ff" text-anchor="middle">
+                        {{ $label }}
+                    </text>
+                @endforeach
             </svg>
 
             <!-- Y-axis labels -->
-            <div class="absolute top-0 left-0 flex flex-col justify-between h-full text-xs text-gray-500">
-                <span>40k</span>
-                <span>30k</span>
-                <span>20k</span>
-                <span>10k</span>
+            <div class="absolute top-0 left-0 flex flex-col justify-between text-xs text-gray-500" style="height: {{ $height }}px;">
+                <span>{{ number_format($maxValue, 0) }}</span>
+                <span>{{ number_format($maxValue * 0.75, 0) }}</span>
+                <span>{{ number_format($maxValue * 0.5, 0) }}</span>
+                <span>{{ number_format($maxValue * 0.25, 0) }}</span>
+                <span>0</span>
             </div>
+        </div>
 
-            <!-- X-axis labels -->
-            <div class="absolute bottom-0 flex justify-between text-xs text-gray-500 left-10 right-10">
-                <span>Dec</span>
-                <span>Jan</span>
-                <span>Feb</span>
-                <span>Mar</span>
-                <span>Apr</span>
-                <span>May</span>
-                <span>Jun</span>
+        <!-- Legend -->
+        <div class="flex justify-center gap-4 mt-2 text-xs text-gray-600">
+            <div class="flex items-center space-x-1">
+                <span class="w-3 h-3 bg-orange-500 rounded-full"></span>
+                <span>Sales</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <span class="w-3 h-3 rounded-full bg-violet-600"></span>
+                <span>Income</span>
             </div>
         </div>
     </div>

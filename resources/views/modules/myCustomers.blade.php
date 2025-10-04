@@ -285,8 +285,16 @@
 
 
 @php
-    $currentBranchId = session('current_branch_id') 
-    ?? auth()->user()->branches->sortBy('branch_id')->first()?->branch_id;
+    $currentBranchId = session('current_branch_id');
+
+if (!$currentBranchId) {
+    $currentBranchId = auth()->user()
+        ->branches()
+        ->orderBy('branch.branch_id')
+        ->value('branch.branch_id');
+
+    session(['current_branch_id' => $currentBranchId]);
+}
 
     // Customers with Credit (current branch)
     $customersWithCredit = \App\Models\Customer::whereHas('sales', function($query) use ($currentBranchId) {
