@@ -87,7 +87,7 @@
             @if($role === 'Owner' || $role === 'Admin')
             <a href="#" @click.prevent="changePage('My Suppliers')" 
                 :class="{'font-bold bg-blue-800': currentPage === 'My Suppliers'}" class="block w-full px-3 py-2 text-left transition rounded hover:bg-blue-700">
-                <i class="mr-1 text-lg fa-solid fa-parachute-box"></i>
+                <i class="mr-1 text-sm fa-solid fa-truck"></i>
                 My Suppliers
             </a>
             @endif

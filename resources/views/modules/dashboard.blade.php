@@ -297,23 +297,504 @@
     <!-- Quick Access Buttons -->
     <div class="p-3 bg-white rounded-lg shadow-md">
         <div class="flex flex-col space-y-5">
-            <button class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
-                <i class="fa-solid fa-box"></i>
+            <button x-on:click="$dispatch('open-modal', 'add-product')" class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                <i class="fa-solid fa-clipboard-list"></i>
             </button>
-            <button class="w-full px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">
+            <button x-on:click="$dispatch('open-modal', 'add-supplier')" class="w-full px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">
                 <i class="fa-solid fa-truck"></i>
             </button>
-            <button class="w-full px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700">
-                <i class="fa-solid fa-receipt"></i>
+            <button x-on:click="$dispatch('open-modal', 'add-employee')" class="w-full px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700">
+                <i class="fa-solid fa-users"></i>
             </button>
-            <button class="w-full px-4 py-2 text-white bg-orange-600 rounded-md hover:bg-orange-700">
-                <i class="fa-solid fa-user-plus"></i>
+            <button x-on:click="$dispatch('open-modal', 'add-customer')" class="w-full px-4 py-2 text-white bg-orange-600 rounded-md hover:bg-orange-700">
+                <i class="fa-solid fa-users-line"></i>
             </button>
         </div>
     </div>
 
 
 </div>
+
+<!-- Add Product -->
+<x-modal name="add-product" :show="false" maxWidth="lg">
+    <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+        <div class="flex items-center mb-4 space-x-1 text-blue-900">
+            <i class="fa-solid fa-box"></i>
+            <h2 class="text-xl font-semibold">Add New Product</h2>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
+            @csrf
+
+            <!-- Product Image (Circle Placeholder) -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="preview-product" src="assets/images/logo/logo-removebg-preview.png" 
+                        class="object-cover w-24 h-24 border rounded-full shadow" 
+                        alt="Product photo">
+
+                    <!-- Upload button -->
+                    <label for="product_image" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-green-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </label>
+                    <input type="file" id="product_image" name="product_image" class="hidden" accept="image/*"
+                        onchange="document.getElementById('preview-product').src = window.URL.createObjectURL(this.files[0])">
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add product photo</p>
+            </div>
+
+            <!-- Basic Information -->
+            <fieldset class="p-4 border border-gray-200 rounded-lg">
+                <legend class="font-semibold text-gray-700">Product Information</legend>
+                <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+
+                    <!-- Product Name -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Product Name</label>
+                        <input name="prod_name" type="text" placeholder="Paint" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block mb-1 text-gray-800">Category</label>
+                        <select name="category" id="category" 
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
+                            <option value="">Select category</option>
+                            <option value="Building Materials">Building Materials</option>
+                            <option value="Construction Materials">Construction Materials</option>
+                            <option value="Decor">Decor</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Garden & Landscaping">Garden & Landscaping</option>
+                            <option value="Paints & Finishes">Paints & Finishes</option>
+                            <option value="Plumbing & Sanitary">Plumbing & Sanitary</option>
+                            <option value="Security & Safety">Security & Safety</option>
+                            <option value="Tools">Tools</option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Description</label>
+                        <textarea name="prod_description" rows="3" placeholder="Write product details..." class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"></textarea>
+                    </div>
+
+                    <!-- Product Supplier -->
+                    <div>
+                        <label for="supplier" class="block mb-1 text-gray-800">Product Supplier</label>
+                        <select name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
+                            <option value="">Select a supplier</option>
+                            @foreach($userSuppliers as $supplier)
+                                <option value="{{ $supplier->supplier_id }}">{{ $supplier->supp_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Product Quantity -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Stock Quantity</label>
+                        <input type="number" name="quantity" placeholder="143" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <!-- Pricing -->
+            <fieldset class="p-4 border border-gray-200 rounded-lg">
+                <legend class="font-semibold text-gray-700">Pricing</legend>
+                <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+
+                    <!-- Unit Cost -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Unit Cost</label>
+                        <input type="number" name="unit_cost" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                    </div>
+
+                    <!-- Selling Price -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Selling Price</label>
+                        <input type="number" name="selling_price" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <!-- Buttons -->
+            <div class="flex justify-end mt-2 space-x-2">
+                <button type="button" 
+                x-on:click="$dispatch('close-modal', 'add-product')"
+                class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+
+                <button type="submit" 
+                class="px-3 py-1 text-white transition bg-blue-600 rounded hover:bg-blue-700">Save</button>
+            </div>
+        </form>
+    </div>
+</x-modal>
+
+<!-- Add Supplier Modal -->
+<x-modal name="add-supplier" :show="false" maxWidth="lg">
+    <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+        
+        <!-- Title -->
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center">
+                <i class="mr-2 fa-solid fa-truck-field"></i>
+                <h2 class="text-xl font-semibold">Add New Supplier</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-supplier')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
+        </div>  
+
+        <!-- Form -->
+        <form method="POST" action="{{ route('suppliers.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
+            @csrf
+            
+            <!-- Supplier Image -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="preview-supp" src="assets/images/logo/logo-removebg-preview.png" 
+                        class="object-cover w-24 h-24 border rounded-full shadow" 
+                        alt="Supplier photo">
+
+                    <!-- Upload button -->
+                    <label for="supp_image" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </label>
+                    <input type="file" id="supp_image" name="supp_image" class="hidden" accept="image/*"
+                        onchange="document.getElementById('preview-supp').src = window.URL.createObjectURL(this.files[0])">
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
+            </div>
+
+            <!-- Supplier Info -->
+            <fieldset class="p-4 border border-gray-200 rounded-lg">
+                <legend class="font-semibold text-gray-700">Supplier Information</legend>
+
+                <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+
+                    <!-- Supplier Name -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Supplier Name</label>
+                        <input type="text" name="supp_name" placeholder="KitaKeeps Warehouse" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
+
+                    <!-- Contact Number -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Contact Number</label>
+                        <input type="text" name="supp_contact" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Address</label>
+                        <input type="text" name="supp_address" placeholder="123 Supplier St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <!-- Buttons -->
+            <div class="flex justify-end mt-2 space-x-2">
+                <button type="button" 
+                x-on:click="$dispatch('close-modal', 'add-supplier')"
+                class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+
+                <button type="submit" 
+                class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
+            </div>
+        </form>
+
+    </div>
+</x-modal>
+
+<script>
+    function previewSupplierImage(event, supplierId) {
+        const input = event.target;
+        const preview = document.getElementById('supplierImagePreview-' + supplierId);
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+<!-- Hire Employee Modal -->
+<x-modal name="add-employee" :show="false" maxWidth="lg">
+    <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center">
+                <i class="mr-2 fa-solid fa-user-plus"></i>
+                <h2 class="text-xl font-semibold">Hire Employee</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-employee')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
+        </div>  
+
+        @if ($errors->any())
+            <div class="p-2 mb-2 text-red-700 bg-red-100 rounded">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <!-- Form -->
+        <form method="POST" action="{{ route('employees.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm"
+            x-data="{ position: '' }">
+            @csrf <!-- Laravel CSRF -->
+            
+            <!-- Profile Image -->
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="preview-employee" src="assets/images/logo/logo-removebg-preview.png" 
+                        class="object-cover w-24 h-24 border rounded-full shadow" 
+                        alt="Employee photo">
+
+                    <!-- Upload button -->
+                    <label for="employee_image" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </label>
+                    <input type="file" id="employee_image" name="employee_image_path" class="hidden" accept="image/*"
+                        onchange="document.getElementById('preview-employee').src = window.URL.createObjectURL(this.files[0])">
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
+            </div>
+
+            <!-- Personal Information -->
+            <fieldset class="p-4 border border-gray-200 rounded-lg">
+                <legend class="font-semibold text-gray-700">Personal Information</legend>
+
+                <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+
+                <!-- First Name -->
+                <div>
+                    <label class="block mb-1 text-gray-800">First Name</label>
+                    <input type="text" name="firstname" placeholder="Kita" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                </div>
+
+                <!-- Last Name -->
+                <div>
+                    <label class="block mb-1 text-gray-800">Last Name</label>
+                    <input type="text" name="lastname" placeholder="Keeper" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="block mb-1 text-gray-800">Gender</label>
+                    <select name="gender" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Contact Number -->
+                <div>
+                    <label class="block mb-1 text-gray-800">Contact Number</label>
+                    <input name="contact_number" type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                </div>
+
+                <!-- Email -->
+                <div class="sm:col-span-2">
+                    <label class="block mb-1 text-gray-800">Email</label>
+                    <input type="email" name="email" placeholder="example@email.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                </div>
+
+                <!-- Address -->
+                <div class="sm:col-span-2">
+                    <label class="block mb-1 text-gray-800">Address</label>
+                    <input type="text" name="address" placeholder="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                </div>
+
+                </div>
+            </fieldset>
+
+            <!-- Job Information -->
+            <fieldset class="p-4 border border-gray-200 rounded-lg">
+                <legend class="font-semibold text-gray-700">Job Information</legend>
+                <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+                    <!-- Position -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Position</label>
+                        <input type="text" name="position" placeholder="Cashier"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                            x-model="position">
+                    </div>
+
+                    <!-- Daily Salary -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Daily Salary</label>
+                        <input type="number" name="daily_rate" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
+                </div>
+                
+                <div x-show="position.toLowerCase() === 'cashier' || position.toLowerCase() === 'admin'" class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+                    <!-- Username -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Username</label>
+                        <input type="text" name="username" placeholder="e.g., john.doe"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block mb-1 text-gray-800">Password</label>
+                        <input type="password" name="password" placeholder="Enter password"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Buttons -->
+            <div class="flex justify-end mt-2 space-x-2">
+                <button type="button" 
+                x-on:click="$dispatch('close-modal', 'add-employee')"
+                class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+
+                <button type="submit" 
+                class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
+            </div>
+        </form>
+
+    </div>
+</x-modal>
+
+<!-- Add Customer -->
+<x-modal name="add-customer" :show="false" maxWidth="lg">
+    <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+        
+        <!-- Title -->
+        <div class="flex items-center mb-4 space-x-1 text-blue-900">
+            <i class="fa-solid fa-user-plus"></i>
+            <h2 class="text-xl font-semibold">Add New Customer</h2>
+        </div>
+
+        <!-- Form -->
+        <form action="{{ route('customers.store') }}" enctype="multipart/form-data" method="POST" class="space-y-4 text-sm">
+            @csrf
+
+            <div class="flex flex-col items-center mb-6">
+                <div class="relative">
+                    <img id="customerImagePreview"
+                        src="assets/images/logo/logo-removebg-preview.png"
+                        class="object-cover w-24 h-24 border rounded-full shadow"
+                        alt="Customer photo">
+
+                    <!-- Hidden File Input -->
+                    <input type="file" name="cust_image_path" id="cust_image_path"
+                        class="hidden" accept="image/*"
+                        onchange="previewCustomerImage(event)">
+
+                    <!-- Edit image button -->
+                    <button type="button"
+                        onclick="document.getElementById('cust_image_path').click();"
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-green-700">
+                        <i class="text-xs fa-solid fa-pen"></i>
+                    </button>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Add customer photo</p>
+            </div>
+
+            <!-- Customer Info -->
+            <fieldset class="p-4 border border-gray-200 rounded-lg">
+                <legend class="font-semibold text-gray-700">Customer Information</legend>
+
+                <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+
+                    <!-- Customer Name -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Customer Name</label>
+                        <input type="text" name="cust_name" placeholder="Juan Dela Cruz"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" required />
+                    </div>
+
+                    <!-- Contact Number -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Contact Number</label>
+                        <input type="text" name="cust_contact" placeholder="+63 912 345 6789"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
+                    </div>
+
+                    <!-- Address -->
+                    <div class="sm:col-span-2">
+                        <label class="block mb-1 text-gray-800">Address</label>
+                        <input type="text" name="cust_address" placeholder="123 Main St, City"
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <!-- Buttons -->
+            <div class="flex justify-end mt-2 space-x-2">
+                <button type="button" 
+                x-on:click="$dispatch('close-modal', 'add-customer')"
+                class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
+                    Cancel
+                </button>
+
+                <button type="submit" 
+                class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</x-modal>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        @if(session('success'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
+        @endif
+
+        @if(session('error'))
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
+        @endif
+    });
+</script>
+
+<!-- Feedback Modals -->
+<!-- Success Modal -->
+<x-modal name="success-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-green-600 fa-solid fa-circle-check fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Success!</h2>
+        <p class="mt-1 text-gray-600">Operation completed successfully.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-green-600 rounded hover:bg-green-700"
+            x-on:click="$dispatch('close-modal', 'success-modal')">
+            Yay!
+        </button>
+    </div>
+</x-modal>
+
+<!-- Error Modal -->
+<x-modal name="error-modal" :show="false" maxWidth="sm">
+    <div class="p-6 text-center">
+        <i class="text-red-600 fa-solid fa-circle-xmark fa-2x"></i>
+        <h2 class="mt-3 text-lg font-semibold text-gray-800">Error!</h2>
+        <p class="mt-1 text-gray-600">Something went wrong. Please try again.</p>
+        <button type="button"
+            class="px-4 py-2 mt-4 text-white bg-red-600 rounded hover:bg-red-700"
+            x-on:click="$dispatch('close-modal', 'error-modal')">
+            Try Again
+        </button>
+    </div>
+</x-modal>
 
 <!-- Footer Branding -->
 <footer class="py-4 text-sm text-center text-gray-400 border-t mt-15">

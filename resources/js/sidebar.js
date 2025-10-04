@@ -18,7 +18,7 @@ export default function initSidebar() {
                     // MANAGEMENT Section
                     "My Hardware": `<i class="mr-1 fa-solid fa-warehouse"></i>`,
                     "My Inventory": `<i class="mr-2 text-xl fa-solid fa-clipboard-list"></i>`,
-                    "My Suppliers": `<i class="mr-1 text-lg fa-solid fa-parachute-box"></i>`,
+                    "My Suppliers": `<i class="mr-1 text-lg fa-solid fa-truck"></i>`,
                     "My Employees": `<i class="mr-1 text-sm fa-solid fa-users"></i>`,
                     "My Customers": `<i class="mr-1 text-sm fa-solid fa-users-line"></i>`,
 
