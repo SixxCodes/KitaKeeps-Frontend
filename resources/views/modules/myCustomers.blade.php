@@ -223,21 +223,21 @@
                     <!-- Customer Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Customer Name</label>
-                        <input type="text" name="cust_name" placeholder="Juan Dela Cruz"
+                        <input required type="text" name="cust_name" placeholder="Juan Dela Cruz"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" required />
                     </div>
 
                     <!-- Contact Number -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" name="cust_contact" placeholder="+63 912 345 6789"
+                        <input required type="text" name="cust_contact" placeholder="+63 912 345 6789"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
                     </div>
 
                     <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" name="cust_address" placeholder="123 Main St, City"
+                        <input required type="text" name="cust_address" placeholder="123 Main St, City"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
                     </div>
 

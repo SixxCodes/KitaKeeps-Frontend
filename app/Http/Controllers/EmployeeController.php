@@ -84,6 +84,7 @@ class EmployeeController extends Controller
                 'role'      => $positionLower,
                 'person_id' => $person->person_id,
                 'is_active' => true,
+                'user_image_path'=> $imagePath, 
             ]);
 
             // Assign this branch in pivot
@@ -149,7 +150,7 @@ class EmployeeController extends Controller
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string|max:255',
             'daily_rate' => 'required|numeric|min:0',
-            'employee_image' => 'nullable|image|max:2048', // 2MB max
+            'employee_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // 2MB max
         ]);
 
         // Update person
@@ -169,8 +170,20 @@ class EmployeeController extends Controller
 
         // Update profile image if uploaded
         if ($request->hasFile('employee_image')) {
+            // Delete old employee image if exists
+            if ($employee->employee_image_path && \Storage::disk('public')->exists($employee->employee_image_path)) {
+                \Storage::disk('public')->delete($employee->employee_image_path);
+            }
+
             $path = $request->file('employee_image')->store('employees', 'public');
+
+            // Update employee image path
             $employee->update(['employee_image_path' => $path]);
+
+            // If Cashier/Admin, also update the linked user's image
+            if (in_array(strtolower($employee->position), ['cashier', 'admin']) && $person && $person->user) {
+                $person->user->update(['user_image_path' => $path]);
+            }
         }
 
         return redirect()->back()->with('success', 'Employee updated successfully!');
@@ -200,8 +213,17 @@ class EmployeeController extends Controller
             }
 
             // If employee is Cashier or Admin, delete linked User account
-            if (in_array($employee->position, ['Cashier', 'Admin']) && $person && $person->user) {
-                $person->user->delete();
+            if (in_array(strtolower($employee->position), ['cashier', 'admin']) && $person && $person->user) {
+                $user = $person->user;
+
+                // Delete related audit logs
+                $user->userhasManyaudit_log()->delete();
+
+                // Detach user from branches to avoid FK error
+                $user->branches()->detach();
+
+                // Delete the user
+                $user->delete();
             }
 
             // Delete the employee record

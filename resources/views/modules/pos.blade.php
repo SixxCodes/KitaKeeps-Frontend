@@ -242,7 +242,7 @@
                 </button>
 
                 <!-- Payment Method -->
-                <select 
+                <select required
                     class="py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     id="payment-method" name="payment_method_visible"
                 >

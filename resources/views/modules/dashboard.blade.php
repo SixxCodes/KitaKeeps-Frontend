@@ -460,13 +460,13 @@
                     <!-- Product Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">Product Name</label>
-                        <input name="prod_name" type="text" placeholder="Paint" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required name="prod_name" type="text" placeholder="Paint" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                     <!-- Category -->
                     <div>
                         <label for="category" class="block mb-1 text-gray-800">Category</label>
-                        <select name="category" id="category" 
+                        <select required name="category" id="category" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
                             <option value="">Select category</option>
                             <option value="Building Materials">Building Materials</option>
@@ -491,7 +491,7 @@
                     <!-- Product Supplier -->
                     <div>
                         <label for="supplier" class="block mb-1 text-gray-800">Product Supplier</label>
-                        <select name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
+                        <select required name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
                             <option value="">Select a supplier</option>
                             @foreach($userSuppliers as $supplier)
                                 <option value="{{ $supplier->supplier_id }}">{{ $supplier->supp_name }}</option>
@@ -502,7 +502,7 @@
                     <!-- Product Quantity -->
                     <div>
                         <label class="block mb-1 text-gray-800">Stock Quantity</label>
-                        <input type="number" name="quantity" placeholder="143" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required type="number" name="quantity" placeholder="143" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                 </div>
@@ -516,13 +516,13 @@
                     <!-- Unit Cost -->
                     <div>
                         <label class="block mb-1 text-gray-800">Unit Cost</label>
-                        <input type="number" name="unit_cost" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required type="number" name="unit_cost" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                     <!-- Selling Price -->
                     <div>
                         <label class="block mb-1 text-gray-800">Selling Price</label>
-                        <input type="number" name="selling_price" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required type="number" name="selling_price" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                 </div>
@@ -587,19 +587,19 @@
                     <!-- Supplier Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Supplier Name</label>
-                        <input type="text" name="supp_name" placeholder="KitaKeeps Warehouse" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input required type="text" name="supp_name" placeholder="KitaKeeps Warehouse" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Contact Number -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" name="supp_contact" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input required type="text" name="supp_contact" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                     <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" name="supp_address" placeholder="123 Supplier St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input required type="text" name="supp_address" placeholder="123 Supplier St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
 
                 </div>
@@ -688,19 +688,19 @@
                 <!-- First Name -->
                 <div>
                     <label class="block mb-1 text-gray-800">First Name</label>
-                    <input type="text" name="firstname" placeholder="Kita" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input required type="text" name="firstname" placeholder="Kita" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Last Name -->
                 <div>
                     <label class="block mb-1 text-gray-800">Last Name</label>
-                    <input type="text" name="lastname" placeholder="Keeper" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input required type="text" name="lastname" placeholder="Keeper" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Gender -->
                 <div>
                     <label class="block mb-1 text-gray-800">Gender</label>
-                    <select name="gender" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500">
+                    <select required name="gender" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500">
                         <option value="">Select Gender</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -711,19 +711,19 @@
                 <!-- Contact Number -->
                 <div>
                     <label class="block mb-1 text-gray-800">Contact Number</label>
-                    <input name="contact_number" type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input required name="contact_number" type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Email -->
                 <div class="sm:col-span-2">
                     <label class="block mb-1 text-gray-800">Email</label>
-                    <input type="email" name="email" placeholder="example@email.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input required type="email" name="email" placeholder="example@email.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 <!-- Address -->
                 <div class="sm:col-span-2">
                     <label class="block mb-1 text-gray-800">Address</label>
-                    <input type="text" name="address" placeholder="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input required type="text" name="address" placeholder="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                 </div>
 
                 </div>
@@ -736,7 +736,7 @@
                     <!-- Position -->
                     <div>
                         <label class="block mb-1 text-gray-800">Position</label>
-                        <input type="text" name="position" placeholder="Cashier"
+                        <input required type="text" name="position" placeholder="Cashier"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"
                             x-model="position">
                     </div>
@@ -744,7 +744,7 @@
                     <!-- Daily Salary -->
                     <div>
                         <label class="block mb-1 text-gray-800">Daily Salary</label>
-                        <input type="number" name="daily_rate" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                        <input required type="number" name="daily_rate" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
                     </div>
                 </div>
                 
@@ -829,21 +829,21 @@
                     <!-- Customer Name -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Customer Name</label>
-                        <input type="text" name="cust_name" placeholder="Juan Dela Cruz"
+                        <input required type="text" name="cust_name" placeholder="Juan Dela Cruz"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" required />
                     </div>
 
                     <!-- Contact Number -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" name="cust_contact" placeholder="+63 912 345 6789"
+                        <input required type="text" name="cust_contact" placeholder="+63 912 345 6789"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
                     </div>
 
                     <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" name="cust_address" placeholder="123 Main St, City"
+                        <input required type="text" name="cust_address" placeholder="123 Main St, City"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500" />
                     </div>
 

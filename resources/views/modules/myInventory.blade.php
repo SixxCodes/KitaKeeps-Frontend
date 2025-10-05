@@ -130,13 +130,13 @@
                     <!-- Product Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">Product Name</label>
-                        <input name="prod_name" type="text" placeholder="Paint" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required name="prod_name" type="text" placeholder="Paint" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                     <!-- Category -->
                     <div>
                         <label for="category" class="block mb-1 text-gray-800">Category</label>
-                        <select name="category" id="category" 
+                        <select required name="category" id="category" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
                             <option value="" disabled selected>Select category</option>
                             <option value="Building Materials">Building Materials</option>
@@ -161,7 +161,7 @@
                     <!-- Product Supplier -->
                     <div>
                         <label for="supplier" class="block mb-1 text-gray-800">Product Supplier</label>
-                        <select name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
+                        <select required name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
                             <option value="" disabled selected>Select a supplier</option>
                             @foreach($userSuppliers as $supplier)
                                 <option value="{{ $supplier->supplier_id }}">{{ $supplier->supp_name }}</option>
@@ -172,7 +172,7 @@
                     <!-- Product Quantity -->
                     <div>
                         <label class="block mb-1 text-gray-800">Stock Quantity</label>
-                        <input type="number" name="quantity" placeholder="143" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required type="number" name="quantity" placeholder="143" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                 </div>
@@ -186,13 +186,13 @@
                     <!-- Unit Cost -->
                     <div>
                         <label class="block mb-1 text-gray-800">Unit Cost</label>
-                        <input type="number" name="unit_cost" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required type="number" name="unit_cost" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                     <!-- Selling Price -->
                     <div>
                         <label class="block mb-1 text-gray-800">Selling Price</label>
-                        <input type="number" name="selling_price" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input required type="number" name="selling_price" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
                     </div>
 
                 </div>
