@@ -1,3 +1,19 @@
+@php
+    use App\Models\AuditLog;
+    $user = auth()->user();
+
+    // Get branch IDs user belongs to
+    $branchIds = $user->branches->pluck('branch_id');
+
+    // Fetch audit logs for users in the same branches
+    $auditLogs = AuditLog::whereHas('audit_logbelongsToUser', function($query) use ($branchIds) {
+        $query->whereHas('branches', function($q) use ($branchIds) {
+            $q->whereIn('user_branch.branch_id', $branchIds); // <-- fully qualify the column
+        });
+        })->orderByDesc('created_at')->get();
+
+@endphp
+
 <div class="p-6 space-y-6">
 
     <!-- Title -->
@@ -10,39 +26,59 @@
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
         <!-- Dark Mode -->
-        <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
-            <div class="flex items-center space-x-3">
-                <i class="text-xl text-blue-600 fa-solid fa-moon"></i>
-                <div>
-                    <p class="font-medium text-gray-800">Dark Mode</p>
-                    <p class="text-sm text-gray-500">Switch between light and dark theme.</p>
+        <div x-data="{ dark: localStorage.getItem('dark') === 'true' }"
+            x-init="$watch('dark', value => {
+                document.documentElement.classList.toggle('dark', value);
+                localStorage.setItem('dark', value);
+            })"
+            >
+            <div class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow-sm dark:bg-gray-800 hover:shadow-md">
+                <div class="flex items-center space-x-3">
+                    <i class="text-xl text-blue-600 fa-solid fa-moon"></i>
+                    <div>
+                        <p class="font-medium text-gray-800 dark:text-gray-200">Dark Mode</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Switch between light and dark theme.</p>
+                    </div>
                 </div>
+
+                <!-- Toggle Switch -->
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" x-model="dark" class="sr-only peer">
+                    <div class="h-6 bg-gray-200 rounded-full w-11 peer peer-checked:bg-blue-600"></div>
+                    <div class="absolute w-5 h-5 bg-white rounded-full left-1 top-0.5 peer-checked:translate-x-full transition"></div>
+                </label>
             </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" value="" class="sr-only peer">
-                <div class="h-6 bg-gray-200 rounded-full w-11 peer peer-checked:bg-blue-600"></div>
-                <div class="absolute w-5 h-5 bg-white rounded-full left-1 top-0.5 peer-checked:translate-x-full transition"></div>
-            </label>
         </div>
 
         <!-- Font Size -->
-        <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
+        <div x-data="{ fontSize: localStorage.getItem('fontSize') || 'medium' }"
+            x-init="$watch('fontSize', value => {
+                document.documentElement.style.fontSize = {
+                    small: '14px',
+                    medium: '16px',
+                    large: '18px'
+                }[value];
+                localStorage.setItem('fontSize', value);
+            })"
+            class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow-sm dark:bg-gray-800 hover:shadow-md"
+            >
             <div class="flex items-center space-x-3">
                 <i class="text-xl text-green-600 fa-solid fa-text-height"></i>
                 <div>
-                    <p class="font-medium text-gray-800">Font Size</p>
-                    <p class="text-sm text-gray-500">Adjust the interface text size.</p>
+                    <p class="font-medium text-gray-800 dark:text-gray-200">Font Size</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Adjust the interface text size.</p>
                 </div>
             </div>
-            <select class="px-2 py-1 text-sm border rounded">
-                <option>Small</option>
-                <option selected>Medium</option>
-                <option>Large</option>
+
+            <select x-model="fontSize" class="px-2 py-1 text-sm border rounded dark:bg-gray-700 dark:text-gray-200">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
             </select>
         </div>
 
         <!-- Check for Updates -->
-        <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
+        <div class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow-sm hover:shadow-md">
             <div class="flex items-center space-x-3">
                 <i class="text-xl text-yellow-600 fa-solid fa-rotate"></i>
                 <div>
@@ -56,7 +92,7 @@
         </div>
 
         <!-- Read Terms and Services -->
-        <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
+        <div class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow-sm hover:shadow-md">
             <div class="flex items-center space-x-3">
                 <i class="text-xl text-purple-600 fa-solid fa-file-contract"></i>
                 <div>
@@ -73,7 +109,7 @@
         </div>
 
         <!-- Audit Log -->
-        <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
+        <div class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow-sm hover:shadow-md">
             <div class="flex items-center space-x-3">
                 <i class="text-xl text-red-600 fa-solid fa-clipboard-list"></i>
                 <div>
@@ -90,7 +126,7 @@
         </div>
 
         <!-- Help -->
-        <div class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
+        <div class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow-sm hover:shadow-md">
             <div class="flex items-center space-x-3">
                 <i class="text-xl text-indigo-600 fa-solid fa-circle-question"></i>
                 <div>
@@ -260,6 +296,64 @@
                 type="button" 
                 class="px-5 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
                 x-on:click="$dispatch('close-modal', 'terms-and-services-modal')"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+</x-modal>
+
+<!-- Audit Log Modal -->
+<x-modal name="audit-log" :show="false" maxWidth="2xl">
+    <div class="p-6 overflow-y-auto max-h-[80vh]">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-semibold text-blue-900 dark:text-gray-100">Audit Log</h2>
+            <button 
+                type="button" 
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                x-on:click="$dispatch('close-modal', 'audit-log')"
+            >
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border-collapse table-auto">
+                <thead class="bg-gray-100 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-200">User</th>
+                        <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-200">Branch</th>
+                        <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-200">Action</th>
+                        <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-200">Details</th>
+                        <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-200">Time</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                    @foreach($auditLogs as $log)
+                        <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $log->audit_logbelongsToUser->username ?? 'Unknown' }}
+                            </td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $log->audit_logbelongsToUser->branches->pluck('branch_name')->join(', ') ?? '-' }}
+                            </td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $log->action }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $log->details }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $log->created_at->format('M d, Y H:i') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Close Button -->
+        <div class="flex justify-end mt-4">
+            <button 
+                type="button" 
+                class="px-4 py-2 text-white transition bg-blue-600 rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                x-on:click="$dispatch('close-modal', 'audit-log')"
             >
                 Close
             </button>
