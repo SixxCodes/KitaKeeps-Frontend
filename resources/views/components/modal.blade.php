@@ -65,7 +65,17 @@ $maxWidth = [
 
     <div
         x-show="show"
-        class="border border-blue-500 border-l-2 border-r-2 border-b-2 border-t-2 mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        class="bg-white border border-blue-500 border-l-2 border-r-2 border-b-2 border-t-2 rounded-lg overflow-hidden shadow-xl w-full {{ $maxWidth }} transform transition-all
+
+            /* Small screens: slightly left */
+            left-[50%] -translate-x-1/2 -translate-y-1/2 fixed top-[60%]
+
+            /* Medium screens: fully centered */
+            md:left-1/2 md:top-1/2
+
+            /* Large screens: shift right for sidebar */
+            lg:left-[calc(50%+8rem)] lg:top-1/2"
+        
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"

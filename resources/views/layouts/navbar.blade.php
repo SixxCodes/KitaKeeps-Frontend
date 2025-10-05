@@ -22,7 +22,7 @@
 
     <div class="flex items-center mr-4 space-x-1">
         <!-- Bell Icon (always visible) -->
-        <i class="mr-5 text-blue-800 fa-solid fa-bell"></i>
+        <!-- <i class="mr-5 text-blue-800 fa-solid fa-bell"></i> -->
 
         <!-- User Icon (always visible) -->
         <button class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
@@ -38,6 +38,8 @@
         </div>
 
         <!-- Dropdown arrow (hidden on mobile) -->
-        <i class="hidden text-gray-400 sm:inline fa-solid fa-angle-down"></i>
+        <button>
+            <i class="hidden text-gray-400 sm:inline fa-solid fa-angle-down"></i>
+        </button>
     </div>
 </nav>

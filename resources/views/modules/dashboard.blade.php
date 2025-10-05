@@ -271,9 +271,10 @@
 
 
 <!-- Charts & Graphs -->
-<div class="flex justify-center mb-20 space-x-5 overflow-x-auto table-pretty-scrollbar">
+<div class="flex flex-col mt-5 mb-20 space-x-0 space-y-5 lg:justify-center lg:flex-row lg:space-x-5 lg:space-y-0">
+
     <!-- Pie Chart -->
-    <div class="w-64 p-5 bg-white shadow-md rounded-2xl">
+    <div class="order-2 lg:w-[250px] p-5 bg-white shadow-md rounded-2xl lg:order-1">
         <h3 class="mb-3 text-sm font-semibold text-gray-700">Inventory Values</h3>
 
         <div class="flex items-center justify-center">
@@ -308,7 +309,7 @@
     </div>
 
     <!-- Graph -->
-    <div class="p-4 w-[500px] bg-white shadow-md rounded-2xl">
+    <div class="p-4 bg-white shadow-md rounded-2xl w-full lg:w-[500px] order-3 lg:order-2">
         <!-- Header -->
         <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-semibold text-gray-700">Sales vs Income</h3>
@@ -395,8 +396,9 @@
     </div>
 
     <!-- Quick Access Buttons -->
-    <div class="p-3 bg-white rounded-lg shadow-md">
-        <div class="flex flex-col space-y-5">
+    <div class="order-1 p-3 bg-white rounded-lg shadow-md lg:order-3">
+        <div class="flex flex-row space-x-5 lg:flex-col lg:space-x-0 lg:space-y-5">
+
             <button x-on:click="$dispatch('open-modal', 'add-product')" class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
                 <i class="fa-solid fa-clipboard-list"></i>
             </button>

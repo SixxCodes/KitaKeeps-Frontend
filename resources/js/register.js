@@ -138,7 +138,7 @@ const app = createApp({
                     data = JSON.parse(text);  // try parsing JSON
                 } catch (err) {
                     console.error('Non-JSON response:', text);
-                    alert('Server returned an unexpected response. Check console for details.');
+                    // alert('Server returned an unexpected response. Check console for details.');
                     return;
                 }
 
@@ -153,7 +153,7 @@ const app = createApp({
                     this.confirmPasswordError = data.errors.confirmPassword || '';
                 } else {
                     // Registration successful
-                    alert(`Successfully registered ${this.username}! 🎉`);
+                    // alert(`Successfully registered ${this.username}! 🎉`);
                     window.location.href = data.redirect;
                     
                     // Clear form
@@ -169,7 +169,7 @@ const app = createApp({
             .catch(err => {
                 this.loading = false;
                 console.error('Error submitting registration:', err);
-                alert('An error occurred. Please try again later.');
+                // alert('An error occurred. Please try again later.');
             });
         }
     }

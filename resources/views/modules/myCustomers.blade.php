@@ -727,21 +727,26 @@
 
                     <!-- Actions -->
                     <td class="flex justify-center gap-2 px-3 py-3 border">
+
                         <button x-data
                             x-on:click="$dispatch('open-modal', 'view-customer-{{ $customer->customer_id }}')" 
                             class="px-2 py-1 text-white bg-blue-500 rounded">
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                        <button x-data
-                            x-on:click="$dispatch('open-modal', 'edit-customer-{{ $customer->customer_id }}')" 
-                            class="px-2 py-1 text-white bg-green-500 rounded">
-                            <i class="fa-solid fa-user-pen"></i>
-                        </button>
-                        <button x-data
-                            x-on:click="$dispatch('open-modal', 'delete-customer-{{ $customer->customer_id }}')" 
-                            class="px-2 py-1 text-white bg-red-500 rounded">
-                            <i class="fa-solid fa-user-minus"></i>
-                        </button>
+
+                        @if (Auth::user()->role !== 'Cashier')
+                            <button x-data
+                                x-on:click="$dispatch('open-modal', 'edit-customer-{{ $customer->customer_id }}')" 
+                                class="px-2 py-1 text-white bg-green-500 rounded">
+                                <i class="fa-solid fa-user-pen"></i>
+                            </button>
+
+                            <button x-data
+                                x-on:click="$dispatch('open-modal', 'delete-customer-{{ $customer->customer_id }}')" 
+                                class="px-2 py-1 text-white bg-red-500 rounded">
+                                <i class="fa-solid fa-user-minus"></i>
+                            </button>
+                        @endif
                     </td>
                 </tr>
                 @empty

@@ -50,7 +50,7 @@
                     <p class="text-sm text-gray-500">Ensure you’re running the latest version.</p>
                 </div>
             </div>
-            <button class="px-3 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">
+            <button class="px-3 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700" x-on:click="$dispatch('open-modal', 'update-modal');">
                 Check
             </button>
         </div>
@@ -66,7 +66,7 @@
             </div>
             <button 
                 x-data 
-                x-on:click="$dispatch('open-modal', 'terms-and-services')" 
+                x-on:click="$dispatch('open-modal', 'terms-and-services-modal')" 
                 class="px-3 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">
                 View
             </button>
@@ -100,7 +100,7 @@
             </div>
             <button 
                 x-data 
-                x-on:click="$dispatch('open-modal', 'help')" 
+                x-on:click="$dispatch('open-modal', 'help-modal')" 
                 class="px-3 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">
                 Open
             </button>
@@ -126,3 +126,211 @@
         © 2025 KitaKeeps. All rights reserved.
     </footer>
 </div>
+
+<!-- Modal -->
+<x-modal name="update-modal" :show="false" maxWidth="sm">
+    <div x-data="{ loading: true }" x-init="setTimeout(() => loading = false, 3000)" class="p-6 text-center">
+        <!-- Loading -->
+        <div x-show="loading" class="flex flex-col items-center space-y-3">
+            <svg class="w-10 h-10 text-blue-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="font-medium text-gray-700">Checking for updates...</p>
+        </div>
+
+        <!-- Success Message -->
+        <div x-show="!loading" x-transition class="flex flex-col items-center space-y-3">
+            <i class="text-green-600 fa-solid fa-circle-check fa-2x"></i>
+            <h2 class="mt-2 text-lg font-semibold text-gray-800">No Updates</h2>
+            <p class="text-gray-600">You’re good to go! Everything is up to date.</p>
+            <button type="button"
+                class="px-4 py-2 mt-4 text-white bg-green-600 rounded hover:bg-green-700"
+                x-on:click="$dispatch('close-modal', 'update-modal')">
+                Awesome!
+            </button>
+        </div>
+    </div>
+</x-modal>
+
+<!-- Terms & Services Modal -->
+<x-modal name="terms-and-services-modal" :show="false" maxWidth="2xl">
+    <div class="p-6 max-h-[80vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Terms of Service & Privacy Policy</h2>
+            <button 
+                type="button" 
+                class="text-gray-400 hover:text-gray-600"
+                x-on:click="$dispatch('close-modal', 'terms-and-services-modal')"
+            >
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Terms of Service -->
+        <section class="p-5 mb-6 rounded-lg shadow-sm bg-gray-50">
+            <h3 class="mb-2 text-lg font-semibold text-gray-800">Terms of Service</h3>
+            <p class="mb-3 text-gray-600">Effective Date: October 3, 2025</p>
+            <p class="mb-3 text-gray-700">Welcome to KitaKeeps, a web-based management and forecasting system designed to help SMEs, particularly hardware stores, modernize and streamline operations. By accessing and using our services, you agree to the following Terms:</p>
+
+            <div class="space-y-2 text-gray-700">
+                <h4 class="font-semibold">Purpose of the Service</h4>
+                <p>KitaKeeps supports SMEs in the Philippines and beyond by providing cloud-based inventory management, employee tracking, customer recordkeeping, and AI-powered forecasting.</p>
+
+                <h4 class="font-semibold">User Responsibilities</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>Provide accurate business info (inventory, sales, employee records).</li>
+                    <li>Maintain secure access to your account.</li>
+                    <li>Use the system only for legitimate business purposes.</li>
+                </ul>
+
+                <h4 class="font-semibold">Forecasting and Limitations</h4>
+                <p>KitaKeeps uses AI to forecast demand and support decision-making. Forecasts are estimates and do not guarantee outcomes. KitaKeeps is not liable for losses from reliance on predictions.</p>
+
+                <h4 class="font-semibold">Data Ownership & Intellectual Property</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>All business data entered into KitaKeeps belongs to the SME.</li>
+                    <li>The software platform and features remain KitaKeeps' intellectual property.</li>
+                </ul>
+
+                <h4 class="font-semibold">Subscriptions & Access</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>Some features may require a subscription.</li>
+                    <li>Payments are recurring unless canceled.</li>
+                    <li>Access is via cloud services for real-time multi-location use.</li>
+                </ul>
+
+                <h4 class="font-semibold">Termination of Service</h4>
+                <p>We may suspend accounts that misuse the system or violate Terms. Users can close their accounts anytime.</p>
+
+                <h4 class="font-semibold">Governing Law</h4>
+                <p>These Terms are governed by the laws of the Republic of the Philippines.</p>
+            </div>
+        </section>
+
+        <!-- Privacy Policy -->
+        <section class="p-5 mb-6 rounded-lg shadow-sm bg-gray-50">
+            <h3 class="mb-2 text-lg font-semibold text-gray-800">Privacy Policy</h3>
+            <p class="mb-3 text-gray-600">Effective Date: October 3, 2025</p>
+            <p class="mb-3 text-gray-700">KitaKeeps is committed to protecting SME privacy. This explains how we handle your data responsibly.</p>
+
+            <div class="space-y-2 text-gray-700">
+                <h4 class="font-semibold">Data We Collect</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>Business Data: Inventory, sales, supplier & customer details, employee records.</li>
+                    <li>Personal Info: Account holder’s name, email, billing info.</li>
+                    <li>Technical Data: Device info, IP, cookies, usage logs.</li>
+                </ul>
+
+                <h4 class="font-semibold">Why We Collect It</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>Support SMEs in efficiency, forecasting, and record-keeping.</li>
+                    <li>Allow real-time collaboration via cloud.</li>
+                    <li>Process subscriptions, reports, and improve accuracy.</li>
+                </ul>
+
+                <h4 class="font-semibold">Data Sharing</h4>
+                <p>We do not sell business or personal data. Shared only with trusted providers or when legally required.</p>
+
+                <h4 class="font-semibold">Security</h4>
+                <p>Cloud encryption and access controls protect sensitive business data. No system is fully secure.</p>
+
+                <h4 class="font-semibold">Data Retention</h4>
+                <p>Business data is stored as long as your account is active or required by law. Users may request deletion upon account closure.</p>
+
+                <h4 class="font-semibold">User Rights</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                    <li>Access stored records anytime.</li>
+                    <li>Request corrections to inaccurate data.</li>
+                    <li>Request deletion, subject to legal requirements.</li>
+                </ul>
+
+                <h4 class="font-semibold">Children’s Privacy</h4>
+                <p>Intended for business use only; not for individuals under 18.</p>
+
+                <h4 class="font-semibold">Updates</h4>
+                <p>Policy may update as technology, regulations, or SME needs change. Users will be notified.</p>
+            </div>
+        </section>
+
+        <!-- Close Button -->
+        <div class="flex justify-end">
+            <button 
+                type="button" 
+                class="px-5 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
+                x-on:click="$dispatch('close-modal', 'terms-and-services-modal')"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+</x-modal>
+
+<!-- Help Modal -->
+<x-modal name="help-modal" :show="false" maxWidth="2xl">
+    <div class="p-6 space-y-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-blue-900">Need Help?</h2>
+            <button 
+                type="button" 
+                class="text-gray-400 hover:text-gray-600"
+                x-on:click="$dispatch('close-modal', 'help-modal')"
+            >
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Socials Grid -->
+        <section>
+            <h3 class="mb-3 text-lg font-semibold text-blue-800">Follow us on Socials</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <!-- Instagram -->
+                <a href="https://instagram.com" target="_blank" 
+                   class="flex flex-col items-center p-4 transition rounded-lg shadow bg-blue-50 hover:shadow-md">
+                    <i class="text-4xl text-pink-500 fa-brands fa-instagram"></i>
+                    <span class="mt-2 font-medium text-gray-700">Instagram</span>
+                </a>
+
+                <!-- Facebook -->
+                <a href="https://facebook.com" target="_blank" 
+                   class="flex flex-col items-center p-4 transition rounded-lg shadow bg-blue-50 hover:shadow-md">
+                    <i class="text-4xl text-blue-600 fa-brands fa-facebook"></i>
+                    <span class="mt-2 font-medium text-gray-700">Facebook</span>
+                </a>
+
+                <!-- TikTok Social Card -->
+                <a href="https://www.tiktok.com" target="_blank" 
+                class="flex flex-col items-center p-4 transition rounded-lg shadow bg-blue-50 hover:shadow-md">
+                    <i class="text-4xl text-black-500 fa-brands fa-tiktok"></i>
+                    <span class="mt-2 font-medium text-gray-700">TikTok</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Contact Emails -->
+        <section>
+            <h3 class="mb-3 text-lg font-semibold text-blue-800">Contact Us</h3>
+            <div class="grid grid-cols-1 gap-2 text-gray-700 sm:grid-cols-2">
+                <a href="mailto:vienugay@gmail.com" class="underline hover:text-blue-600">vienugay@gmail.com</a>
+                <a href="mailto:merryfeguisihan@gmail.com" class="underline hover:text-blue-600">merryfeguisihan@gmail.com</a>
+                <a href="mailto:crisostomokennymadayag@gmail.com" class="underline hover:text-blue-600">crisostomokennymadayag@gmail.com</a>
+                <a href="mailto:latoza@gmail.com" class="underline hover:text-blue-600">latoza@gmail.com</a>
+                <a href="mailto:mapuro@gmail.com" class="underline hover:text-blue-600">mapuro@gmail.com</a>
+                <a href="mailto:nabre2@gmail.com" class="underline hover:text-blue-600">nabre2@gmail.com</a>
+            </div>
+        </section>
+
+        <!-- Close Button -->
+        <div class="flex justify-end mt-4">
+            <button 
+                type="button" 
+                class="px-4 py-2 text-white transition bg-blue-600 rounded hover:bg-blue-700"
+                x-on:click="$dispatch('close-modal', 'help-modal')"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+</x-modal>

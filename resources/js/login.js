@@ -64,7 +64,7 @@ const app = createApp({
                     this.passwordError = data.errors.password ? data.errors.password[0] : '';
                 } else {
                     // Login successful
-                    alert(`Welcome back, ${data.user.username}!`);
+                    // alert(`Welcome back, ${data.user.username}!`);
                     window.location.href = data.redirect; 
                 }
             })
