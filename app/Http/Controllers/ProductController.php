@@ -111,24 +111,42 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'currentBranch'));
     }
 
-    // Delete
     public function destroy(Product $product)
     {
-        // Optional: delete the product image from storage
-        if ($product->prod_image_path && \Storage::disk('public')->exists($product->prod_image_path)) {
-            \Storage::disk('public')->delete($product->prod_image_path);
+        try {
+            \DB::beginTransaction();
+
+            if ($product->prod_image_path && \Storage::disk('public')->exists($product->prod_image_path)) {
+                \Storage::disk('public')->delete($product->prod_image_path);
+            }
+
+            // Delete related data for each branch_product
+            foreach ($product->branch_products as $branchProduct) {
+                if ($branchProduct->branch_producthasManysale_item()->exists()) {
+                    $branchProduct->branch_producthasManysale_item()->delete();
+                }
+
+                if ($branchProduct->branch_producthasManystock_movement()->exists()) {
+                    $branchProduct->branch_producthasManystock_movement()->delete();
+                }
+            }
+
+            // Now delete branch_products
+            $product->branch_products()->delete();
+
+            // Delete product_supplier
+            $product->product_supplier()->delete();
+
+            // Delete product itself
+            $product->delete();
+
+            \DB::commit();
+
+            return redirect()->back()->with('success', 'Product deleted successfully!');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to delete product: ' . $e->getMessage());
         }
-
-        // Delete related branch_products
-        $product->branch_products()->delete();
-
-        // Delete related product_supplier
-        $product->product_supplier()->delete();
-
-        // Delete the product itself
-        $product->delete();
-
-        return redirect()->back()->with('success', 'Product deleted successfully!');
     }
 
     // Update

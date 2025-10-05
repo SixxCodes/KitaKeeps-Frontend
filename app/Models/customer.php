@@ -51,7 +51,7 @@ class Customer extends Model
             // Delete all sales linked to this customer
             foreach ($customer->sales as $sale) {
                 // delete related sale items
-                $sale->salehasManysale_item()->delete();
+                $sale->sale_items()->delete();
                 // delete related payments
                 $sale->salehasManypayment_sale()->delete();
                 // delete related stock movements

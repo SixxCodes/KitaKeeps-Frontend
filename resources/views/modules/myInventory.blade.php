@@ -56,22 +56,22 @@
             </button>
 
             <!-- DOCX -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-blue-100 rounded-lg hover:bg-blue-200"
                 x-on:click="exportData('docx')"
             >
                 <i class="mb-1 text-2xl text-blue-600 fa-solid fa-file-word"></i>
                 <span class="text-sm text-gray-700">DOCX</span>
-            </button>
+            </button> -->
 
             <!-- PDF -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-red-100 rounded-lg hover:bg-red-200"
                 x-on:click="exportData('pdf')"
             >
                 <i class="mb-1 text-2xl text-red-600 fa-solid fa-file-pdf"></i>
                 <span class="text-sm text-gray-700">PDF</span>
-            </button>
+            </button> -->
 
         </div>
 
@@ -88,9 +88,16 @@
 <!-- Add Product -->
 <x-modal name="add-product" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-box"></i>
-            <h2 class="text-xl font-semibold">Add New Product</h2>
+
+        <!-- Modal Header -->
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-box"></i>
+                <h2 class="text-xl font-semibold">Add New Product</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-product')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
         </div>
 
         <!-- Form -->
@@ -131,7 +138,7 @@
                         <label for="category" class="block mb-1 text-gray-800">Category</label>
                         <select name="category" id="category" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
-                            <option value="">Select category</option>
+                            <option value="" disabled selected>Select category</option>
                             <option value="Building Materials">Building Materials</option>
                             <option value="Construction Materials">Construction Materials</option>
                             <option value="Decor">Decor</option>
@@ -155,7 +162,7 @@
                     <div>
                         <label for="supplier" class="block mb-1 text-gray-800">Product Supplier</label>
                         <select name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
-                            <option value="">Select a supplier</option>
+                            <option value="" disabled selected>Select a supplier</option>
                             @foreach($userSuppliers as $supplier)
                                 <option value="{{ $supplier->supplier_id }}">{{ $supplier->supp_name }}</option>
                             @endforeach
@@ -235,7 +242,7 @@
         <div>
             <label class="mr-2 text-sm">Show</label>
             <select onchange="window.location.href='?per_page='+this.value+'&search={{ request('search') }}'" 
-                class="px-5 py-1 text-sm border rounded">
+                class="py-1 text-sm border rounded">
                 <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
                 <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
                 <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
@@ -453,14 +460,20 @@
 </x-modal>
 @endforeach
 
-
 @foreach($products as $product)
 <!-- Edit Product Details Modal -->
 <x-modal name="edit-product-{{ $product->product_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-box-pen"></i>
+        
+        <!-- Modal Header -->
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-box"></i>
             <h2 class="text-xl font-semibold">Edit Product Details</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'edit-product-{{ $product->product_id }}')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
         </div>
 
         <!-- Form -->
@@ -607,7 +620,7 @@ function previewImage(event, id) {
 
         <h2 class="text-lg font-semibold text-gray-800">Delete Product?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove <strong>{{ $product->prod_name }}</strong> from the system. This cannot be undone.
+            This action will permanently remove <span class="text-red-500"><strong>{{ $product->prod_name }}</strong></span> from the system. This cannot be undone.
         </p>
 
         <div class="flex justify-center mt-4 space-x-3">

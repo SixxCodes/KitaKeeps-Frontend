@@ -50,6 +50,7 @@
                     ->orWhere('email',     'like', "%{$search}%");
                 });
             })
+            ->orderBy('employee_id', 'desc')
             ->paginate($perPage);
     }
 @endphp
@@ -77,7 +78,7 @@
         ->when($search, function ($q) use ($search) {
             $q->where('prod_name', 'like', "%{$search}%");
         })
-        ->orderBy('product_id', 'asc')
+        ->orderBy('product_id', 'desc')
         ->paginate($perPage)
         ->withQueryString();
 

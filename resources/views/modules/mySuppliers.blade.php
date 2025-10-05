@@ -72,22 +72,22 @@
             </button>
 
             <!-- DOCX -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-blue-100 rounded-lg hover:bg-blue-200"
                 x-on:click="exportData('docx')"
             >
                 <i class="mb-1 text-2xl text-blue-600 fa-solid fa-file-word"></i>
                 <span class="text-sm text-gray-700">DOCX</span>
-            </button>
+            </button> -->
 
             <!-- PDF -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-red-100 rounded-lg hover:bg-red-200"
                 x-on:click="exportData('pdf')"
             >
                 <i class="mb-1 text-2xl text-red-600 fa-solid fa-file-pdf"></i>
                 <span class="text-sm text-gray-700">PDF</span>
-            </button>
+            </button> -->
 
         </div>
 
@@ -210,7 +210,7 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+            <select onchange="window.location.href='?per_page='+this.value" class="py-1 text-sm border rounded">
                 <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
                 <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
                 <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
@@ -469,18 +469,18 @@
 @endforeach
 
 <script>
-function previewSupplierImage(event, supplierId) {
-    const input = event.target;
-    const preview = document.getElementById('supplierImagePreview-' + supplierId);
+    function previewSupplierImage(event, supplierId) {
+        const input = event.target;
+        const preview = document.getElementById('supplierImagePreview-' + supplierId);
 
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
         }
-        reader.readAsDataURL(input.files[0]);
     }
-}
 </script>
 
 @foreach($suppliers as $supplier)

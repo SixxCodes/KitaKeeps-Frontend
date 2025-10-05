@@ -96,7 +96,7 @@
 </x-modal>
 
 <!-- Export -->
- <x-modal name="export-options" :show="false" maxWidth="sm">
+<x-modal name="export-options" :show="false" maxWidth="sm">
     <div class="p-6 space-y-4">
 
         <h2 class="text-lg font-semibold text-center text-gray-800">Export As</h2>
@@ -113,22 +113,22 @@
             </button>
 
             <!-- DOCX -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-blue-100 rounded-lg hover:bg-blue-200"
                 x-on:click="exportData('docx')"
             >
                 <i class="mb-1 text-2xl text-blue-600 fa-solid fa-file-word"></i>
                 <span class="text-sm text-gray-700">DOCX</span>
-            </button>
+            </button> -->
 
             <!-- PDF -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-red-100 rounded-lg hover:bg-red-200"
                 x-on:click="exportData('pdf')"
             >
                 <i class="mb-1 text-2xl text-red-600 fa-solid fa-file-pdf"></i>
                 <span class="text-sm text-gray-700">PDF</span>
-            </button>
+            </button> -->
 
         </div>
 
@@ -147,9 +147,14 @@
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         
         <!-- Title -->
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-code-branch"></i>
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-code-branch"></i>
             <h2 class="text-xl font-semibold">Add New Branch</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-branch')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
         </div>
 
         <!-- Form -->
@@ -210,7 +215,7 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+            <select onchange="window.location.href='?per_page='+this.value" class="py-1 text-sm border rounded">
                 <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
                 <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
                 <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
@@ -373,10 +378,16 @@
 <!-- Edit Branch Details Modal -->
 <x-modal name="edit-branch-{{ $branch->branch_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+        
         <!-- Title -->
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-code-branch"></i>
-            <h2 class="text-xl font-semibold">Edit Branch Details</h2>
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-code-branch"></i>
+                <h2 class="text-xl font-semibold">Edit Branch Details</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'edit-branch-{{ $branch->branch_id }}')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
         </div>
 
         <!-- Form -->
@@ -421,7 +432,7 @@
 
         <h2 class="text-lg font-semibold text-gray-800">Delete Branch?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove the branch <strong>{{ $branch->branch_name }}</strong>. 
+            This action will permanently remove the branch <span class="text-red-600"><strong>{{ $branch->branch_name }} and all its related records</strong></span>.
             This cannot be undone.
         </p>
 

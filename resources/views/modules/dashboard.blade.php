@@ -142,6 +142,8 @@
 
 <!-- Module Header -->
 <div class="flex items-center justify-between">
+
+    <!-- Top: Current Branch -->
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
             <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
@@ -209,56 +211,56 @@
 
 <!-- Summary -->
 <div class="overflow-x-auto table-pretty-scrollbar">
-  <div class="flex gap-6 p-6 mt-1 min-w-max">
+    <div class="flex gap-6 p-6 mt-1 min-w-max">
 
-    <!-- Total Inventory Value -->
-    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-gray-500">Total Inventory Value</span>
-      </div>
-      <h2 class="text-2xl font-bold text-blue-500">₱{{ number_format($totalInventoryValue, 2) }}</h2>
-      <p class="mt-1 text-sm {{ $inventoryChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
-        {{ $inventoryChange >= 0 ? '▲' : '▼' }} {{ abs($inventoryChange) }}%
-        <span class="text-gray-500">this week</span>
-      </p>
-    </div>
+        <!-- Total Inventory Value -->
+        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-500">Total Inventory Value</span>
+        </div>
+        <h2 class="text-2xl font-bold text-blue-500">₱{{ number_format($totalInventoryValue, 2) }}</h2>
+        <p class="mt-1 text-sm {{ $inventoryChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
+            {{ $inventoryChange >= 0 ? '▲' : '▼' }} {{ abs($inventoryChange) }}%
+            <span class="text-gray-500">this week</span>
+        </p>
+        </div>
 
-    <!-- Low Stock -->
-    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-    <div class="flex items-center justify-between">
-        <span class="text-sm text-gray-500">Low Stock</span>
-    </div>
-    <h2 class="text-2xl font-bold text-yellow-500">{{ $lowStockCount }}</h2>
-    <p class="mt-1 text-sm text-gray-600">
-        {{ round($lowStockPercent, 1) }}%
-        <span class="text-gray-500">of inventory</span>
-    </p>
-    </div>
+        <!-- Low Stock -->
+        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-500">Low Stock</span>
+        </div>
+        <h2 class="text-2xl font-bold text-yellow-500">{{ $lowStockCount }}</h2>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ round($lowStockPercent, 1) }}%
+            <span class="text-gray-500">of inventory</span>
+        </p>
+        </div>
 
-    <!-- Sold Out -->
-    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-    <div class="flex items-center justify-between">
-        <span class="text-sm text-gray-500">Sold Out</span>
-    </div>
-    <h2 class="text-2xl font-bold text-red-500">{{ $soldOutCount }}</h2>
-    <p class="mt-1 text-sm text-gray-600">
-        {{ round($soldOutPercent, 1) }}%
-        <span class="text-gray-500">of inventory</span>
-    </p>
-    </div>
+        <!-- Sold Out -->
+        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-500">Sold Out</span>
+        </div>
+        <h2 class="text-2xl font-bold text-red-500">{{ $soldOutCount }}</h2>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ round($soldOutPercent, 1) }}%
+            <span class="text-gray-500">of inventory</span>
+        </p>
+        </div>
 
-    <!-- Active Employees -->
-    <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
-    <div class="flex items-center justify-between">
-        <span class="text-sm text-gray-500">Active Employees</span>
+        <!-- Active Employees -->
+        <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-500">Active Employees</span>
+        </div>
+        <h2 class="text-2xl font-bold text-green-500">{{ $activeEmployeesToday }}</h2>
+        <p class="mt-1 text-sm">
+            {{ $activeEmployeesThisWeek }}
+            <span class="text-gray-500">this week</span>
+        </p>
+        </div>
     </div>
-    <h2 class="text-2xl font-bold text-green-500">{{ $activeEmployeesToday }}</h2>
-    <p class="mt-1 text-sm">
-        {{ $activeEmployeesThisWeek }}
-        <span class="text-gray-500">this week</span>
-    </p>
-    </div>
-  </div>
 </div>
 
 
@@ -409,16 +411,21 @@
             </button>
         </div>
     </div>
-
-
 </div>
 
-<!-- Add Product -->
+<!-- Add Product Modal -->
 <x-modal name="add-product" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-box"></i>
-            <h2 class="text-xl font-semibold">Add New Product</h2>
+        
+        <!-- Modal Header -->
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-box"></i>
+                <h2 class="text-xl font-semibold">Add New Product</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-product')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
         </div>
 
         <!-- Form -->
@@ -775,9 +782,14 @@
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         
         <!-- Title -->
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-user-plus"></i>
-            <h2 class="text-xl font-semibold">Add New Customer</h2>
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-user-plus"></i>
+                <h2 class="text-xl font-semibold">Add New Customer</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-customer')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
         </div>
 
         <!-- Form -->

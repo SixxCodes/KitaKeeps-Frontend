@@ -127,7 +127,7 @@
 </div>
 
 <!-- Export -->
- <x-modal name="export-options" :show="false" maxWidth="sm">
+<x-modal name="export-options" :show="false" maxWidth="sm">
     <div class="p-6 space-y-4">
 
         <h2 class="text-lg font-semibold text-center text-gray-800">Export As</h2>
@@ -144,22 +144,22 @@
             </button>
 
             <!-- DOCX -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-blue-100 rounded-lg hover:bg-blue-200"
                 x-on:click="exportData('docx')"
             >
                 <i class="mb-1 text-2xl text-blue-600 fa-solid fa-file-word"></i>
                 <span class="text-sm text-gray-700">DOCX</span>
-            </button>
+            </button> -->
 
             <!-- PDF -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-red-100 rounded-lg hover:bg-red-200"
                 x-on:click="exportData('pdf')"
             >
                 <i class="mb-1 text-2xl text-red-600 fa-solid fa-file-pdf"></i>
                 <span class="text-sm text-gray-700">PDF</span>
-            </button>
+            </button> -->
 
         </div>
 
@@ -178,10 +178,15 @@
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         
         <!-- Title -->
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-user-plus"></i>
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center">
+                <i class="fa-solid fa-user-plus"></i>
             <h2 class="text-xl font-semibold">Add New Customer</h2>
-        </div>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'add-customer')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
+        </div>  
 
         <!-- Form -->
         <form action="{{ route('customers.store') }}" enctype="multipart/form-data" method="POST" class="space-y-4 text-sm">
@@ -287,14 +292,14 @@
 @php
     $currentBranchId = session('current_branch_id');
 
-if (!$currentBranchId) {
-    $currentBranchId = auth()->user()
-        ->branches()
-        ->orderBy('branch.branch_id')
-        ->value('branch.branch_id');
+    if (!$currentBranchId) {
+        $currentBranchId = auth()->user()
+            ->branches()
+            ->orderBy('branch.branch_id')
+            ->value('branch.branch_id');
 
-    session(['current_branch_id' => $currentBranchId]);
-}
+        session(['current_branch_id' => $currentBranchId]);
+    }
 
     // Customers with Credit (current branch)
     $customersWithCredit = \App\Models\Customer::whereHas('sales', function($query) use ($currentBranchId) {
@@ -404,26 +409,27 @@ if (!$currentBranchId) {
     <!-- Search + Entries -->
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
-            <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base" onchange="window.location.href='?per_page='+this.value">
-                @foreach([5,10,25,50] as $size)
-                    <option value="{{ $size }}" @if(request('per_page', 5) == $size) selected @endif>{{ $size }}</option>
-                @endforeach
+            <label class="mr-2 text-sm">Show</label>
+            <select onchange="window.location.href='?per_page='+this.value+'&search={{ request('search') }}'" 
+                class="py-1 text-sm border rounded">
+                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
+                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
+                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
             </select>
-            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
+            <span class="ml-2 text-sm">entries</span>
         </div>
 
-        <!-- Search Bar --> 
+        <!-- Search Bar -->
         <div class="flex items-center space-x-2">
-            <i class="text-blue-800 fa-solid fa-filter"></i>
-            <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
+            <div class="flex items-center px-2 py-1 border rounded w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text" 
-                    placeholder="Search..." 
-                    class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
-                    onkeydown="if(event.key==='Enter'){window.location.href='?search='+this.value;}"
+                    type="text"
+                    name="search"
                     value="{{ request('search') }}"
+                    placeholder="Search..."
+                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
+                    class="w-full py-0 text-sm bg-transparent border-none outline-none"
                 />
             </div>
         </div>
@@ -434,6 +440,7 @@ if (!$currentBranchId) {
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
+                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Customer Name</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Total Credit</th>
@@ -449,6 +456,12 @@ if (!$currentBranchId) {
                         $nextDueSale = $creditSales->first(); // earliest due
                     @endphp
                     <tr class="hover:bg-gray-50">
+                        
+                        <!-- Auto-increment row number -->
+                        <td class="px-3 py-2 border bg-blue-50">
+                            {{ $customers->firstItem() + $loop->index }}
+                        </td>
+
                         <td class="px-3 py-2 border">{{ $customer->customer_id }}</td>
 
                         <td class="px-3 py-2 border">
@@ -634,7 +647,7 @@ if (!$currentBranchId) {
         <div>
             <label class="mr-2 text-sm">Show</label>
             <select onchange="window.location.href='?per_page='+this.value+'&search={{ request('search') }}'" 
-                class="px-5 py-1 text-sm border rounded">
+                class="py-1 text-sm border rounded">
                 <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
                 <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
                 <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
@@ -816,10 +829,17 @@ if (!$currentBranchId) {
 <!-- Edit Customer Modal -->
 <x-modal name="edit-customer-{{ $customer->customer_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-user-pen"></i>
-            <h2 class="text-xl font-semibold">Edit Customer</h2>
-        </div>
+
+        <!-- Title -->
+        <div class="flex justify-between mb-4 text-blue-900">
+            <div class="flex items-center space-x-1">
+                <i class="fa-solid fa-user-pen"></i>
+                <h2 class="text-xl font-semibold">Edit Customer</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'edit-customer-{{ $customer->customer_id }}')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
+        </div>  
 
         <!-- Form -->
         <form action="{{ route('customers.update', $customer->customer_id) }}" 

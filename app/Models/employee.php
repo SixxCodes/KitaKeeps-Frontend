@@ -57,4 +57,9 @@ class Employee extends Model
             ->where('att_date', \Carbon\Carbon::today()->toDateString());
     }
 
+    public function payroll()
+    {
+        return $this->belongsTo(Payroll::class, 'employee_id', 'employee_id');
+    }
+
 }

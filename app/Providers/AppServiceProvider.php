@@ -42,8 +42,10 @@ class AppServiceProvider extends ServiceProvider
                     });
                 }
 
-                $suppliers = $query->paginate($perPage)->withQueryString();
-
+                $suppliers = $query->orderBy('supplier_id', 'desc')
+                                  ->paginate($perPage)
+                                  ->withQueryString();
+                
                 $view->with('suppliers', $suppliers);
             }
         });

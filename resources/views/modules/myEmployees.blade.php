@@ -209,22 +209,22 @@
             </button>
 
             <!-- DOCX -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-blue-100 rounded-lg hover:bg-blue-200"
                 x-on:click="exportData('docx')"
             >
                 <i class="mb-1 text-2xl text-blue-600 fa-solid fa-file-word"></i>
                 <span class="text-sm text-gray-700">DOCX</span>
-            </button>
+            </button> -->
 
             <!-- PDF -->
-            <button 
+            <!-- <button 
                 class="flex flex-col items-center w-24 px-4 py-3 transition bg-red-100 rounded-lg hover:bg-red-200"
                 x-on:click="exportData('pdf')"
             >
                 <i class="mb-1 text-2xl text-red-600 fa-solid fa-file-pdf"></i>
                 <span class="text-sm text-gray-700">PDF</span>
-            </button>
+            </button> -->
 
         </div>
 
@@ -408,7 +408,7 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+            <select onchange="window.location.href='?per_page='+this.value" class="py-1 text-sm border rounded">
                 <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
                 <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
                 <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
@@ -605,7 +605,7 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
+            <select onchange="window.location.href='?per_page='+this.value" class="py-1 text-sm border rounded">
                 <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
                 <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
                 <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
@@ -816,10 +816,17 @@
 @foreach($employees as $employee)
 <x-modal name="edit-employee-{{ $employee->employee_id }}" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex items-center mb-4 space-x-1 text-blue-900">
-            <i class="fa-solid fa-user-pen"></i>
-            <h2 class="text-xl font-semibold">Edit Employee Details</h2>
-        </div>
+
+        <!-- Modal Header -->
+        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
+            <div class="flex items-center">
+                <i class="fa-solid fa-user-pen"></i>
+                <h2 class="text-xl font-semibold">Edit Employee Details</h2>
+            </div>
+            <span x-on:click="$dispatch('close-modal', 'edit-employee-{{ $employee->employee_id }}')" class="cursor-pointer">
+                <i class="text-lg fa-solid fa-xmark"></i>
+            </span>
+        </div>  
 
         <form action="{{ route('employees.update', $employee->employee_id) }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-sm">
             @csrf
@@ -947,7 +954,7 @@
 
         <h2 class="mb-2 text-lg font-semibold text-gray-800">Fire {{ $employee->person->firstname }} {{ $employee->person->lastname }}?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove <span class="font-medium">{{ $employee->person->firstname }} {{ $employee->person->lastname }}</span> from the system. This cannot be undone.
+            This action will permanently remove <span class="font-bold text-red-500">{{ $employee->person->firstname }} {{ $employee->person->lastname }}</span> from the system. This cannot be undone.
         </p>
 
         <form action="{{ route('employees.destroy', $employee->employee_id) }}" method="POST" class="flex justify-center mt-4 space-x-3">

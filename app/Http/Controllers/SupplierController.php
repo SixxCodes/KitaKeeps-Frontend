@@ -90,10 +90,22 @@ class SupplierController extends Controller
     public function destroy(Supplier $supplier)
     {
         try {
-            $supplier->delete(); // deletes the supplier
+            \DB::beginTransaction();
+
+            // Delete related product_supplier records
+            if ($supplier->supplierhasManyproduct_supplier()->exists()) {
+                $supplier->supplierhasManyproduct_supplier()->delete();
+            }
+
+            // Now delete supplier
+            $supplier->delete();
+
+            \DB::commit();
+
             return redirect()->back()->with('success', 'Supplier deleted successfully!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to delete supplier.');
+            \DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to delete supplier: ' . $e->getMessage());
         }
     }
 

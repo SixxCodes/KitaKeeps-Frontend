@@ -75,13 +75,89 @@ class BranchController extends Controller
 
     public function destroy(Branch $branch)
     {
-        // Remove related pivot rows first
-        $branch->users()->detach();
+        try {
+            // --- 1. Delete related BranchProducts and all their dependents ---
+            foreach ($branch->branchproducts as $branchProduct) {
+                // Delete forecasts
+                $branchProduct->forecasts()->delete();
 
-        // Now delete the branch
-        $branch->delete();
+                // Delete purchase items
+                $branchProduct->branch_producthasManypurchase_item()->delete();
 
-        return redirect()->back()->with('success', 'Branch deleted successfully!');
+                // Delete stock movements
+                $branchProduct->branch_producthasManystock_movement()->delete();
+
+                // Delete sale items
+                $branchProduct->branch_producthasManysale_item()->delete();
+
+                // Finally delete the branch product itself
+                $branchProduct->delete();
+            }
+
+            // --- 2. Delete Purchases and their children ---
+            foreach ($branch->purchases as $purchase) {
+                // Delete purchase items
+                $purchase->purchasehasManypurchase_item()->delete();
+
+                // Delete stock movements for this purchase
+                $purchase->purchasehasManystock_movement()->delete();
+
+                $purchase->delete();
+            }
+
+            // --- 3. Delete Sales and their children ---
+            foreach ($branch->sales as $sale) {
+                // Delete sale items
+                $sale->sale_items()->delete();
+
+                // Delete payment_sale
+                $sale->salehasManypayment_sale()->delete();
+
+                // Delete stock movements
+                $sale->salehasManystock_movement()->delete();
+
+                $sale->delete();
+            }
+
+            // --- 4. Delete Customers ---
+            foreach ($branch->customers as $customer) {
+                // Sales already deleted above, so just delete customer
+                $customer->delete();
+            }
+
+            // --- 5. Delete Employees and their related data ---
+            foreach ($branch->employees as $employee) {
+                // Delete attendance
+                $employee->attendance()->delete();
+
+                // Delete payroll
+                \App\Models\Payroll::where('employee_id', $employee->employee_id)->delete();
+
+                // Delete employee
+                $employee->delete();
+            }
+
+            // --- 6. Delete Suppliers ---
+            foreach (\App\Models\Supplier::where('branch_id', $branch->branch_id)->get() as $supplier) {
+                // Delete product_supplier relations
+                $supplier->supplierhasManyproduct_supplier()->delete();
+
+                // Delete purchases (should already be gone, but just in case)
+                $supplier->supplierhasManypurchase()->delete();
+
+                $supplier->delete();
+            }
+
+            // --- 7. Detach Users from pivot table ---
+            $branch->users()->detach();
+
+            // --- 8. Delete the branch itself ---
+            $branch->delete();
+
+            return redirect()->back()->with('success', 'Branch and all related records deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete branch: ' . $e->getMessage());
+        }
     }
 
     public function switch(Request $request, $branchId)

@@ -181,25 +181,44 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($employee_id);
         $person = $employee->person;
 
-        // Delete employee image from storage if exists
-        if ($employee->employee_image_path && \Storage::disk('public')->exists($employee->employee_image_path)) {
-            \Storage::disk('public')->delete($employee->employee_image_path);
+        try {
+            \DB::beginTransaction();
+
+            // Delete employee image from storage if exists
+            if ($employee->employee_image_path && \Storage::disk('public')->exists($employee->employee_image_path)) {
+                \Storage::disk('public')->delete($employee->employee_image_path);
+            }
+
+            // Delete related attendances
+            if ($employee->attendance()->exists()) {
+                $employee->attendance()->delete();
+            }
+
+            // Delete related payrolls
+            if ($employee->payroll()->exists()) {
+                $employee->payroll()->delete();
+            }
+
+            // If employee is Cashier or Admin, delete linked User account
+            if (in_array($employee->position, ['Cashier', 'Admin']) && $person && $person->user) {
+                $person->user->delete();
+            }
+
+            // Delete the employee record
+            $employee->delete();
+
+            // Optionally delete the person record
+            if ($person) {
+                $person->delete();
+            }
+
+            \DB::commit();
+
+            return redirect()->back()->with('success', 'Employee and related records deleted successfully.');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()->with('error', 'Failed to delete employee: ' . $e->getMessage());
         }
-
-        // If employee is Cashier or Admin, delete their linked User account
-        if (in_array($employee->position, ['Cashier', 'Admin']) && $person && $person->user) {
-            $person->user->delete();
-        }
-
-        // Delete the employee record
-        $employee->delete();
-
-        // Optionally delete person record (only if you want)
-        if ($person) {
-            $person->delete();
-        }
-
-        return redirect()->back()->with('success', 'Employee and related account (if any) have been removed.');
     }
 
 }

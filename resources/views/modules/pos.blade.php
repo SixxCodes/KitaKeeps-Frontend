@@ -1,96 +1,96 @@
 <!-- Products -->
 @php
-use App\Models\Product;
-use App\Models\Customer;
+    use App\Models\Product;
+    use App\Models\Customer;
 
-// Authenticated user
-$owner = auth()->user();
-$userBranches = $owner ? $owner->branches : collect();
+    // Authenticated user
+    $owner = auth()->user();
+    $userBranches = $owner ? $owner->branches : collect();
 
-// Determine current branch: session -> first branch -> null
-$currentBranch = null;
+    // Determine current branch: session -> first branch -> null
+    $currentBranch = null;
 
-if (session()->has('current_branch_id')) {
-    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first();
-}
+    if (session()->has('current_branch_id')) {
+        $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first();
+    }
 
-// Fallback to first branch if session missing or invalid
-if (!$currentBranch) {
-    $currentBranch = $userBranches->sortBy('branch_id')->first();
-}
+    // Fallback to first branch if session missing or invalid
+    if (!$currentBranch) {
+        $currentBranch = $userBranches->sortBy('branch_id')->first();
+    }
 
-// Selected category from query string (?category=...)
-$selectedCategory = request('category');
+    // Selected category from query string (?category=...)
+    $selectedCategory = request('category');
 
-// ------------------- Products -------------------
-// Only query if a branch is available
-$posProducts = collect();
-$categories  = collect();
+    // ------------------- Products -------------------
+    // Only query if a branch is available
+    $posProducts = collect();
+    $categories  = collect();
 
-if ($currentBranch) {
-    // Distinct categories for this branch
-    $categories = Product::whereHas('branch_products', function($q) use ($currentBranch) {
-            $q->where('branch_id', $currentBranch->branch_id);
-        })
-        ->whereNotNull('category')
-        ->distinct()
-        ->orderBy('category')
-        ->pluck('category');
-
-    // Products for POS, filtered by branch + optional category + search
-    $posProducts = Product::with([
-            'product_supplier.supplier',
-            'branch_products' => function($q) use ($currentBranch) {
+    if ($currentBranch) {
+        // Distinct categories for this branch
+        $categories = Product::whereHas('branch_products', function($q) use ($currentBranch) {
                 $q->where('branch_id', $currentBranch->branch_id);
-            }
-        ])
-        ->whereHas('branch_products', function($q) use ($currentBranch) {
-            $q->where('branch_id', $currentBranch->branch_id);
-        })
-        ->when($selectedCategory, function($q) use ($selectedCategory) {
-            $q->where('category', $selectedCategory);
-        })
-        ->when(request('pos_search'), function ($q, $posSearch) {
-            $q->where('prod_name', 'like', "%{$posSearch}%");
-        })
-        ->orderBy('product_id', 'asc')
-        ->get();
-}
+            })
+            ->whereNotNull('category')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
 
-// ------------------- Customers -------------------
-$perPage = (int) request('per_page', 5);
-$search  = trim(request('search', ''));
+        // Products for POS, filtered by branch + optional category + search
+        $posProducts = Product::with([
+                'product_supplier.supplier',
+                'branch_products' => function($q) use ($currentBranch) {
+                    $q->where('branch_id', $currentBranch->branch_id);
+                }
+            ])
+            ->whereHas('branch_products', function($q) use ($currentBranch) {
+                $q->where('branch_id', $currentBranch->branch_id);
+            })
+            ->when($selectedCategory, function($q) use ($selectedCategory) {
+                $q->where('category', $selectedCategory);
+            })
+            ->when(request('pos_search'), function ($q, $posSearch) {
+                $q->where('prod_name', 'like', "%{$posSearch}%");
+            })
+            ->orderBy('product_id', 'asc')
+            ->get();
+    }
 
-$query = Customer::query();
+    // ------------------- Customers -------------------
+    $perPage = (int) request('per_page', 5);
+    $search  = trim(request('search', ''));
 
-// Only scope to branch if branch exists
-if ($currentBranch) {
-    $query->where('branch_id', $currentBranch->branch_id);
-}
+    $query = Customer::query();
 
-// Search across name / contact / address
-if ($search !== '') {
-    $query->where(function($q) use ($search) {
-        $q->where('cust_name', 'like', "%{$search}%")
-          ->orWhere('cust_contact', 'like', "%{$search}%")
-          ->orWhere('cust_address', 'like', "%{$search}%");
-    });
-}
+    // Only scope to branch if branch exists
+    if ($currentBranch) {
+        $query->where('branch_id', $currentBranch->branch_id);
+    }
 
-// Paginate customers
-$customers = $query->orderBy('customer_id', 'desc')
-    ->paginate($perPage)
-    ->appends(request()->query());
+    // Search across name / contact / address
+    if ($search !== '') {
+        $query->where(function($q) use ($search) {
+            $q->where('cust_name', 'like', "%{$search}%")
+            ->orWhere('cust_contact', 'like', "%{$search}%")
+            ->orWhere('cust_address', 'like', "%{$search}%");
+        });
+    }
+
+    // Paginate customers
+    $customers = $query->orderBy('customer_id', 'desc')
+        ->paginate($perPage)
+        ->appends(request()->query());
 @endphp
 
 <!-- Module Header -->
 <div class="flex items-center justify-between">
 
-    @if($errors->any())
+    <!-- @if($errors->any())
         <div class="p-2 mt-2 text-sm text-red-700 bg-red-100 rounded">
             {{ $errors->first() }}
         </div>
-    @endif
+    @endif -->
 
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
@@ -231,7 +231,7 @@ $customers = $query->orderBy('customer_id', 'desc')
         </div>
 
         <div>
-
+            <!-- Total, Buttons and Dropdowns -->
             <div class="flex items-center justify-between gap-2 mt-2">
                 <!-- Pick Customer (secondary button) -->
                 <button 
@@ -554,10 +554,14 @@ $customers = $query->orderBy('customer_id', 'desc')
             div.className = "flex items-center justify-between p-2 bg-white rounded shadow";
             div.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center justify-center w-12 h-12 bg-gray-200 rounded">
-                        <img src="${item.image ?? ''}" 
-                            alt="${item.name}" 
-                            class="object-cover w-full h-full rounded">
+                    <div class="flex items-center justify-center w-12 h-12 bg-blue-200 rounded">
+                        ${
+                            item.image 
+                            ? `<img src="${item.image}" alt="${item.name}" class="object-cover w-full h-full rounded">`
+                            : `<div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                    <i class="fa-solid fa-box fa-2x"></i>
+                            </div>`
+                        }
                     </div>
                     <div>
                         <div class="text-sm font-semibold">${item.name}</div>

@@ -107,7 +107,7 @@
         </div>
 
         <!-- Sync to Cloud -->
-        <div class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow hover:shadow-md sm:col-span-2 lg:col-span-3">
+        <!-- <div class="flex items-center justify-between p-4 transition bg-white border rounded-lg shadow hover:shadow-md sm:col-span-2 lg:col-span-3">
             <div class="flex items-center space-x-3">
                 <i class="text-xl text-blue-600 fa-solid fa-cloud-arrow-up"></i> 
                 <div>
@@ -118,7 +118,7 @@
             <button class="px-3 py-1 text-sm text-white bg-purple-600 rounded hover:bg-purple-700 ellipses whitespace-nowrap">
                 Sync Now
             </button>
-        </div>
+        </div> -->
     </div>
 
     <!-- Footer Branding -->
