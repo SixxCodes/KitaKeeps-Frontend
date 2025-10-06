@@ -3,8 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Supplier;
+use App\Models\UserBranch;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class SupplierController extends Controller
 {
@@ -107,6 +114,64 @@ class SupplierController extends Controller
             \DB::rollBack();
             return redirect()->back()->with('error', 'Failed to delete supplier: ' . $e->getMessage());
         }
+    }
+
+    public function exportSuppliers()
+    {
+        $userId = auth()->user()->user_id;
+
+        // Get all branch IDs for the authenticated user
+        $branchIds = UserBranch::where('user_id', $userId)->pluck('branch_id');
+
+        // Get suppliers in those branches
+        $suppliers = Supplier::whereIn('branch_id', $branchIds)
+            ->with('branch') // eager load branch name
+            ->get();
+
+        // Create spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Headers
+        $headers = ['ID', 'Supplier Name', 'Contact', 'Address'];
+        $sheet->fromArray([$headers], NULL, 'A1');
+
+        // Fill rows
+        $row = 2;
+        foreach ($suppliers as $supplier) {
+            $branchName = optional($supplier->branch)?->branch_name ?? 'N/A';
+
+            $sheet->fromArray([
+                $supplier->supplier_id,
+                $supplier->supp_name,
+                $supplier->supp_contact ?? 'N/A',
+                $supplier->supp_address ?? 'N/A',
+            ], NULL, "A{$row}");
+            $row++;
+        }
+
+        // Style headers
+        $headerStyle = $sheet->getStyle('A1:D1');
+        $headerStyle->getFont()->setBold(true);
+        $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $headerStyle->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFE2EFDA');
+        $headerStyle->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+        // Auto widen columns
+        foreach (range('A', 'D') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Optional: widen address column
+        $sheet->getColumnDimension('D')->setWidth(40);
+
+        // Writer & download
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'suppliers.xlsx';
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename);
     }
 
 }

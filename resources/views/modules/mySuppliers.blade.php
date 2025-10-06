@@ -63,13 +63,12 @@
         <div class="flex justify-center mt-4 space-x-4">
 
             <!-- Excel -->
-            <button 
-                class="flex flex-col items-center w-24 px-4 py-3 transition bg-green-100 rounded-lg hover:bg-green-200"
-                x-on:click="exportData('excel')"
+            <a href="{{ route('suppliers.export') }}"
+            class="flex flex-col items-center w-24 px-4 py-3 transition bg-green-100 rounded-lg hover:bg-green-200"
             >
                 <i class="mb-1 text-2xl text-green-600 fa-solid fa-file-excel"></i>
                 <span class="text-sm text-gray-700">Excel</span>
-            </button>
+            </a>
 
             <!-- DOCX -->
             <!-- <button 

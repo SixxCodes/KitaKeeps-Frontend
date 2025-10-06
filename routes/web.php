@@ -14,6 +14,7 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\CustomerCreditController;
+use App\Http\Controllers\AttendanceEmployeeExportController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -43,6 +44,9 @@ Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.
 Route::patch('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
 // Delete a supplier
 Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+Route::get('/suppliers/export', [SupplierController::class, 'exportSuppliers'])
+    ->name('suppliers.export')
+    ->middleware('auth');
 
 // Branches
 Route::middleware(['auth'])->group(function() {
@@ -51,6 +55,9 @@ Route::middleware(['auth'])->group(function() {
 Route::put('/branches/{branch}', [BranchController::class, 'update'])->name('branches.update');
 Route::delete('/branches/{branch}', [BranchController::class, 'destroy'])->name('branches.destroy');
 Route::post('/branches/switch/{branch}', [BranchController::class, 'switch'])->name('branches.switch');
+Route::get('/branches/export', [BranchController::class, 'export'])
+    ->name('branches.export')
+    ->middleware('auth');
 
 // Employees
 Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
@@ -70,12 +77,17 @@ Route::post('/products', [ProductController::class, 'store'])->name('products.st
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 Route::patch('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+Route::get('/products/export', [ProductController::class, 'exportProducts'])
+    ->name('products.export')
+    ->middleware('auth');
 
 // Customers
 Route::post('/customers/store', [CustomerController::class, 'store'])->name('customers.store');
 Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
 Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
 Route::get('/customers/{customer}/credits', [CustomerController::class, 'credits']);
+Route::get('/customers/export', [CustomerController::class, 'exportCustomers'])
+    ->name('customers.export');
 
 // Sales
 Route::post('/sales', [SalesController::class, 'store'])->name('sales.store');
@@ -84,6 +96,10 @@ Route::post('/sales/{sale}/pay', [SalesController::class, 'pay'])->name('sales.p
 Route::delete('/sales/{sale}', [SalesController::class, 'destroy'])->name('sales.destroy');
 Route::post('/customers/{customer}/credits/pay-all', [SalesController::class, 'payAll'])->name('sales.payAll');
 Route::delete('/customers/{customer}/credits/delete-all', [SalesController::class, 'destroyAll'])->name('sales.destroyAll');
+
+Route::get('/employees/export', [AttendanceEmployeeExportController::class, 'export'])
+    ->name('employees.export')
+    ->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

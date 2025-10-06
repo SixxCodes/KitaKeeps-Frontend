@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Rap2hpoutre\FastExcel\FastExcel;
 use Illuminate\Http\Request;
 use App\Models\Branch;
 use App\Models\UserBranch;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class BranchController extends Controller
 {
@@ -170,6 +176,59 @@ class BranchController extends Controller
         }
 
         return back()->with('error', 'Unauthorized to switch to this branch.');
+    }
+    
+    public function export()
+    {
+        $userId = auth()->user()->user_id;
+        $branchIds = \App\Models\UserBranch::where('user_id', $userId)->pluck('branch_id');
+
+        $branches = Branch::whereIn('branch_id', $branchIds)
+            ->select('branch_id', 'branch_name', 'location')
+            ->get();
+
+        // Create spreadsheet manually for styling
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Headers
+        $headers = ['Branch ID', 'Branch Name', 'Location'];
+        $sheet->fromArray([$headers], NULL, 'A1');
+
+        // Fill rows
+        $row = 2;
+        foreach ($branches as $branch) {
+            $sheet->fromArray([
+                $branch->branch_id,
+                $branch->branch_name,
+                $branch->location,
+            ], NULL, "A{$row}");
+            $row++;
+        }
+
+        // Style headers
+        $headerStyle = $sheet->getStyle('A1:C1');
+        $headerStyle->getFont()->setBold(true);
+        $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $headerStyle->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFE2EFDA');
+        $headerStyle->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+        // Auto widen columns
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // You can also manually set a minimum width for specific columns:
+        $sheet->getColumnDimension('C')->setWidth(40); // Location column wider
+
+        // Generate Excel file
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'branches.xlsx';
+
+        // Download response
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename);
     }
 
 }

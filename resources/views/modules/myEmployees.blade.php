@@ -196,17 +196,21 @@
     <div class="p-6 space-y-4">
 
         <h2 class="text-lg font-semibold text-center text-gray-800">Export As</h2>
+        
+        <!-- Info about sheets -->
+        <p class="text-sm text-center text-gray-500">
+            Attendance and Employee details will be exported on <strong>separate sheets</strong> in the Excel file.
+        </p>
 
         <div class="flex justify-center mt-4 space-x-4">
 
             <!-- Excel -->
-            <button 
-                class="flex flex-col items-center w-24 px-4 py-3 transition bg-green-100 rounded-lg hover:bg-green-200"
-                x-on:click="exportData('excel')"
+            <a href="{{ route('employees.export') }}"
+            class="flex flex-col items-center px-4 py-3 transition bg-blue-100 rounded-lg w-28 hover:bg-blue-200"
             >
                 <i class="mb-1 text-2xl text-green-600 fa-solid fa-file-excel"></i>
                 <span class="text-sm text-gray-700">Excel</span>
-            </button>
+            </a>
 
             <!-- DOCX -->
             <!-- <button 

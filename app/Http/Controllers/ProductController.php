@@ -6,9 +6,15 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\BranchProduct;
 use App\Models\ProductSupplier;
+use App\Models\UserBranch;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class ProductController extends Controller
 {   
@@ -222,4 +228,81 @@ class ProductController extends Controller
 
         return redirect()->back()->with('success', 'Product updated successfully!');
     }
+
+    public function exportProducts()
+    {
+        $userId = auth()->user()->user_id;
+
+        // Get all branch IDs for the authenticated user
+        $branchIds = UserBranch::where('user_id', $userId)->pluck('branch_id');
+
+        // Get products for those branches with supplier info
+        $branchProducts = BranchProduct::whereIn('branch_id', $branchIds)
+            ->with(['product.product_supplier.supplier'])
+            ->get();
+
+        // Create spreadsheet manually
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Headers
+        $headers = ['ID', 'Product Name', 'Product Supplier', 'Category', 'Qty.', 'Selling Price', 'Status'];
+        $sheet->fromArray([$headers], NULL, 'A1');
+
+        // Fill rows
+        $row = 2;
+        foreach ($branchProducts as $bp) {
+            $product = $bp->product;
+            if (!$product) continue; // skip if product missing
+
+            $supplierName = optional($product->product_supplier->first()?->supplier)?->supp_name ?? 'N/A';
+
+            // Determine stock status
+            $qty = $bp->stock_qty;
+            if ($qty == 0) {
+                $status = 'No Stock';
+            } elseif ($qty >= 1 && $qty <= 20) {
+                $status = 'Low Stock';
+            } else {
+                $status = 'In Stock';
+            }
+
+            $sheet->fromArray([
+                $product->product_id,
+                $product->prod_name,
+                $supplierName,
+                $product->category,
+                $qty,
+                number_format($product->selling_price, 2),
+                $status,
+            ], NULL, "A{$row}");
+
+            $row++;
+        }
+
+        // Style headers
+        $headerStyle = $sheet->getStyle('A1:G1');
+        $headerStyle->getFont()->setBold(true);
+        $headerStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $headerStyle->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFE2EFDA');
+        $headerStyle->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+        // Auto widen columns
+        foreach (range('A', 'G') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Optional: make the Product Name and Supplier columns wider
+        $sheet->getColumnDimension('B')->setWidth(40);
+        $sheet->getColumnDimension('C')->setWidth(30);
+
+        // Writer & download
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'products.xlsx';
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename);
+    }
+
 }

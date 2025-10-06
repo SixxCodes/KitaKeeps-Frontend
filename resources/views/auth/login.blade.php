@@ -78,7 +78,7 @@
                         </button>
                     </div>
 
-                    <div class="flex items-center justify-between mb-6">
+                    <!-- <div class="flex items-center justify-between mb-6">
 
                         <label class="flex items-center text-gray-700">
                             <input type="checkbox" v-model="rememberMe" class="w-4 h-4 text-blue-600 form-checkbox" />
@@ -86,7 +86,7 @@
                         </label>
 
                         <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
-                    </div>
+                    </div> -->
 
                     <button
                     type="submit"

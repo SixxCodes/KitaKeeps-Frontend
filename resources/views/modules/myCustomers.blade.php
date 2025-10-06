@@ -132,16 +132,21 @@
 
         <h2 class="text-lg font-semibold text-center text-gray-800">Export As</h2>
 
+        <!-- Info about sheets -->
+        <p class="text-sm text-center text-gray-500">
+            Credits and Customer details will be exported on <strong>separate sheets</strong> in the Excel file.
+        </p>
+
         <div class="flex justify-center mt-4 space-x-4">
 
             <!-- Excel -->
-            <button 
-                class="flex flex-col items-center w-24 px-4 py-3 transition bg-green-100 rounded-lg hover:bg-green-200"
-                x-on:click="exportData('excel')"
-            >
+            <a href="{{ route('customers.export') }}"
+            class="flex flex-col items-center px-4 py-3 transition bg-blue-100 rounded-lg w-28 hover:bg-blue-200">
                 <i class="mb-1 text-2xl text-green-600 fa-solid fa-file-excel"></i>
-                <span class="text-sm text-gray-700">Excel</span>
-            </button>
+                <span class="text-sm text-gray-700">
+                    Excel
+                </span>
+            </a>
 
             <!-- DOCX -->
             <!-- <button 
@@ -360,10 +365,10 @@
                 <span class="text-sm text-gray-500">Customers with Credit</span>
             </div>
             <h2 class="text-2xl font-bold text-gray-900">{{ $customersWithCredit }}</h2>
-            <p class="mt-1 text-sm {{ $customersPercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
+            <!-- <p class="mt-1 text-sm {{ $customersPercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
                 {{ $customersPercent >= 0 ? '▲' : '▼' }} {{ abs($customersPercent) }}% 
                 <span class="text-gray-500">this week</span>
-            </p>
+            </p> -->
         </div>
 
         <!-- Due This Week -->
@@ -372,10 +377,10 @@
                 <span class="text-sm text-gray-500">Due This Week</span>
             </div>
             <h2 class="text-2xl font-bold text-gray-900">{{ $dueThisWeek }}</h2>
-            <p class="mt-1 text-sm {{ $duePercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
+            <!-- <p class="mt-1 text-sm {{ $duePercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
                 {{ $duePercent >= 0 ? '▲' : '▼' }} {{ abs($duePercent) }}% 
                 <span class="text-gray-500">this week</span>
-            </p>
+            </p> -->
         </div>
 
         <!-- Total Receivables -->
@@ -384,10 +389,10 @@
                 <span class="text-sm text-gray-500">Total Receivables</span>
             </div>
             <h2 class="text-2xl font-bold text-gray-900">₱{{ number_format($totalReceivables, 2) }}</h2>
-            <p class="mt-1 text-sm {{ $totalPercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
+            <!-- <p class="mt-1 text-sm {{ $totalPercent >= 0 ? 'text-green-500' : 'text-red-500' }}">
                 {{ $totalPercent >= 0 ? '▲' : '▼' }} {{ abs($totalPercent) }}% 
                 <span class="text-gray-500">this week</span>
-            </p>
+            </p> -->
         </div>
     </div>
 </div>
