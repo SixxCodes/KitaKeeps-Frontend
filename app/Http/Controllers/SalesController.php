@@ -112,6 +112,25 @@ class SalesController extends Controller
                 'action'  => 'Created Sale',
                 'details' => 'Sale ID: ' . $sale->sale_id . ' for Customer ' . $sale->customer_id,
             ]);
+            
+            // Run AI Forecast after sale
+            try {
+                // 1. Export sales data
+                $forecastController = new \App\Http\Controllers\ForecastController();
+                $forecastController->exportSalesData();
+
+                // 2. Run Python script
+                // Make sure the path to Python is correct (python3 on Linux/macOS, python on Windows)
+                $pythonPath = base_path('app/Forecast/forecast.py');
+                $pythonExecutable = env('PYTHON_PATH', 'python'); // fallback to 'python' if not set
+                exec(escapeshellarg($pythonExecutable) . ' ' . escapeshellarg($pythonPath), $output, $returnVar);
+
+                if ($returnVar !== 0) {
+                    \Log::error('Python forecast script failed: ' . implode("\n", $output));
+                }
+            } catch (\Exception $e) {
+                \Log::error("Forecast generation failed: " . $e->getMessage());
+            }
 
             return redirect()->back()->with('success', 'Sale recorded successfully!');
         });

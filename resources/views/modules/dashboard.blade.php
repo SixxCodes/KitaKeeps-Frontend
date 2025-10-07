@@ -1,204 +1,22 @@
-@php
-    use Carbon\Carbon;
-    use App\Models\BranchProduct;
-    use App\Models\Product;
-    use App\Models\User;
-    use App\Models\Sale;
-    use App\Models\Employee;
-    use App\Models\Attendance;
-    use App\Models\SaleItem;
-
-    // --- Branch-awareness ---
-    $owner = auth()->user();
-    $userBranches = $owner ? $owner->branches : collect();
-    $currentBranch = $userBranches->where('branch_id', session('current_branch_id'))->first()
-                ?? $userBranches->sortBy('branch_id')->first();
-    $branchId = $currentBranch ? $currentBranch->branch_id : null;
-
-    // --- Date ranges ---
-    $now = Carbon::now();
-    $startOfWeek = $now->copy()->startOfWeek();
-    $startOfLastWeek = $startOfWeek->copy()->subWeek();
-    $endOfLastWeek = $startOfWeek->copy()->subDay();
-
-    // --- Helper for percentage change ---
-    function percentChange($current, $previous) {
-        if ($previous == 0) return $current > 0 ? 100 : 0;
-        return round((($current - $previous) / $previous) * 100, 1);
-    }
-
-    // --- Metrics ---
-
-    // Total inventory value (from BranchProduct × Product)
-    $totalInventoryValue = BranchProduct::where('branch_id', $branchId)
-        ->join('product', 'branch_product.product_id', '=', 'product.product_id')
-        ->sum(\DB::raw('branch_product.stock_qty * product.selling_price'));
-
-    // Low stock count (1–19)
-    $lowStockCount = BranchProduct::where('branch_id', $branchId)
-        ->whereBetween('stock_qty', [1, 19])
-        ->count();
-
-    // Sold out count
-    $soldOutCount = BranchProduct::where('branch_id', $branchId)
-        ->where('stock_qty', 0)
-        ->count();
-
-    // Total number of products (for percentage calculations)
-    $totalProducts = BranchProduct::where('branch_id', $branchId)->count();
-
-    // Avoid division by zero
-    $lowStockPercent = $totalProducts > 0 ? ($lowStockCount / $totalProducts) * 100 : 0;
-    $soldOutPercent = $totalProducts > 0 ? ($soldOutCount / $totalProducts) * 100 : 0;
-
-    // --- Weekly percentage changes (simulated or derived) ---
-    $currentWeekSales = Sale::where('branch_id', $branchId)
-        ->whereBetween('sale_date', [$startOfWeek, $now])
-        ->sum('total_amount');
-
-    $lastWeekSales = Sale::where('branch_id', $branchId)
-        ->whereBetween('sale_date', [$startOfLastWeek, $endOfLastWeek])
-        ->sum('total_amount');
-
-    $inventoryChange = percentChange($currentWeekSales, $lastWeekSales);
-
-    // --- Today's date ---
-    $today = Carbon::today()->toDateString();
-
-    // --- Active employees today ---
-    $activeEmployeesToday = Employee::where('branch_id', $branchId)
-        ->whereHas('attendance', function ($query) use ($today) {
-            $query->whereDate('att_date', $today)
-                ->where('status', 'present');
-        })
-        ->count();
-
-    // --- Active employees this week ---
-    $startOfWeek = Carbon::now()->startOfWeek();
-    $endOfWeek = Carbon::now()->endOfWeek();
-
-    $activeEmployeesThisWeek = Employee::where('branch_id', $branchId)
-        ->whereHas('attendance', function ($query) use ($startOfWeek, $endOfWeek) {
-            $query->whereBetween('att_date', [$startOfWeek, $endOfWeek])
-                ->where('status', 'present');
-        })
-        ->distinct('employee_id')
-        ->count();
-
-    // --- Inventory totals ---
-    $totalStockQty = BranchProduct::where('branch_id', $branchId)->sum('stock_qty');
-    $totalSoldQty = SaleItem::whereHas('sale_itembelongsTosale', function ($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        })
-        ->sum('quantity');
-
-    // --- Calculate percentages ---
-    $totalUnits = $totalStockQty + $totalSoldQty;
-    $soldPercent = $totalUnits > 0 ? round(($totalSoldQty / $totalUnits) * 100, 1) : 0;
-    $availablePercent = 100 - $soldPercent;
-
-    // Graph 
-    // --- Prepare last 7 days ---
-    $dates = collect(range(6, 0))->map(fn($i) => Carbon::today()->subDays($i));
-
-    // --- Collect data for each day ---
-    $salesData = $dates->map(function ($date) use ($branchId) {
-        // Get all sales for this branch and date
-        $sales = Sale::where('branch_id', $branchId)
-            ->whereDate('sale_date', $date)
-            ->get();
-
-        $saleIds = $sales->pluck('sale_id');
-
-        // Total sales amount
-        $totalSales = $sales->sum('total_amount');
-
-        // Calculate income (profit)
-        $items = SaleItem::whereIn('sale_id', $saleIds)
-            ->with('sale_itembelongsTobranch_product.product') // ✅ chain to reach product through branch_product
-            ->get();
-
-        $income = $items->sum(function ($item) {
-            $product = $item->sale_itembelongsTobranch_product?->product;
-            if (!$product) return 0;
-
-            $selling = $product->selling_price ?? 0;
-            $cost = $product->unit_cost ?? 0;
-            return ($selling - $cost) * ($item->quantity ?? 0);
-        });
-
-        return [
-            'date' => $date->format('M d'),
-            'sales' => $totalSales,
-            'income' => $income,
-        ];
-    });
-
-    // --- Prepare data for chart ---
-    $labels = $salesData->pluck('date')->toArray();
-    $salesValues = $salesData->pluck('sales')->toArray();
-    $incomeValues = $salesData->pluck('income')->toArray();
-@endphp
-
 <!-- Module Header -->
 <div class="flex items-center justify-between">
-
-    <!-- Top: Current Branch -->
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
-                {{ $currentBranch->branch_name ?? 'No Branch' }}
-            </h2>
-            
-            <!-- Caret Button to Open Modal -->
-            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
-                class="text-gray-600 hover:text-black">
-                <i class="fa-solid fa-caret-down"></i>
-            </button> -->
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
+            <!-- <button><i class="fa-solid fa-caret-down"></i></button> -->
         </div>
-
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
-            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
-            {{ $currentBranch->location ?? '' }}
-        </span>
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
     </div>
 
     <!-- Top: Clock + Date -->
     <div class="flex items-end justify-end">
         <div class="flex flex-col items-end">
-            <span id="clock" class="text-xl font-semibold text-blue-600"></span>
-            <span id="date" class="text-sm text-gray-500"></span>
+            <span id="clock" class="text-xl font-semibold text-blue-600">12:45:32</span>
+            <span id="date" class="text-sm text-gray-500">September 22, 2025</span>
         </div>
     </div>
 </div>
 
-<!-- Clock Script -->
-<script>
-    function updateClockAndDate() {
-        const now = new Date();
-
-        // Format time as 12-hour HH:MM:SS AM/PM
-        let hours = now.getHours();
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12; // convert 0 to 12
-        const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
-
-        // Format date as Month Day, Year
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        const dateString = now.toLocaleDateString(undefined, options);
-
-        document.getElementById('clock').textContent = timeString;
-        document.getElementById('date').textContent = dateString;
-    }
-
-    // Initial call
-    updateClockAndDate();
-
-    // Update every second
-    setInterval(updateClockAndDate, 1000);
-</script>
 
 
 
@@ -208,57 +26,52 @@
 
 
 
+<!-- Customer Summary -->
 
-<!-- Summary -->
+
+
+
+
 <div class="overflow-x-auto table-pretty-scrollbar">
     <div class="flex gap-6 p-6 mt-1 min-w-max">
-
         <!-- Total Inventory Value -->
         <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
         <div class="flex items-center justify-between">
             <span class="text-sm text-gray-500">Total Inventory Value</span>
+            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
         </div>
-        <h2 class="text-2xl font-bold text-blue-500">₱{{ number_format($totalInventoryValue, 2) }}</h2>
-        <p class="mt-1 text-sm {{ $inventoryChange >= 0 ? 'text-green-500' : 'text-red-500' }}">
-            {{ $inventoryChange >= 0 ? '▲' : '▼' }} {{ abs($inventoryChange) }}%
-            <span class="text-gray-500">this week</span>
-        </p>
+        <h2 class="text-2xl font-bold text-blue-500">₱64,222.00</h2>
+        <p class="mt-1 text-sm text-red-500">▼ 2.4% <span class="text-gray-500">this week</span></p>
         </div>
 
         <!-- Low Stock -->
         <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
         <div class="flex items-center justify-between">
             <span class="text-sm text-gray-500">Low Stock</span>
+            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
         </div>
-        <h2 class="text-2xl font-bold text-yellow-500">{{ $lowStockCount }}</h2>
-        <p class="mt-1 text-sm text-gray-600">
-            {{ round($lowStockPercent, 1) }}%
-            <span class="text-gray-500">of inventory</span>
-        </p>
+        <h2 class="text-2xl font-bold text-yellow-500">47</h2>
+        <p class="mt-1 text-sm text-black">6.3% <span class="text-gray-500">of inventory</span></p>
         </div>
 
-        <!-- Sold Out -->
+        <!-- Due This Week -->
         <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
         <div class="flex items-center justify-between">
             <span class="text-sm text-gray-500">Sold Out</span>
+            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
         </div>
-        <h2 class="text-2xl font-bold text-red-500">{{ $soldOutCount }}</h2>
-        <p class="mt-1 text-sm text-gray-600">
-            {{ round($soldOutPercent, 1) }}%
-            <span class="text-gray-500">of inventory</span>
-        </p>
+        <h2 class="text-2xl font-bold text-red-500">39</h2>
+        <p class="mt-1 text-sm text-black">6.3% <span class="text-gray-500">of inventory</span></p>
         </div>
 
-        <!-- Active Employees -->
+        <!-- Total Receivables -->
         <div class="flex flex-col p-5 bg-white shadow-md rounded-2xl min-w-[200px]">
         <div class="flex items-center justify-between">
             <span class="text-sm text-gray-500">Active Employees</span>
+            <!-- <span class="text-gray-400 cursor-pointer">↗</span> -->
         </div>
-        <h2 class="text-2xl font-bold text-green-500">{{ $activeEmployeesToday }}</h2>
-        <p class="mt-1 text-sm">
-            {{ $activeEmployeesThisWeek }}
-            <span class="text-gray-500">this week</span>
-        </p>
+        <h2 class="text-2xl font-bold text-green-500">12</h2>
+        <p class="mt-1 text-sm text-black">6.3 <span class="text-gray-500">this week</span></p>
         </div>
     </div>
 </div>
@@ -270,127 +83,88 @@
 
 
 
-<!-- Charts & Graphs -->
-<div class="flex flex-col mt-5 mb-20 space-x-0 space-y-5 lg:justify-center lg:flex-row lg:space-x-5 lg:space-y-0">
 
+<div class="flex flex-col mt-5 mb-20 space-x-0 space-y-5 lg:justify-center lg:flex-row lg:space-x-5 lg:space-y-0">
     <!-- Pie Chart -->
     <div class="order-2 lg:w-[250px] p-5 bg-white shadow-md rounded-2xl lg:order-1">
         <h3 class="mb-3 text-sm font-semibold text-gray-700">Inventory Values</h3>
 
         <div class="flex items-center justify-center">
             <!-- Pie Chart -->
-            <div class="relative h-24 rounded-full w-28"
-                style="background: conic-gradient(#1e3a8a 0% {{ $availablePercent }}%, #cbd5e1 {{ $availablePercent }}% 100%);">
+            <div class="relative w-24 h-24 rounded-full"
+                style="background: conic-gradient(#1e3a8a 0% 68%, #cbd5e1 68% 100%);">
                 <!-- Percent Labels -->
-                <span class="absolute text-xs font-semibold text-white bottom-[25%] right-[30%]">
-                    {{ $availablePercent }}%
-                </span>
-                <span class="absolute text-xs font-semibold text-gray-800 top-[25%] left-[20%]">
-                    {{ $soldPercent }}%
-                </span>
+                <span class="absolute text-xs font-semibold text-white bottom-[25%] right-[30%]">68%</span>
+                <span class="absolute text-xs font-semibold text-gray-800 top-[25%] left-[20%]">32%</span>
             </div>
 
             <!-- Legend -->
             <div class="ml-6 space-y-2 text-sm">
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 rounded bg-slate-300"></div>
-                    <span class="text-xs text-gray-600">Sold units</span>
+                    <span class="text-gray-600">Sold units</span>
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="w-4 h-4 bg-blue-900 rounded"></div>
-                    <span class="text-xs text-gray-600">Available units</span>
+                    <span class="text-gray-600">Total units</span>
                 </div>
             </div>
         </div>
 
-        <p class="mt-5 text-sm text-gray-500">
-            {{ $soldPercent }}% of total units have been sold, leaving {{ $availablePercent }}% still available.
-        </p>
+        <p class="mt-5 text-sm text-gray-500">This shows that 32% of the total units have been sold, leaving 68% of the units still available.</p>
     </div>
 
     <!-- Graph -->
     <div class="p-4 bg-white shadow-md rounded-2xl w-full lg:w-[500px] order-3 lg:order-2">
         <!-- Header -->
         <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-semibold text-gray-700">Sales vs Income</h3>
-            <span class="text-xs text-gray-500">Last 7 Days</span>
+            <h3 class="text-sm font-semibold text-gray-700">Sale VS Profit</h3>
+            <span class="text-xs text-gray-500">Last 7 days</span>
         </div>
 
         <!-- Chart -->
         <div class="relative w-full h-48">
-            @php
-                // Normalize chart values for SVG scaling
-                $maxValue = max(max($salesValues ?: [0]), max($incomeValues ?: [0]), 1);
-                $width = 450;
-                $height = 160;
-
-                $xStep = $width / max(count($labels) - 1, 1);
-
-                $salesPoints = '';
-                $incomePoints = '';
-
-                foreach ($salesValues as $i => $value) {
-                    $x = $i * $xStep;
-                    $y = $height - (($value / $maxValue) * $height);
-                    $salesPoints .= "$x,$y ";
-                }
-
-                foreach ($incomeValues as $i => $value) {
-                    $x = $i * $xStep;
-                    $y = $height - (($value / $maxValue) * $height);
-                    $incomePoints .= "$x,$y ";
-                }
-            @endphp
-
-            <svg viewBox="0 0 {{ $width }} {{ $height + 40 }}" class="w-full h-full">
+            <svg viewBox="0 0 500 200" class="w-full h-full">
                 <!-- Grid Lines -->
                 <g stroke="#e5e7eb" stroke-width="1">
-                    @for ($i = 1; $i <= 4; $i++)
-                        <line x1="0" y1="{{ $i * ($height / 4) }}" x2="{{ $width }}" y2="{{ $i * ($height / 4) }}" />
-                    @endfor
+                    <line x1="0" y1="40" x2="500" y2="40" />
+                    <line x1="0" y1="80" x2="500" y2="80" />
+                    <line x1="0" y1="120" x2="500" y2="120" />
+                    <line x1="0" y1="160" x2="500" y2="160" />
                 </g>
 
-                <!-- Sales Line (Orange) -->
-                <polyline
-                    fill="none"
-                    stroke="#f97316"
-                    stroke-width="2"
-                    points="{{ trim($salesPoints) }}" />
+                <!-- Profit Line (blue) -->
+                <path d="M 0 130 Q 80 100, 160 120 T 320 90 T 500 70" 
+                    fill="none" stroke="#1e40af" stroke-width="2"/>
+                <circle cx="500" cy="70" r="4" fill="#1e40af"/>
                 
-                <!-- Income Line (Violet) -->
-                <polyline
-                    fill="none"
-                    stroke="#7c3aed"
-                    stroke-width="2"
-                    points="{{ trim($incomePoints) }}" />
+                <!-- Expense Line (red/orange) -->
+                <path d="M 0 120 Q 80 140, 160 110 T 320 100 T 500 120" 
+                    fill="none" stroke="#f97316" stroke-width="2"/>
+                <circle cx="320" cy="100" r="4" fill="#f97316"/>
 
                 <!-- Labels -->
-                @foreach ($labels as $i => $label)
-                    <text x="{{ $i * $xStep }}" y="{{ $height + 20 }}" font-size="10" fill="#000000ff" text-anchor="middle">
-                        {{ $label }}
-                    </text>
-                @endforeach
+                <text x="330" y="95" font-size="10" fill="#f97316" class="font-semibold">Highest Sale</text>
+                <text x="430" y="90" font-size="10" fill="#1e40af" class="font-semibold">Highest Profit</text>
             </svg>
 
             <!-- Y-axis labels -->
-            <div class="absolute top-0 left-0 flex flex-col justify-between text-xs text-gray-500" style="height: {{ $height }}px;">
-                <span>{{ number_format($maxValue, 0) }}</span>
-                <span>{{ number_format($maxValue * 0.75, 0) }}</span>
-                <span>{{ number_format($maxValue * 0.5, 0) }}</span>
-                <span>{{ number_format($maxValue * 0.25, 0) }}</span>
+            <div class="absolute top-0 left-0 flex flex-col justify-between h-full text-xs text-gray-500">
+                <span>40k</span>
+                <span>30k</span>
+                <span>20k</span>
                 <span>0</span>
             </div>
-        </div>
 
-        <!-- Legend -->
-        <div class="flex justify-center gap-4 mt-2 text-xs text-gray-600">
-            <div class="flex items-center space-x-1">
-                <span class="w-3 h-3 bg-orange-500 rounded-full"></span>
-                <span>Sales</span>
-            </div>
-            <div class="flex items-center space-x-1">
-                <span class="w-3 h-3 rounded-full bg-violet-600"></span>
-                <span>Income</span>
+            <!-- X-axis labels -->
+            <div class="absolute bottom-0 flex justify-between text-xs text-gray-500 left-10 right-10">
+                <span>Oct 1</span>
+                <span>Oct 2</span>
+                <span>Oct 3</span>
+                <span>Oct 4</span>
+                <span>Oct 5</span>
+                <span>Oct 6</span>
+                <span>Oct 7</span>
             </div>
         </div>
     </div>
@@ -415,6 +189,21 @@
     </div>
 </div>
 
+<!-- Footer Branding -->
+<footer class="py-4 text-sm text-center text-gray-400 border-t mt-15">
+    © 2025 KitaKeeps. All rights reserved.
+</footer>
+
+
+
+
+
+
+
+
+
+
+<!-- Modals -->
 <!-- Add Product Modal -->
 <x-modal name="add-product" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
@@ -431,25 +220,24 @@
         </div>
 
         <!-- Form -->
-        <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
-            @csrf
+        <form class="space-y-4 text-sm">
 
             <!-- Product Image (Circle Placeholder) -->
             <div class="flex flex-col items-center mb-6">
                 <div class="relative">
-                    <img id="preview-product" src="assets/images/logo/logo-removebg-preview.png" 
+                    <img id="preview-employee" src="assets/images/logo/logo-removebg-preview.png" 
                         class="object-cover w-24 h-24 border rounded-full shadow" 
-                        alt="Product photo">
+                        alt="Employee photo">
 
                     <!-- Upload button -->
-                    <label for="product_image" 
-                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-green-700">
+                    <label for="employee_image" 
+                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700">
                         <i class="text-xs fa-solid fa-pen"></i>
                     </label>
-                    <input type="file" id="product_image" name="product_image" class="hidden" accept="image/*"
-                        onchange="document.getElementById('preview-product').src = window.URL.createObjectURL(this.files[0])">
+                    <input type="file" id="employee_image" name="employee_image_path" class="hidden" accept="image/*"
+                        onchange="document.getElementById('preview-employee').src = window.URL.createObjectURL(this.files[0])">
                 </div>
-                <p class="mt-2 text-sm text-gray-500">Add product photo</p>
+                <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
             </div>
 
             <!-- Basic Information -->
@@ -534,7 +322,7 @@
                 x-on:click="$dispatch('close-modal', 'add-product')"
                 class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
 
-                <button type="submit" 
+                <button x-on:click="$dispatch('open-modal', 'success-modal')"
                 class="px-3 py-1 text-white transition bg-blue-600 rounded hover:bg-blue-700">Save</button>
             </div>
         </form>
@@ -611,28 +399,13 @@
                 x-on:click="$dispatch('close-modal', 'add-supplier')"
                 class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
 
-                <button type="submit" 
+                <button x-on:click="$dispatch('open-modal', 'success-modal')"
                 class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
             </div>
         </form>
 
     </div>
 </x-modal>
-
-<script>
-    function previewSupplierImage(event, supplierId) {
-        const input = event.target;
-        const preview = document.getElementById('supplierImagePreview-' + supplierId);
-
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-</script>
 
 <!-- Hire Employee Modal -->
 <x-modal name="add-employee" :show="false" maxWidth="lg">
@@ -771,7 +544,7 @@
                 x-on:click="$dispatch('close-modal', 'add-employee')"
                 class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
 
-                <button type="submit" 
+                <button x-on:click="$dispatch('open-modal', 'success-modal')"
                 class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
             </div>
         </form>
@@ -858,7 +631,7 @@
                     Cancel
                 </button>
 
-                <button type="submit" 
+                <button x-on:click="$dispatch('open-modal', 'error-modal')"
                 class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">
                     Save
                 </button>
@@ -866,18 +639,6 @@
         </form>
     </div>
 </x-modal>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        @if(session('success'))
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
-        @endif
-
-        @if(session('error'))
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
-        @endif
-    });
-</script>
 
 <!-- Feedback Modals -->
 <!-- Success Modal -->
@@ -907,8 +668,3 @@
         </button>
     </div>
 </x-modal>
-
-<!-- Footer Branding -->
-<footer class="py-4 text-sm text-center text-gray-400 border-t mt-15">
-    © 2025 CKC Systems. All rights reserved.
-</footer>

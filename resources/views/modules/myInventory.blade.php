@@ -2,21 +2,10 @@
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
-                {{ $currentBranch->branch_name ?? 'No Branch' }}
-            </h2>
-            
-            <!-- Caret Button to Open Modal -->
-            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
-                class="text-gray-600 hover:text-black">
-                <i class="fa-solid fa-caret-down"></i>
-            </button> -->
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
+            <!-- <button><i class="fa-solid fa-caret-down"></i></button> -->
         </div>
-
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
-            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
-            {{ $currentBranch->location ?? '' }}
-        </span>
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
     </div>
     
     <div class="flex space-x-3">
@@ -47,10 +36,13 @@
         <div class="flex justify-center mt-4 space-x-4">
 
             <!-- Excel -->
-            <a href="{{ route('products.export') }}" class="flex flex-col items-center w-24 px-4 py-3 transition bg-green-100 rounded-lg hover:bg-green-200">
+            <button x-on:click="$dispatch('open-modal', 'success-modal')"
+                class="flex flex-col items-center w-24 px-4 py-3 transition bg-green-100 rounded-lg hover:bg-green-200"
+                x-on:click="exportData('excel')"
+            >
                 <i class="mb-1 text-2xl text-green-600 fa-solid fa-file-excel"></i>
                 <span class="text-sm text-gray-700">Excel</span>
-            </a>
+            </button>
 
             <!-- DOCX -->
             <!-- <button 
@@ -85,39 +77,29 @@
 <!-- Add Product -->
 <x-modal name="add-product" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+        <div class="flex items-center mb-4 space-x-1 text-blue-900">
+            <i class="fa-solid fa-box"></i>
+            <h2 class="text-xl font-semibold">Add New Product</h2>
+        </div>
 
-        <!-- Modal Header -->
-        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
-            <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-box"></i>
-                <h2 class="text-xl font-semibold">Add New Product</h2>
+        <!-- Product Image (Circle Placeholder) -->
+        <div class="flex flex-col items-center mb-6">
+            <div class="relative">
+                <img src="assets/images/logo/logo-removebg-preview.png" 
+                    class="object-cover w-24 h-24 border rounded-full shadow" 
+                    alt="Employee photo">
+
+                <!-- Edit image button -->
+                <button 
+                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
+                    <i class="text-xs fa-solid fa-pen"></i>
+                </button>
             </div>
-            <span x-on:click="$dispatch('close-modal', 'add-product')" class="cursor-pointer">
-                <i class="text-lg fa-solid fa-xmark"></i>
-            </span>
+            <p class="mt-2 text-sm text-gray-500">Add profile photo</p>
         </div>
 
         <!-- Form -->
-        <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
-            @csrf
-
-            <!-- Product Image (Circle Placeholder) -->
-            <div class="flex flex-col items-center mb-6">
-                <div class="relative">
-                    <img id="preview-product" src="assets/images/logo/logo-removebg-preview.png" 
-                        class="object-cover w-24 h-24 border rounded-full shadow" 
-                        alt="Product photo">
-
-                    <!-- Upload button -->
-                    <label for="product_image" 
-                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-green-700">
-                        <i class="text-xs fa-solid fa-pen"></i>
-                    </label>
-                    <input type="file" id="product_image" name="product_image" class="hidden" accept="image/*"
-                        onchange="document.getElementById('preview-product').src = window.URL.createObjectURL(this.files[0])">
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Add product photo</p>
-            </div>
+        <div class="space-y-4 text-sm">
 
             <!-- Basic Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
@@ -127,49 +109,24 @@
                     <!-- Product Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">Product Name</label>
-                        <input required name="prod_name" type="text" placeholder="Paint" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input type="text" placeholder="T-shirt" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"/>
                     </div>
 
                     <!-- Category -->
                     <div>
-                        <label for="category" class="block mb-1 text-gray-800">Category</label>
-                        <select required name="category" id="category" 
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
-                            <option value="" disabled selected>Select category</option>
-                            <option value="Building Materials">Building Materials</option>
-                            <option value="Construction Materials">Construction Materials</option>
-                            <option value="Decor">Decor</option>
-                            <option value="Electrical">Electrical</option>
-                            <option value="Furniture">Furniture</option>
-                            <option value="Garden & Landscaping">Garden & Landscaping</option>
-                            <option value="Paints & Finishes">Paints & Finishes</option>
-                            <option value="Plumbing & Sanitary">Plumbing & Sanitary</option>
-                            <option value="Security & Safety">Security & Safety</option>
-                            <option value="Tools">Tools</option>
+                        <label class="block mb-1 text-gray-800">Category</label>
+                        <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                            <option value="">Select Category</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="footwear">Footwear</option>
+                            <option value="accessories">Accessories</option>
                         </select>
                     </div>
 
                     <!-- Description -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Description</label>
-                        <textarea name="prod_description" rows="3" placeholder="Write product details..." class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"></textarea>
-                    </div>
-
-                    <!-- Product Supplier -->
-                    <div>
-                        <label for="supplier" class="block mb-1 text-gray-800">Product Supplier</label>
-                        <select required name="supplier" id="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
-                            <option value="" disabled selected>Select a supplier</option>
-                            @foreach($userSuppliers as $supplier)
-                                <option value="{{ $supplier->supplier_id }}">{{ $supplier->supp_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Product Quantity -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Stock Quantity</label>
-                        <input required type="number" name="quantity" placeholder="143" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <textarea rows="3" placeholder="Write product details..." class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"></textarea>
                     </div>
 
                 </div>
@@ -183,13 +140,13 @@
                     <!-- Unit Cost -->
                     <div>
                         <label class="block mb-1 text-gray-800">Unit Cost</label>
-                        <input required type="number" name="unit_cost" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input type="number" placeholder="100" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"/>
                     </div>
 
                     <!-- Selling Price -->
                     <div>
                         <label class="block mb-1 text-gray-800">Selling Price</label>
-                        <input required type="number" name="selling_price" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500"/>
+                        <input type="number" placeholder="150" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"/>
                     </div>
 
                 </div>
@@ -201,24 +158,12 @@
                 x-on:click="$dispatch('close-modal', 'add-product')"
                 class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
 
-                <button type="submit" 
+                <button x-on:click="$dispatch('open-modal', 'success-modal')" 
                 class="px-3 py-1 text-white transition bg-blue-600 rounded hover:bg-blue-700">Save</button>
             </div>
-        </form>
+        </div>
     </div>
 </x-modal>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        @if(session('success'))
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
-        @endif
-
-        @if(session('error'))
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
-        @endif
-    });
-</script>
 
 
 
@@ -237,26 +182,21 @@
     <!-- Search + Entries -->
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
-            <label class="mr-2 text-sm">Show</label>
-            <select onchange="window.location.href='?per_page='+this.value+'&search={{ request('search') }}'" 
-                class="py-1 text-sm border rounded">
-                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
-                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
-                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
+            <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
+            <select class="py-1 text-sm border rounded text-ellipsis sm:text-base">
+                <option>5</option>
             </select>
-            <span class="ml-2 text-sm">entries</span>
+            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
         </div>
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
+            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text"
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Search..."
-                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
+                    type="text" 
+                    placeholder="Search..." 
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -268,11 +208,10 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
-                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Product Name</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Product Supplier</th>
-                    <th class="px-3 py-2 text-left border">Category</th>
+                    <th class="px-3 py-2 text-left border whitespace-nowrap">Category</th>
                     <th class="px-3 py-2 text-left border">Qty.</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Selling Price</th>
                     <th class="px-3 py-2 text-left border">Status</th>
@@ -280,139 +219,89 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($products as $product)
+                <!-- Product Rows -->
                 <tr class="hover:bg-gray-50">
-                    <!-- Count -->
-                    <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
-                    <td class="px-3 py-2 border bg-blue-50">
-                        {{ $products->firstItem() + $loop->index }}
-                    </td>
+                    <!-- Customer ID -->
+                    <td class="px-3 py-2 border">1</td>
 
-                    <!-- ID -->
-                    <td class="px-3 py-2 border">{{ $product->product_id }}</td>
-
-                    <!-- Product Image + Name -->
+                    <!-- Product Image and Name -->
                     <td class="px-3 py-2 border">
                         <div class="flex items-center gap-2">
-                            @if($product->prod_image_path)
-                                <img src="{{ asset('storage/'.$product->prod_image_path) }}" 
-                                     alt="{{ $product->product_name }}" 
-                                     class="object-cover w-8 h-8 rounded-full">
-                            @else
-                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                                    <i class="fa-solid fa-box"></i>
-                                </div>
-                            @endif
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
-                                {{ $product->prod_name }}
-                            </span>
+                            <!-- Circle placeholder icon -->
+                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                            <i class="fa-solid fa-user"></i>
+                            </div>
+                            <!-- Product Name -->
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Sherlux Spray Paint Red</span>
                         </div>
                     </td>
 
-                    <!-- Supplier -->
-                    <td class="px-3 py-2 border">
-                        {{ $product->product_supplier->first()?->supplier?->supp_name ?? 'N/A' }}
-                    </td>
+                    <!-- Product Supplier -->
+                    <td class="px-3 py-2 border">KP Hardware</td>
 
                     <!-- Category -->
                     <td class="px-3 py-2 border whitespace-nowrap">
-                        {{ $product->category ?? 'N/A' }}
+                        Spray Paint
                     </td>
 
                     <!-- Quantity -->
                     <td class="px-3 py-2 border">
-                        {{ $product->branch_products->first()?->stock_qty ?? 0 }}
+                        50
                     </td>
 
                     <!-- Selling Price -->
                     <td class="px-3 py-2 border">
-                        P{{ number_format($product->selling_price, 2) }}
+                        P130.00
                     </td>
 
                     <!-- Status -->
                     <td class="px-3 py-2 border">
-                        @php
-                            $stock = $product->branch_products->first()?->stock_qty ?? 0;
-                        @endphp
-
-                        @if($stock == 0)
-                            <span class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full whitespace-nowrap">
-                                Out of Stock
-                            </span>
-                        @elseif($stock < 20)
-                            <span class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full whitespace-nowrap">
-                                Low Stock
-                            </span>
-                        @else
-                            <span class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full whitespace-nowrap">
-                                In Stock
-                            </span>
-                        @endif
+                        <span class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full whitespace-nowrap">
+                            In Stock
+                        </span>
                     </td>
 
                     <!-- Actions -->
                     <td class="flex justify-center gap-2 px-3 py-3 border">
-                        <button x-on:click="$dispatch('open-modal', 'view-product-{{ $product->product_id }}')" class="px-2 py-1 text-white bg-blue-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'view-product')"  class="px-2 py-1 text-white bg-blue-500 rounded">
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'edit-product-{{ $product->product_id }}')" class="px-2 py-1 text-white bg-green-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'edit-product')" class="px-2 py-1 text-white bg-green-500 rounded">
                             <i class="fa-solid fa-pen"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'delete-product-{{ $product->product_id }}')" class="px-2 py-1 text-white bg-red-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'delete-product')" class="px-2 py-1 text-white bg-red-500 rounded">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="9" class="px-3 py-2 text-center text-gray-500 border">
-                        Nothing to see here yet.
-                    </td>
-                </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm">
-            Showing {{ $products->firstItem() ?? 0 }} to {{ $products->lastItem() ?? 0 }} of {{ $products->total() }} entries
-        </p>
+        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
         <div class="flex gap-2">
-            <a href="{{ $products->previousPageUrl() }}" 
-               class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $products->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
-                Previous
-            </a>
-            <a href="{{ $products->nextPageUrl() }}" 
-               class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $products->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
-                Next
-            </a>
+        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
+        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
         </div>
     </div>
 </div>
 
-@foreach($products as $product)
 <!-- View Product Details Modal -->
-<x-modal name="view-product-{{ $product->product_id }}" :show="false" maxWidth="sm">
+<x-modal name="view-product" :show="false" maxWidth="sm">
     <div class="p-6">
         <!-- Product Section -->
         <div class="flex items-center space-x-4">
             <!-- Product Image -->
             <div class="flex items-center justify-center w-20 h-20 overflow-hidden text-3xl text-white bg-blue-400 rounded-full">
-                @if($product->prod_image_path)
-                    <img src="{{ asset('storage/' . $product->prod_image_path) }}" 
-                        alt="{{ $product->prod_name }}" 
-                        class="object-cover w-full h-full rounded-full">
-                @else
-                    <i class="fa-solid fa-box"></i>
-                @endif
+                <i class="fa-solid fa-box"></i>
             </div>
 
             <!-- Product Name & Category -->
             <div>
-                <p class="text-lg font-semibold text-gray-800">{{ $product->prod_name }}</p>
-                <p class="text-sm text-gray-500">Category: {{ $product->category ?? 'N/A' }}</p>
+                <p class="text-lg font-semibold text-gray-800">Product Name</p>
+                <p class="text-sm text-gray-500">Product Category</p>
             </div>
         </div>
 
@@ -421,33 +310,22 @@
 
         <!-- Product Details -->
         <div class="space-y-2 text-sm text-gray-700">
-            <p><span class="font-medium">Description:</span> {{ $product->prod_description ?? 'N/A' }}</p>
-            <p><span class="font-medium">Unit Cost:</span> ₱{{ number_format($product->unit_cost, 2) }}</p>
-            <p><span class="font-medium">Selling Price:</span> ₱{{ number_format($product->selling_price, 2) }}</p>
-            <p><span class="font-medium">Stock Quantity:</span> {{ $product->branch_products->first()?->stock_qty ?? 0 }}</p>
-            
-            @php
-                $stock = $product->branch_products->first()?->stock_qty ?? 0;
-            @endphp
+            <p><span class="font-medium">Description:</span> This is product.</p>
+            <p><span class="font-medium">Unit Cost:</span> ₱200.00</p>
+            <p><span class="font-medium">Selling Price:</span> ₱300.00</p>
+            <p><span class="font-medium">Stock Quantity:</span> 50</p>
+       
             <p>
-                <span class="font-medium">Status: </span> 
-                @if($stock == 0)
-                    <span class="text-red-500">Out of Stock</span>
-                @elseif($stock < 20)
-                    <span class="text-yellow-500">Low Stock</span>
-                @else
-                    <span class="text-green-500">In Stock</span>
-                @endif
+                <span class="text-green-500">In Stock</span>
             </p>
 
-            <p><span class="font-medium">Active:</span> {{ $product->is_active ? 'Yes' : 'No' }}</p>
-            <p><span class="font-medium">Supplier:</span> {{ $product->product_supplier->first()?->supplier?->supp_name ?? 'N/A' }}</p>
+            <p><span class="font-medium">Supplier:</span> KP Hardware</p>
         </div>
 
         <!-- Close Button -->
         <div class="flex justify-end pt-4">
             <button 
-                x-on:click="$dispatch('close-modal', 'view-product-{{ $product->product_id }}')"
+                x-on:click="$dispatch('close-modal', 'view-product')"
                 class="px-4 py-2 text-white transition bg-gray-500 rounded hover:bg-gray-600"
             >
                 Close
@@ -455,11 +333,9 @@
         </div>
     </div>
 </x-modal>
-@endforeach
 
-@foreach($products as $product)
 <!-- Edit Product Details Modal -->
-<x-modal name="edit-product-{{ $product->product_id }}" :show="false" maxWidth="lg">
+<x-modal name="edit-product" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
         
         <!-- Modal Header -->
@@ -468,30 +344,26 @@
                 <i class="fa-solid fa-box"></i>
             <h2 class="text-xl font-semibold">Edit Product Details</h2>
             </div>
-            <span x-on:click="$dispatch('close-modal', 'edit-product-{{ $product->product_id }}')" class="cursor-pointer">
+            <span x-on:click="$dispatch('close-modal', 'edit-product" class="cursor-pointer">
                 <i class="text-lg fa-solid fa-xmark"></i>
             </span>
         </div>
 
         <!-- Form -->
-        <form action="{{ route('products.update', $product->product_id) }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-sm">
-            @csrf
-            @method('PATCH')
+        <div class="space-y-4 text-sm">
 
             <!-- Product Image -->
             <div class="flex flex-col items-center mb-6">
                 <div class="relative w-24 h-24">
-                    <img id="preview_{{ $product->product_id }}" 
-                        src="{{ $product->prod_image_path ? asset('storage/'.$product->prod_image_path) : asset('assets/images/default-box.png') }}" 
+                    <img 
+                        src="assets/images/logo/logo-removebg-preview.png" 
                         class="object-cover w-full h-full border rounded-full shadow" 
-                        alt="{{ $product->prod_name }}">
+                        alt="product">
 
                     <!-- Edit image button -->
-                    <label for="product_image_{{ $product->product_id }}" 
+                    <label
                         class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-green-700">
                         <i class="text-xs fa-solid fa-pen"></i>
-                        <input type="file" name="product_image" id="product_image_{{ $product->product_id }}" class="hidden" 
-                            onchange="previewImage(event, {{ $product->product_id }})">
                     </label>
                 </div>
                 <p class="mt-2 text-sm text-gray-500">Change product image</p>
@@ -506,7 +378,7 @@
                     <!-- Product Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">Product Name</label>
-                        <input type="text" name="prod_name" value="{{ $product->prod_name }}" 
+                        <input type="text" name="prod_name" value="Sherlux Spray Paint Red"
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
@@ -515,18 +387,10 @@
                         <label class="block mb-1 text-gray-800">Category</label>
                         <select name="category" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500">
-                            <option value="">Select category</option>
-                            @php
-                                $allCategories = [
-                                    'Building Materials','Construction Materials','Decor','Electrical',
-                                    'Furniture','Garden & Landscaping','Paints & Finishes',
-                                    'Plumbing & Sanitary','Security & Safety','Tools'
-                                ];
-                                $selectedCategory = old('category', $product->category);
-                            @endphp
-                            @foreach($allCategories as $cat)
-                                <option value="{{ $cat }}" {{ $selectedCategory === $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                            @endforeach
+                            <option value="" disabled selected>Select category</option>
+                            <option value="">Paint</option>
+                            <option value="">Cement</option>
+                            <option value="">Flooring</option>
                         </select>
                     </div>
 
@@ -534,26 +398,24 @@
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Description</label>
                         <textarea name="prod_description" rows="3" 
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">{{ $product->prod_description }}</textarea>
+                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">This is product.</textarea>
                     </div>
 
                     <!-- Supplier -->
                     <div>
                         <label class="block mb-1 text-gray-800">Product Supplier</label>
                         <select name="supplier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-                            @foreach($suppliers as $supp)
-                                <option value="{{ $supp->supplier_id }}" 
-                                    @if($product->product_supplier->first()?->supplier_id == $supp->supplier_id) selected @endif>
-                                    {{ $supp->supp_name }}
-                                </option>
-                            @endforeach
+                            <option value="" disabled selected>Select supplier</option>
+                            <option value="">KP Hardware</option>
+                            <option value="">BB Hardware</option>
+                            <option value="">Hardware</option>
                         </select>
                     </div>
 
                     <!-- Stock Quantity -->
                     <div>
                         <label class="block mb-1 text-gray-800">Stock Quantity</label>
-                        <input type="number" name="stock_qty" value="{{ $product->branch_products->first()?->stock_qty ?? 0 }}" 
+                        <input type="number" name="stock_qty" value="50" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
                 </div>
@@ -565,14 +427,14 @@
                     <!-- Unit Cost -->
                     <div>
                         <label class="block mb-1 text-gray-800">Unit Cost</label>
-                        <input type="number" name="unit_cost" value="{{ $product->unit_cost }}" 
+                        <input type="number" name="unit_cost" value="100" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
                     <!-- Selling Price -->
                     <div>
                         <label class="block mb-1 text-gray-800">Selling Price</label>
-                        <input type="number" name="selling_price" value="{{ $product->selling_price }}" 
+                        <input type="number" name="selling_price" value="100" 
                             class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
                 </div>
@@ -581,35 +443,22 @@
             <!-- Buttons -->
             <div class="flex justify-end mt-2 space-x-2">
                 <button type="button" 
-                    x-on:click="$dispatch('close-modal', 'edit-product-{{ $product->product_id }}')"
+                    x-on:click="$dispatch('close-modal', 'edit-product')"
                     class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
                     Cancel
                 </button>
 
-                <button type="submit" 
+                <button type="submit" x-on:click="$dispatch('open-modal', 'success-modal')"
                     class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">
                     Update
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 </x-modal>
-@endforeach
 
-<script>
-function previewImage(event, id) {
-    const reader = new FileReader();
-    reader.onload = function(){
-        const output = document.getElementById('preview_' + id);
-        output.src = reader.result;
-    }
-    reader.readAsDataURL(event.target.files[0]);
-}
-</script>
-
-@foreach($products as $product)
-<!-- Delete Product Modal -->
-<x-modal name="delete-product-{{ $product->product_id }}" :show="false" maxWidth="sm">
+<!-- Delete Product -->
+<x-modal name="delete-product" :show="false" maxWidth="sm">
     <div class="p-6 space-y-4 text-center">
 
         <!-- Red warning icon -->
@@ -617,34 +466,26 @@ function previewImage(event, id) {
 
         <h2 class="text-lg font-semibold text-gray-800">Delete Product?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove <span class="text-red-500"><strong>{{ $product->prod_name }}</strong></span> from the system. This cannot be undone.
+            This action will permanently remove the product from the system. This cannot be undone.
         </p>
 
         <div class="flex justify-center mt-4 space-x-3">
-            <!-- Cancel button -->
             <button
-                x-on:click="$dispatch('close-modal', 'delete-product-{{ $product->product_id }}')"
+                x-on:click="$dispatch('close-modal', 'delete-product')"
                 class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300"
             >
                 Cancel
             </button>
 
-            <!-- Delete form -->
-            <form action="{{ route('products.destroy', $product->product_id) }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <button
-                    type="submit"
-                    class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
-                >
-                    Yes, Delete
-                </button>
-            </form>
+            <button x-on:click="$dispatch('open-modal', 'success-modal')"
+                class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
+            >
+                Yes, Delete
+            </button>
         </div>
 
     </div>
 </x-modal>
-@endforeach
 
 <!-- Feedback Modals -->
 <!-- Success Modal -->
@@ -674,8 +515,3 @@ function previewImage(event, id) {
         </button>
     </div>
 </x-modal>
-
-<!-- Footer Branding -->
-<footer class="py-4 text-sm text-center text-gray-400 border-t">
-    © 2025 KitaKeeps. All rights reserved.
-</footer>

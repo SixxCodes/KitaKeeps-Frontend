@@ -2,21 +2,10 @@
 <div class="flex items-center justify-between" x-data>
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
-                {{ $currentBranch->branch_name ?? 'No Branch' }}
-            </h2>
-            
-            <!-- Caret Button to Open Modal -->
-            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
-                class="text-gray-600 hover:text-black">
-                <i class="fa-solid fa-caret-down"></i>
-            </button> -->
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
+            <!-- <button><i class="fa-solid fa-caret-down"></i></button> -->
         </div>
-
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
-            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
-            {{ $currentBranch->location ?? '' }}
-        </span>
+        <span class="text-[8px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
     </div>
     
     <div class="flex space-x-3">
@@ -24,7 +13,7 @@
         <div class="flex items-center space-x-4">
             <button x-on:click="$dispatch('open-modal', 'take-attendance')" class="flex items-center px-5 py-2 text-xs text-black transition-colors bg-white rounded-md shadow hover:bg-blue-300 sm:text-xs md:text-xs lg:text-sm">
                 <i class="fa-solid fa-file-pen"></i>
-                <span class="hidden ml-2 lg:inline whitespace-nowrap">Take Attendance</span> 
+                <span class="hidden ml-2 lg:inline whitespace-nowrap">Take Attendance (SUN)</span>
             </button>
         </div>
 
@@ -40,39 +29,23 @@
         <div class="flex items-center space-x-4">
             <button x-on:click="$dispatch('open-modal', 'add-employee')" class="flex items-center px-5 py-2 text-xs text-white transition-colors bg-blue-600 rounded-md shadow hover:bg-blue-800 sm:text-xs md:text-xs lg:text-sm">
                 <i class="fa-solid fa-user-plus"></i>
-                <span class="hidden ml-2 lg:inline whitespace-nowrap">Hire Employee</span>
+                <span class="hidden ml-2 lg:inline whitespace-nowrap">Add Employee</span>
             </button>
         </div>
     </div>
 </div>
 
-<!-- Hire Employee Modal -->
+<!-- Add Employee Modal -->
 <x-modal name="add-employee" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
-        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
-            <div class="flex items-center">
-                <i class="mr-2 fa-solid fa-user-plus"></i>
-                <h2 class="text-xl font-semibold">Hire Employee</h2>
-            </div>
-            <span x-on:click="$dispatch('close-modal', 'add-employee')" class="cursor-pointer">
-                <i class="text-lg fa-solid fa-xmark"></i>
-            </span>
-        </div>  
+        <div class="flex items-center mb-4 space-x-1 text-blue-900">
+            <i class="fa-solid fa-user-plus"></i>
+            <h2 class="text-xl font-semibold">Add New Employee</h2>
+        </div>
 
-        @if ($errors->any())
-            <div class="p-2 mb-2 text-red-700 bg-red-100 rounded">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
         <!-- Form -->
-        <form method="POST" action="{{ route('employees.store') }}" enctype="multipart/form-data" class="space-y-4 text-sm"
-            x-data="{ position: '' }">
-            @csrf <!-- Laravel CSRF -->
-            
+        <div class="space-y-4 text-sm">
+
             <!-- Profile Image -->
             <div class="flex flex-col items-center mb-6">
                 <div class="relative">
@@ -81,7 +54,7 @@
                         alt="Employee photo">
 
                     <!-- Upload button -->
-                    <label for="employee_image" 
+                    <label
                         class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700">
                         <i class="text-xs fa-solid fa-pen"></i>
                     </label>
@@ -100,42 +73,42 @@
                 <!-- First Name -->
                 <div>
                     <label class="block mb-1 text-gray-800">First Name</label>
-                    <input required type="text" name="firstname" placeholder="Kita" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input type="text" placeholder="John" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                 </div>
 
                 <!-- Last Name -->
                 <div>
                     <label class="block mb-1 text-gray-800">Last Name</label>
-                    <input required type="text" name="lastname" placeholder="Keeper" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input type="text" placeholder="Doe" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                 </div>
 
                 <!-- Gender -->
                 <div>
                     <label class="block mb-1 text-gray-800">Gender</label>
-                    <select required name="gender" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500">
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                    <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
                     </select>
                 </div>
 
                 <!-- Contact Number -->
                 <div>
                     <label class="block mb-1 text-gray-800">Contact Number</label>
-                    <input required name="contact_number" type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input type="text" placeholder="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                 </div>
 
                 <!-- Email -->
                 <div class="sm:col-span-2">
                     <label class="block mb-1 text-gray-800">Email</label>
-                    <input required type="email" name="email" placeholder="example@email.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input type="email" placeholder="example@email.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                 </div>
 
                 <!-- Address -->
                 <div class="sm:col-span-2">
                     <label class="block mb-1 text-gray-800">Address</label>
-                    <input required type="text" name="address" placeholder="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
+                    <input type="text" placeholder="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                 </div>
 
                 </div>
@@ -144,36 +117,26 @@
             <!-- Job Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Job Information</legend>
+
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
-                    <!-- Position -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Position</label>
-                        <input required type="text" name="position" placeholder="Cashier"
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                            x-model="position">
-                    </div>
 
-                    <!-- Daily Salary -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Daily Salary</label>
-                        <input required type="number" name="daily_rate" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                    </div>
+                <!-- Position -->
+                <div>
+                    <label class="block mb-1 text-gray-800">Position</label>
+                    <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500">
+                        <option value="" selected diasbled>Select Position</option>
+                        <option value="clothing">Admin</option>
+                        <option value="footwear">Cashier</option>
+                        <option value="accessories">Other</option>
+                    </select>
                 </div>
-                
-                <div x-show="position.toLowerCase() === 'cashier' || position.toLowerCase() === 'admin'" class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
-                    <!-- Username -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Username</label>
-                        <input type="text" name="username" placeholder="e.g., john.doe"
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                    </div>
 
-                    <!-- Password -->
-                    <div>
-                        <label class="block mb-1 text-gray-800">Password</label>
-                        <input type="password" name="password" placeholder="Enter password"
-                            class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-green-500 focus:border-green-500"/>
-                    </div>
+                <!-- Daily Salary -->
+                <div>
+                    <label class="block mb-1 text-gray-800">Daily Salary</label>
+                    <input type="number" placeholder="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                </div>
+
                 </div>
             </fieldset>
 
@@ -183,11 +146,10 @@
                 x-on:click="$dispatch('close-modal', 'add-employee')"
                 class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
 
-                <button type="submit" 
-                class="px-3 py-1 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
+                <button x-on:click="$dispatch('open-modal', 'success-modal')"
+                class="px-3 py-1 text-white transition bg-blue-600 rounded hover:bg-blue-700">Save</button>
             </div>
-        </form>
-
+        </div>
     </div>
 </x-modal>
 
@@ -196,21 +158,17 @@
     <div class="p-6 space-y-4">
 
         <h2 class="text-lg font-semibold text-center text-gray-800">Export As</h2>
-        
-        <!-- Info about sheets -->
-        <p class="text-sm text-center text-gray-500">
-            Attendance and Employee details will be exported on <strong>separate sheets</strong> in the Excel file.
-        </p>
 
         <div class="flex justify-center mt-4 space-x-4">
 
             <!-- Excel -->
-            <a href="{{ route('employees.export') }}"
-            class="flex flex-col items-center px-4 py-3 transition bg-blue-100 rounded-lg w-28 hover:bg-blue-200"
+            <button 
+                class="flex flex-col items-center w-24 px-4 py-3 transition bg-green-100 rounded-lg hover:bg-green-200"
+                x-on:click="$dispatch('open-modal', 'success-modal')"
             >
                 <i class="mb-1 text-2xl text-green-600 fa-solid fa-file-excel"></i>
                 <span class="text-sm text-gray-700">Excel</span>
-            </a>
+            </button>
 
             <!-- DOCX -->
             <!-- <button 
@@ -248,154 +206,68 @@
 
         <h2 class="text-xl font-semibold text-center text-gray-800">Attendance for Today</h2>
         <p class="mb-5 text-sm text-center text-gray-500">
-            Take attendance for <span class="font-medium">{{ now()->format('F d, Y (l)') }}</span>.
+            Take attendance for <span class="font-medium">September 21, 2025 (Sunday)</span>.
         </p>
-        
-        <div class="flex items-center justify-between mb-4 whitespace-nowrap">
-            <div>
-                <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-                <select onchange="window.location.href='?per_page='+this.value" class="px-5 py-1 text-sm border rounded">
-                    <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
-                    <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
-                    <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
-                </select>
-                <span class="ml-2 text-sm">entries</span>
-            </div>
-
-            <!-- Search Bar --> 
-            <div class="flex items-center space-x-2">
-                <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
-                    <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
-                    <input
-                        type="text"
-                        name="search"
-                        value="{{ request('search') }}"
-                        placeholder="Search..."
-                        onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
-                        class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
-                    />
-                </div>
-            </div>
-        </div>
 
         <!-- Table Container -->
-        <form method="POST" action="{{ route('attendance.mark')}}"> 
-            @csrf
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm border">
-                    <thead class="bg-blue-50">
-                        <tr>
-                            <th class="px-3 py-2 text-left border">#</th>
-                            <th class="px-3 py-2 border">ID</th>
-                            <th class="px-3 py-2 border">Employee Name</th>
-                            <th class="px-3 py-2 border">Role</th>
-                            <th class="px-3 py-2 border">Attendance</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-x divide-y divide-blue-100">
-                        @forelse($employees as $employee)
-                            <tr class="hover:bg-gray-100">
-                                <!-- Count -->
-                                <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
-                                <td class="px-3 py-2 border bg-blue-50">
-                                    {{ $employees->firstItem() + $loop->index }}
-                                </td>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border">
+                <thead class="bg-blue-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">ID</th>
+                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Employee Name</th>
+                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Role</th>
+                        <th class="px-3 py-2 text-left border ellipses whitespace-nowrap">Attendance</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-x divide-y divide-blue-100">
+                    <!-- Row 1 -->
+                    <tr class="hover:bg-gray-100">
+                        <!-- ID -->
+                        <td class="px-3 py-2 border">1</td>
 
-                                <!-- ID -->
-                                <td class="px-3 py-2 border">{{ $employee->employee_id }}</td>
-
+                        <!-- Employee Name -->
+                        <td class="px-3 py-2 border">
+                            <div class="flex items-center gap-2">
+                                <!-- Circle placeholder icon -->
+                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                                <i class="fa-solid fa-user"></i>
+                                </div>
                                 <!-- Name -->
-                                <td class="px-3 py-2 border">
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                                            <i class="fa-solid fa-user"></i>
-                                        </div>
-                                        <span class="overflow-hidden whitespace-nowrap text-ellipsis">
-                                            {{ $employee->person->firstname }} {{ $employee->person->lastname }}
-                                        </span>
-                                    </div>
-                                </td>
+                                <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
+                            </div>
+                        </td>
 
-                                <!-- Position -->
-                                <td class="px-3 py-2 border">
-                                    <span class="inline-block px-3 py-1 text-xs text-white {{ in_array($employee->position,['Cashier','Admin']) ? 'bg-orange-400' : 'bg-blue-400' }} rounded-full">
-                                        {{ $employee->position }}
-                                    </span>
-                                </td>
+                        <!-- Role -->
+                        <td class="px-3 py-2 border">
+                            <span class="inline-block px-3 py-1 text-xs text-white bg-orange-400 rounded-full">
+                                Cashier
+                            </span>
+                        </td>
+                        
+                        <!-- Attendance Buttons -->
+                        <td class="px-4 py-3 text-center">
+                            <button class="inline-flex items-center justify-center w-5 h-5 text-white transition bg-red-500 rounded hover:bg-red-600">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-                                <!-- Actions -->
-                                <td class="px-3 py-2 text-center border">
-                                    <input 
-                                        type="checkbox" 
-                                        name="present[]" 
-                                        value="{{ $employee->employee_id }}" 
-                                        class="w-5 h-5 text-green-600"
-                                        @if($employee->todayAttendance && $employee->todayAttendance->status === 'Present') checked @endif
-                                    >
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="px-3 py-2 text-center text-gray-500 border">
-                                    Nothing to see here yet.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        <!-- Save / Cancel -->
+        <div class="flex justify-end mt-4 space-x-2">
+            <button 
+                x-on:click="$dispatch('close-modal', 'take-attendance')"
+                class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
 
-            <!-- Pagination -->
-            <div class="flex items-center justify-between mt-4">
-                <p class="text-sm">
-                    Showing {{ $employees->firstItem() ?? 0 }} to {{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} entries
-                </p>
-                <!-- Previous / Next -->
-                <div class="flex gap-2">
-                    <!-- Previous button -->
-                    <a 
-                        href="{{ $employees->previousPageUrl() }}" 
-                        class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
-                        Previous
-                    </a>
+            <button x-on:click="$dispatch('open-modal', 'success-modal')"
+                class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700">Save</button>
+        </div>
 
-                    <!-- Next button -->
-                    <a 
-                        href="{{ $employees->nextPageUrl() }}" 
-                        class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
-                        Next
-                    </a>
-                </div>
-            </div>
-
-            <div class="flex justify-end mt-4 space-x-2">
-                <button 
-                    x-on:click="$dispatch('close-modal', 'take-attendance')"
-                    type="button"
-                    class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
-                    Cancel
-                </button>
-
-                <button type="submit" 
-                    class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700">
-                    Save
-                </button>
-            </div>
-        </form>
     </div>
 </x-modal>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        @if(session('success'))
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'success-modal' }));
-        @endif
-
-        @if(session('error'))
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'error-modal' }));
-        @endif
-    });
-</script>
 
 
 
@@ -412,24 +284,20 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select onchange="window.location.href='?per_page='+this.value" class="py-1 text-sm border rounded">
-                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
-                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
-                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
+            <select class="py-1 text-sm border rounded text-ellipsis sm:text-base">
+                <option>5</option>
             </select>
-            <span class="ml-2 text-sm">entries</span>
+            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
         </div>
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
+            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text"
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Search..."
-                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
+                    type="text" 
+                    placeholder="Search..." 
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -441,7 +309,6 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
-                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border">Employee Name</th>
                     <th class="px-3 py-2 text-left border whitespace-nowrap">Daily Rate</th>
@@ -449,7 +316,6 @@
                     <th class="px-3 py-2 text-left border">Tue</th>
                     <th class="px-3 py-2 text-left border">Wed</th>
                     <th class="px-3 py-2 text-left border">Thu</th>
-                    <th class="px-3 py-2 text-left border">Fri</th>
                     <th class="px-3 py-2 text-left border">Sat</th>
                     <th class="px-3 py-2 text-left border">Sun</th>
                     <th class="px-3 py-2 text-left border">Total Salary</th>
@@ -457,140 +323,96 @@
             </thead>
             <tbody>
                 <!-- Employee Rows -->
-                @forelse($employees as $employee)
                 <tr class="hover:bg-gray-50">
-                    <!-- Count -->
-                    <td class="px-3 py-2 border">{{ $loop->iteration }}</td>
+                    <td class="px-3 py-2 border">1</td>
 
-                    <!-- ID -->
-                    <td class="px-3 py-2 border">{{ $employee->employee_id }}</td>
-
-                    <!-- Image and Name -->
                     <td class="px-3 py-2 border">
                         <div class="flex items-center gap-2">
-                            <!-- Circle image or placeholder -->
-                            @if($employee->employee_image_path)
-                                <img 
-                                    src="{{ asset('storage/' . $employee->employee_image_path) }}" 
-                                    alt="{{ $employee->employee_name }}" 
-                                    class="object-cover w-8 h-8 rounded-full"
-                                >
-                            @else
-                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                                    <i class="fa-solid fa-user"></i>
-                                </div>
-                            @endif
+                            <!-- Circle placeholder icon -->
+                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                            <i class="fa-solid fa-user"></i>
+                            </div>
                             <!-- Name -->
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
-                                {{ $employee->person->firstname }} {{ $employee->person->lastname }}
-                            </span>
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
                         </div>
                     </td>
 
-                    <td class="px-3 py-2 border">{{ number_format($employee->daily_rate, 2) }}</td>
+                    <td class="px-3 py-2 border">400</td>
 
-                    @foreach(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $day)
                     <td class="px-3 py-2 text-center border">
-                        @php
-                            $att = $employee->attendance->where('att_date', now()->startOfWeek()->addDays(array_search($day,['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))->first();
-                        @endphp
-                        @if($att && $att->status === 'Present')
-                            <i class="text-green-500 fa-solid fa-circle-check"></i>
-                        @elseif($att && $att->status === 'Absent')
-                            <i class="text-red-500 fa-solid fa-circle-xmark"></i>
-                        @else
-                            <i class="text-gray-400 fa-solid fa-minus"></i>
-                        @endif
+                        <i class="text-green-500 fa-solid fa-circle-check"></i>
                     </td>
-                    @endforeach
 
-                    @php
-                        $totalSalary = $employee->attendance
-                            ->whereBetween('att_date', [now()->startOfWeek(), now()->endOfWeek()])
-                            ->where('status', 'Present')
-                            ->count() * $employee->daily_rate;
-                    @endphp
+                    <td class="px-3 py-2 text-center border">
+                        <i class="text-red-500 fa-solid fa-circle-xmark"></i>
+                    </td>
+
+                    <td class="px-3 py-2 text-center border">
+                        <i class="text-green-500 fa-solid fa-circle-check"></i>
+                    </td>
+                    
+                    <td class="px-3 py-2 text-center border">
+                        <i class="text-green-500 fa-solid fa-circle-check"></i>
+                    </td>
+
+                    <td class="px-3 py-2 text-center border">
+                        <i class="text-red-500 fa-solid fa-circle-xmark"></i>
+                    </td>
+
+                    <td class="px-3 py-2 text-center border">
+                        <i class="text-gray-400 fa-solid fa-minus"></i>
+                    </td>
 
                     <td class="px-3 py-2 text-right border whitespace-nowrap">
-                        P{{ number_format($totalSalary, 2) }}
-
-                        <button x-on:click="$dispatch('open-modal', 'pay-salary-confirm-{{ $employee->employee_id }}')" 
-                            class="px-2 py-1 text-white bg-green-500 rounded">
+                        P1200
+                        <button x-on:click="$dispatch('open-modal', 'pay-salary-confirm')" class="px-2 py-1 text-white bg-green-500 rounded">
                             <i class="fa-solid fa-money-bill"></i>
                         </button>
                     </td>
                 </tr>
-                @empty
-                    <tr>
-                        <td colspan="12" class="px-3 py-2 text-center text-gray-500 border">
-                            Nothing to see here yet.
-                        </td>
-                    </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm">
-            Showing {{ $employees->firstItem() ?? 0 }} to {{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} entries
-        </p>
-        <!-- Previous / Next -->
+        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
         <div class="flex gap-2">
-            <!-- Previous button -->
-            <a 
-                href="{{ $employees->previousPageUrl() }}" 
-                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
-                Previous
-            </a>
-
-            <!-- Next button -->
-            <a 
-                href="{{ $employees->nextPageUrl() }}" 
-                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
-                Next
-            </a>
+        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
+        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
         </div>
     </div>
     
 </div>
 
 <!-- Pay Salary Confirmation Modal -->
-@foreach($employees as $employee)
-<x-modal name="pay-salary-confirm-{{ $employee->employee_id }}" :show="false" maxWidth="sm">
+<x-modal name="pay-salary-confirm" :show="false" maxWidth="sm">
     <div class="p-6 space-y-4 text-center">
 
         <i class="mx-auto text-4xl text-yellow-400 fa-solid fa-triangle-exclamation"></i>
 
         <h2 class="text-lg font-semibold text-gray-800">Are you sure?</h2>
         <p class="text-sm text-gray-500">
-            This will process the salary for <span class="font-medium">{{ $employee->person->firstname }} {{ $employee->person->lastname }}</span>. 
-            This action cannot be undone.
+            This will process the salary for the selected employee(s). This action cannot be undone.
         </p>
 
         <div class="flex justify-center mt-4 space-x-3">
             <button
-                x-on:click="$dispatch('close-modal', 'pay-salary-confirm-{{ $employee->employee_id }}')"
+                x-on:click="$dispatch('close-modal', 'pay-salary-confirm')"
                 class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300"
             >
                 Cancel
             </button>
 
-            <form method="POST" action="{{ route('pay-salary', $employee->employee_id) }}">
-                @csrf
-                <button
-                    type="submit"
-                    class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700"
-                >
-                    Yes, Pay
-                </button>
-            </form>
+            <button x-on:click="$dispatch('open-modal', 'success-modal')"
+                class="px-4 py-2 text-white transition bg-green-600 rounded hover:bg-green-700"
+            >
+                Yes, Pay
+            </button>
         </div>
 
     </div>
 </x-modal>
-@endforeach
 
 
 
@@ -609,24 +431,20 @@
     <div class="flex items-center justify-between mb-4 whitespace-nowrap">
         <div>
             <label class="mr-2 text-sm text-ellipsis sm:text-base">Show</label>
-            <select onchange="window.location.href='?per_page='+this.value" class="py-1 text-sm border rounded">
-                <option value="5" @if(request('per_page',5)==5) selected @endif>5</option>
-                <option value="10" @if(request('per_page',5)==10) selected @endif>10</option>
-                <option value="25" @if(request('per_page',5)==25) selected @endif>25</option>
+            <select class="py-1 text-sm border rounded text-ellipsis sm:text-base">
+                <option>5</option>
             </select>
-            <span class="ml-2 text-sm">entries</span>
+            <span class="ml-2 text-sm text-ellipsis sm:text-base">entries</span>
         </div>
 
         <!-- Search Bar --> 
         <div class="flex items-center space-x-2">
+            <i class="text-blue-800 fa-solid fa-filter"></i>
             <div class="flex items-center px-2 py-1 border rounded w-25 sm:px-5 sm:py-1 md:px-3 md:py-2 sm:w-50 md:w-52">
                 <i class="mr-2 text-blue-400 fa-solid fa-magnifying-glass"></i>
                 <input
-                    type="text"
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Search..."
-                    onkeydown="if(event.key==='Enter'){ window.location.href='?per_page={{ request('per_page',5) }}&search='+this.value; }"
+                    type="text" 
+                    placeholder="Search..." 
                     class="w-full py-0 text-sm bg-transparent border-none outline-none sm:py-0 md:py-1"
                 />
             </div>
@@ -638,7 +456,6 @@
         <table class="min-w-full text-sm border">
             <thead class="bg-blue-50">
                 <tr>
-                    <th class="px-3 py-2 text-left border">#</th>
                     <th class="px-3 py-2 text-left border">ID</th>
                     <th class="px-3 py-2 text-left border">Employee Name</th>
                     <th class="px-3 py-2 text-left border">Email</th>
@@ -648,127 +465,72 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($employees as $employee)
                 <!-- Employee Rows -->
                 <tr class="hover:bg-gray-50">
-                    <!-- Count -->
-                    <!-- <td class="px-3 py-2 border bg-blue-50">{{ $loop->iteration }}</td> -->
-                    <td class="px-3 py-2 border bg-blue-50">
-                        {{ $employees->firstItem() + $loop->index }}
-                    </td>
+                    <td class="px-3 py-2 border">1</td>
 
-                    <!-- ID -->
-                    <td class="px-3 py-2 border">{{ $employee->employee_id }}</td>
-
-                    <!-- Image and Name -->
                     <td class="px-3 py-2 border">
                         <div class="flex items-center gap-2">
-                            <!-- Circle image or placeholder -->
-                            @if($employee->employee_image_path)
-                                <img 
-                                    src="{{ asset('storage/' . $employee->employee_image_path) }}" 
-                                    alt="{{ $employee->employee_name }}" 
-                                    class="object-cover w-8 h-8 rounded-full"
-                                >
-                            @else
-                                <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
-                                    <i class="fa-solid fa-user"></i>
-                                </div>
-                            @endif
+                            <!-- Circle placeholder icon -->
+                            <div class="flex items-center justify-center w-8 h-8 text-white bg-blue-200 rounded-full">
+                            <i class="fa-solid fa-user"></i>
+                            </div>
                             <!-- Name -->
-                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">
-                                {{ $employee->person->firstname }} {{ $employee->person->lastname }}
-                            </span>
+                            <span class="overflow-hidden whitespace-nowrap text-ellipsis">Zyrile Crisaucetomo</span>
                         </div>
                     </td>
 
-                    <td class="px-3 py-2 border">{{ $employee->person->email }}</td>
+                    <td class="px-3 py-2 border">zk@gmail.com</td>
 
-                    <td class="px-3 py-2 border">{{ $employee->person->user->username ?? '-' }}</td>
+                    <td class="px-3 py-2 border">zkpantyers</td>
 
                     <td class="px-3 py-2 border">
-                        @if($employee->position == 'Cashier' || $employee->position == 'Admin')
-                            <span class="inline-block px-3 py-1 text-xs text-white bg-orange-400 rounded-full">
-                                {{ $employee->position }}
-                            </span>
-                        @else
-                            <span class="inline-block px-3 py-1 text-xs text-white bg-blue-400 rounded-full">
-                                {{ $employee->position }}
-                            </span>
-                        @endif
+                        <span class="inline-block px-3 py-1 text-xs text-white bg-orange-400 rounded-full">
+                            Cashier
+                        </span>
                     </td>
 
                     <!-- Actions -->
                     <td class="flex justify-center gap-2 px-3 py-3 border">
-                        <button x-on:click="$dispatch('open-modal', 'view-employee-{{ $employee->employee_id }}')" class="px-2 py-1 text-white bg-blue-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'view-employee')" class="px-2 py-1 text-white bg-blue-500 rounded">
                             <i class="fa-solid fa-eye"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'edit-employee-{{ $employee->employee_id }}')"  class="px-2 py-1 text-white bg-green-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'edit-employee')"  class="px-2 py-1 text-white bg-green-500 rounded">
                             <i class="fa-solid fa-user-pen"></i>
                         </button>
-                        <button x-on:click="$dispatch('open-modal', 'delete-employee-{{ $employee->employee_id }}')" class="px-2 py-1 text-white bg-red-500 rounded">
+                        <button x-on:click="$dispatch('open-modal', 'delete-employee')" class="px-2 py-1 text-white bg-red-500 rounded">
                             <i class="fa-solid fa-user-minus"></i>
                         </button>
                     </td>
                 </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="px-3 py-2 text-center text-gray-500 border">
-                            Nothing to see here yet.
-                        </td>
-                    </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
     
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <p class="text-sm">
-            Showing {{ $employees->firstItem() ?? 0 }} to {{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} entries
-        </p>
-        <!-- Previous / Next -->
+        <p class="text-sm text-ellipsis sm:text-base">Showing 1 to 5 of 100 entries</p>
         <div class="flex gap-2">
-            <!-- Previous button -->
-            <a 
-                href="{{ $employees->previousPageUrl() }}" 
-                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->onFirstPage() ? 'opacity-50 pointer-events-none' : '' }}">
-                Previous
-            </a>
-
-            <!-- Next button -->
-            <a 
-                href="{{ $employees->nextPageUrl() }}" 
-                class="px-3 py-1 text-sm border rounded hover:bg-blue-700 {{ $employees->hasMorePages() ? '' : 'opacity-50 pointer-events-none' }}">
-                Next
-            </a>
+        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Previous</button>
+        <button class="px-3 py-1 text-sm border rounded text-ellipsis sm:text-base">Next</button>
         </div>
     </div>
 </div>
 
-@foreach($employees as $employee)
 <!-- View Employee Details Modal -->
-<x-modal name="view-employee-{{ $employee->employee_id }}" :show="false" maxWidth="sm">
+<x-modal name="view-employee" :show="false" maxWidth="sm">
     <div class="p-6">
         <!-- Profile Section -->
         <div class="flex items-center space-x-4">
-            <!-- Employee Icon / Image -->
-            <div class="flex items-center justify-center w-20 h-20 overflow-hidden text-3xl text-white bg-blue-400 rounded-full">
-                @if($employee->employee_image_path)
-                    <img src="{{ asset('storage/' . $employee->employee_image_path) }}" 
-                         alt="{{ $employee->person->firstname }} {{ $employee->person->lastname }}" 
-                         class="object-cover w-full h-full rounded-full">
-                @else
-                    <i class="fa-solid fa-user"></i>
-                @endif
+            <!-- User Icon -->
+            <div class="flex items-center justify-center w-20 h-20 text-3xl text-white bg-blue-400 rounded-full">
+                <i class="fa-solid fa-user"></i>
             </div>
 
             <!-- Name + Role -->
             <div>
-                <p class="text-lg font-semibold text-gray-800">
-                    {{ $employee->person->firstname }} {{ $employee->person->lastname }}
-                </p>
-                <p class="text-sm text-gray-500">{{ $employee->position }}</p>
+                <p class="text-lg font-semibold text-gray-800">John Doe</p>
+                <p class="text-sm text-gray-500">Cashier</p>
             </div>
         </div>
 
@@ -776,37 +538,18 @@
         <div class="my-4 border-t"></div>
 
         <!-- Contact Details -->
-        <div class="space-y-4 text-sm text-gray-700">
-
-            <!-- Personal Info -->
-            <div>
-                <h3 class="mb-2 text-xs font-semibold tracking-wide text-blue-500 uppercase">Personal Information</h3>
-                <div class="flex flex-col space-y-2">
-                    <p><span class="font-medium">Gender:</span> {{ $employee->person->gender ?? 'N/A' }}</p>
-                    <p><span class="font-medium">Contact:</span> {{ $employee->person->contact_number ?? 'N/A' }}</p>
-                    <p><span class="font-medium">Email:</span> {{ $employee->person->email ?? 'N/A' }}</p>
-                    <p><span class="font-medium">Address:</span> {{ $employee->person->address ?? 'N/A' }}</p>
-                </div>
-            </div>
-
-            <!-- Employment Info -->
-            <div>
-                <h3 class="mb-2 text-xs font-semibold tracking-wide text-blue-500 uppercase">Employment Information</h3>
-                <div class="flex flex-col space-y-2">
-                    <p><span class="font-medium">Position:</span> {{ $employee->position ?? 'N/A' }}</p>
-                    <p><span class="font-medium">Hire Date:</span> {{ $employee->hire_date?->format('M d, Y') ?? 'N/A' }}</p>
-                    <p><span class="font-medium">Daily Salary:</span> ₱{{ number_format($employee->daily_rate, 2) }}</p>
-                </div>
-            </div>
-
+        <div class="space-y-2 text-sm text-gray-700">
+            <p><span class="font-medium">Gender:</span> Male</p>
+            <p><span class="font-medium">Contact Number:</span> +63 912 345 6789</p>
+            <p><span class="font-medium">Email:</span> john@example.com</p>
+            <p><span class="font-medium">Address:</span> 123 Main St, City</p>
+            <p><span class="font-medium">Daily Salary:</span> ₱500</p>
         </div>
-
-
 
         <!-- Close Button -->
         <div class="flex justify-end pt-4">
             <button 
-                x-on:click="$dispatch('close-modal', 'view-employee-{{ $employee->employee_id }}')"
+                x-on:click="$dispatch('close-modal', 'view-employee')"
                 class="px-4 py-2 text-white transition bg-blue-600 rounded hover:bg-blue-700"
             >
                 Close
@@ -814,173 +557,150 @@
         </div>
     </div>
 </x-modal>
-@endforeach
 
 <!-- Edit Employee Details Modal -->
-@foreach($employees as $employee)
-<x-modal name="edit-employee-{{ $employee->employee_id }}" :show="false" maxWidth="lg">
+<x-modal name="edit-employee" :show="false" maxWidth="lg">
     <div class="p-6 overflow-y-auto max-h-[80vh] table-pretty-scrollbar">
+        <div class="flex items-center mb-4 space-x-1 text-blue-900">
+            <i class="fa-solid fa-user-pen"></i>
+            <h2 class="text-xl font-semibold">Edit Employee Details</h2>
+        </div>
 
-        <!-- Modal Header -->
-        <div class="flex justify-between mb-4 space-x-1 text-blue-900">
-            <div class="flex items-center">
-                <i class="fa-solid fa-user-pen"></i>
-                <h2 class="text-xl font-semibold">Edit Employee Details</h2>
+        <!-- Profile Image -->
+        <div class="flex flex-col items-center mb-6">
+            <div class="relative">
+                <img src="assets/images/logo/logo-removebg-preview.png" 
+                     class="object-cover w-24 h-24 border rounded-full shadow" 
+                     alt="Employee photo">
+
+                <!-- Edit image button -->
+                <button 
+                    class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full hover:bg-blue-700">
+                    <i class="text-xs fa-solid fa-pen"></i>
+                </button>
             </div>
-            <span x-on:click="$dispatch('close-modal', 'edit-employee-{{ $employee->employee_id }}')" class="cursor-pointer">
-                <i class="text-lg fa-solid fa-xmark"></i>
-            </span>
-        </div>  
+            <p class="mt-2 text-sm text-gray-500">Change profile photo</p>
+        </div>
 
-        <form action="{{ route('employees.update', $employee->employee_id) }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-sm">
-            @csrf
-            @method('PUT')
-
-            <!-- Profile Image -->
-            <div class="flex flex-col items-center mb-6">
-                <div class="relative">
-                    <!-- Employee image preview -->
-                    <img id="employeeImagePreview-{{ $employee->employee_id }}" 
-                        src="{{ $employee->employee_image_path ? asset('storage/' . $employee->employee_image_path) : 'assets/images/logo/logo-removebg-preview.png' }}" 
-                        class="object-cover w-24 h-24 border rounded-full shadow" 
-                        alt="{{ $employee->person->firstname }} {{ $employee->person->lastname }}">
-
-                    <!-- Edit image button -->
-                    <label for="employee_image_{{ $employee->employee_id }}" 
-                        class="absolute bottom-0 right-0 flex items-center justify-center w-8 h-8 text-white bg-blue-600 rounded-full cursor-pointer hover:bg-green-700">
-                        <i class="text-xs fa-solid fa-pen"></i>
-                    </label>
-
-                    <input type="file" name="employee_image" id="employee_image_{{ $employee->employee_id }}" class="hidden" 
-                        onchange="previewEmployeeImage(event, {{ $employee->employee_id }})">
-                </div>
-                <p class="mt-2 text-sm text-gray-500">Change employee photo</p>
-            </div>
-
+        <!-- Form -->
+        <div class="space-y-4 text-sm">
             <!-- Personal Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Personal Information</legend>
+
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+
+                    <!-- First Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">First Name</label>
-                        <input type="text" name="firstname" value="{{ $employee->person->firstname }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" value="John" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
+                    <!-- Last Name -->
                     <div>
                         <label class="block mb-1 text-gray-800">Last Name</label>
-                        <input type="text" name="lastname" value="{{ $employee->person->lastname }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" value="Doe" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
+                    <!-- Gender -->
                     <div>
                         <label class="block mb-1 text-gray-800">Gender</label>
-                        <select name="gender" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <select class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select Gender</option>
-                            <option value="Male" {{ $employee->person->gender=='Male' ? 'selected' : '' }}>Male</option>
-                            <option value="Female" {{ $employee->person->gender=='Female' ? 'selected' : '' }}>Female</option>
-                            <option value="Other" {{ $employee->person->gender=='Other' ? 'selected' : '' }}>Other</option>
+                            <option value="male" selected>Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
 
+                    <!-- Contact Number -->
                     <div>
                         <label class="block mb-1 text-gray-800">Contact Number</label>
-                        <input type="text" name="contact_number" value="{{ $employee->person->contact_number }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" value="+63 912 345 6789" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
+                    <!-- Email -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Email</label>
-                        <input type="email" name="email" value="{{ $employee->person->email }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="email" value="john@example.com" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
+                    <!-- Address -->
                     <div class="sm:col-span-2">
                         <label class="block mb-1 text-gray-800">Address</label>
-                        <input type="text" name="address" value="{{ $employee->person->address }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="text" value="123 Main St, City" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
+
                 </div>
             </fieldset>
 
             <!-- Job Information -->
             <fieldset class="p-4 border border-gray-200 rounded-lg">
                 <legend class="font-semibold text-gray-700">Job Information</legend>
-                <div class="mt-2 mb-2 text-sm text-red-600">
-                    <i class="mr-1 fa-solid fa-triangle-exclamation"></i>
-                    To change the position, delete this employee and add a new one.
-                </div>
 
                 <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-2">
+
+                    <!-- Position -->
                     <div>
                         <label class="block mb-1 text-gray-800">Position</label>
-                        <input type="text" value="{{ $employee->position }}" disabled class="w-full px-2 py-1 bg-gray-100 border border-gray-300 rounded cursor-not-allowed"/>
+                        <input type="text" value="Cashier" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
 
+                    <!-- Daily Salary -->
                     <div>
                         <label class="block mb-1 text-gray-800">Daily Salary</label>
-                        <input type="number" name="daily_rate" value="{{ $employee->daily_rate }}" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
+                        <input type="number" value="500" class="w-full px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"/>
                     </div>
+
                 </div>
             </fieldset>
 
             <!-- Buttons -->
             <div class="flex justify-end mt-2 space-x-2">
                 <button type="button" 
-                    x-on:click="$dispatch('close-modal', 'edit-employee-{{ $employee->employee_id }}')"
+                    x-on:click="$dispatch('close-modal', 'edit-employee')"
                     class="px-3 py-1 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
                     Cancel
                 </button>
 
-                <button type="submit" 
+                <button x-on:click="$dispatch('open-modal', 'success-modal')"
                     class="px-3 py-1 text-white transition bg-blue-600 rounded hover:bg-blue-700">
                     Update
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 </x-modal>
-@endforeach
 
-<script>
-    function previewEmployeeImage(event, employeeId) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            const output = document.getElementById(`employeeImagePreview-${employeeId}`);
-            output.src = reader.result;
-        }
-        reader.readAsDataURL(event.target.files[0]);
-    }
-</script>
-
-@foreach($employees as $employee)
-<!-- Delete/Fire Employee Modal -->
-<x-modal name="delete-employee-{{ $employee->employee_id }}" :show="false" maxWidth="sm">
-    <div class="p-6 text-center">
+<!-- Delete/Fire Employee Modal-->
+<x-modal name="delete-employee" :show="false" maxWidth="sm">
+    <div class="p-6 space-y-4 text-center">
 
         <!-- Red warning icon -->
-        <i class="mb-2 text-4xl text-red-500 mx-a uto fa-solid fa-triangle-exclamation"></i>
+        <i class="mx-auto text-4xl text-red-500 fa-solid fa-triangle-exclamation"></i>
 
-        <h2 class="mb-2 text-lg font-semibold text-gray-800">Fire {{ $employee->person->firstname }} {{ $employee->person->lastname }}?</h2>
+        <h2 class="text-lg font-semibold text-gray-800">Fire Employee?</h2>
         <p class="text-sm text-gray-500">
-            This action will permanently remove <span class="font-bold text-red-500">{{ $employee->person->firstname }} {{ $employee->person->lastname }}</span> from the system. This cannot be undone.
+            This action will permanently remove the employee from the system. This cannot be undone.
         </p>
 
-        <form action="{{ route('employees.destroy', $employee->employee_id) }}" method="POST" class="flex justify-center mt-4 space-x-3">
-            @csrf
-            @method('DELETE')
-
-            <!-- Cancel -->
-            <button type="button"
-                x-on:click="$dispatch('close-modal', 'delete-employee-{{ $employee->employee_id }}')"
-                class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300">
+        <div class="flex justify-center mt-4 space-x-3">
+            <button
+                x-on:click="$dispatch('close-modal', 'delete-employee')"
+                class="px-4 py-2 text-gray-700 transition bg-gray-200 rounded hover:bg-gray-300"
+            >
                 Cancel
             </button>
 
-            <!-- Confirm Delete -->
-            <button type="submit"
-                class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700">
+            <button x-on:click="$dispatch('open-modal', 'success-modal')"
+                class="px-4 py-2 text-white transition bg-red-600 rounded hover:bg-red-700"
+            >
                 Yes, Fire
             </button>
-        </form>
+        </div>
+
     </div>
 </x-modal>
-@endforeach
 
 <!-- Feedback Modals -->
 <!-- Success Modal -->
@@ -1010,8 +730,3 @@
         </button>
     </div>
 </x-modal>
-
-<!-- Footer Branding -->
-<footer class="py-4 text-sm text-center text-gray-400 border-t">
-    © 2025 KitaKeeps. All rights reserved.
-</footer>

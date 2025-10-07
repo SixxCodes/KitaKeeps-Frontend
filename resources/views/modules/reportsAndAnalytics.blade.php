@@ -2,71 +2,33 @@
 <div class="flex items-center justify-between">
     <div class="flex flex-col mr-5">
         <div class="flex items-center space-x-2">
-            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">
-                {{ $currentBranch->branch_name ?? 'No Branch' }}
-            </h2>
-            
-            <!-- Caret Button to Open Modal -->
-            <!-- <button x-on:click="$dispatch('open-modal', 'switch-branch')" 
-                class="text-gray-600 hover:text-black">
-                <i class="fa-solid fa-caret-down"></i>
-            </button> -->
+            <h2 class="text-black sm:text-sm md:text-sm lg:text-lg">Zyrile Hardware</h2>
         </div>
-
-        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">
-            {{ $currentBranch->branch_id == $mainBranch->branch_id ? 'Main Branch' : 'Branch' }} • 
-            {{ $currentBranch->location ?? '' }}
-        </span>
+        <span class="text-[10px] text-gray-600 sm:text-[10px] md:text-[10px] lg:text-xs">Main Branch • Mabini, Davao de Oro</span> <!-- edit later and branch name sa name gyud sa hardware -->
     </div>
 
     <!-- Top: Clock + Date -->
     <div class="flex items-end justify-end">
         <div class="flex flex-col items-end">
-            <span id="clock" class="text-xl font-semibold text-blue-600"></span>
-            <span id="date" class="text-sm text-gray-500"></span>
+            <span id="clock" class="text-xl font-semibold text-blue-600">12:45:32</span>
+            <span id="date" class="text-sm text-gray-500">September 22, 2025</span>
         </div>
     </div>
 </div>
 
-<!-- Clock Script -->
-<script>
-    function updateClockAndDate() {
-        const now = new Date();
-
-        // Format time as 12-hour HH:MM:SS AM/PM
-        let hours = now.getHours();
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12 || 12; // convert 0 to 12
-        const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
-
-        // Format date as Month Day, Year
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        const dateString = now.toLocaleDateString(undefined, options);
-
-        document.getElementById('clock').textContent = timeString;
-        document.getElementById('date').textContent = dateString;
-    }
-
-    // Initial call
-    updateClockAndDate();
-
-    // Update every second
-    setInterval(updateClockAndDate, 1000);
-</script>
 
 
 
 
 
-<div class="flex mb-10 space-x-5">
-    <div class="flex-1 p-6 mt-10 bg-white rounded-lg shadow min-w-[350px]">
+<div class="flex flex-col mt-10 mb-10 space-y-5 lg:flex-row lg:space-x-5 lg:space-y-0">
+
+    <!-- Top 5 Products -->
+    <div class="flex-1 p-6 bg-white rounded-lg shadow min-w-[350px]">
         <h2 class="mb-6 text-xl font-semibold text-gray-700">Top 5 Products by Sales</h2>
 
         <!-- Chart Container -->
         <div class="space-y-6">
-
             <!-- Product 1 -->
             <div class="flex items-center space-x-4">
                 <span class="w-24 text-gray-600">Product A</span>
@@ -111,21 +73,20 @@
                 </div>
                 <span class="w-12 text-right text-gray-700">30</span>
             </div>
+
             <p class="mt-5 text-sm text-gray-500">
                 <i class="fa-solid fa-robot"></i>
-                Mampising Branch is currently the highest-performing branch in terms of sales, followed closely by The Cymanti Branch. Bardur Branch has the lowest sales among the top 5, highlighting areas for potential growth.
+                Mampising Branch is currently the highest-performing branch in terms of sales, followed closely by The Cymanti Branch. Bardur Branch has the lowest sales among the top 5, highlighting areas for potential growth.  
             </p>
         </div>
     </div>
 
-
-
-    <div class="flex-1 p-6 mt-10 bg-white rounded-lg shadow min-w-[350px]">
+    <!-- Top 5 Stores -->
+    <div class="flex-1 p-6 bg-white rounded-lg shadow min-w-[350px]">
         <h2 class="mb-6 text-xl font-semibold text-gray-700">Top 5 Stores by Sales</h2>
-        
-        {{-- Store Item --}}
+
         <div class="space-y-3">
-            {{-- Gateway str --}}
+            <!-- Store 1 -->
             <div>
                 <div class="flex justify-between mb-1">
                     <span class="text-sm font-medium text-gray-700">Mampising Branch</span>
@@ -136,7 +97,7 @@
                 </div>
             </div>
 
-            {{-- The Rustic Fox --}}
+            <!-- Store 2 -->
             <div>
                 <div class="flex justify-between mb-1">
                     <span class="text-sm font-medium text-gray-700">Cymanti Branch</span>
@@ -147,7 +108,7 @@
                 </div>
             </div>
 
-            {{-- Velvet Vine --}}
+            <!-- Store 3 -->
             <div>
                 <div class="flex justify-between mb-1">
                     <span class="text-sm font-medium text-gray-700">Elyrion Branch</span>
@@ -158,7 +119,7 @@
                 </div>
             </div>
 
-            {{-- Blue Harbor --}}
+            <!-- Store 4 -->
             <div>
                 <div class="flex justify-between mb-1">
                     <span class="text-sm font-medium text-gray-700">Polaris Branch</span>
@@ -169,7 +130,7 @@
                 </div>
             </div>
 
-            {{-- Blue Harbor --}}
+            <!-- Store 5 -->
             <div>
                 <div class="flex justify-between mb-1">
                     <span class="text-sm font-medium text-gray-700">Bardur Branch</span>
@@ -184,12 +145,13 @@
                 <i class="fa-solid fa-robot"></i>
                 Mampising Branch is currently the highest-performing branch in terms of sales, followed closely by The Cymanti Branch. Bardur Branch has the lowest sales among the top 5, highlighting areas for potential growth.
             </p>
-            
         </div>
     </div>
+
 </div>
+
 
 <!-- Footer Branding -->
 <footer class="py-4 text-sm text-center text-gray-400 border-t mt-15">
-    © 2025 CKC Systems. All rights reserved.
+    © 2025 KitaKeeps. All rights reserved.
 </footer>

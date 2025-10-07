@@ -15,6 +15,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\CustomerCreditController;
 use App\Http\Controllers\AttendanceEmployeeExportController;
+use App\Http\Controllers\ForecastController;
 
 Route::post('/register-frontend', [RegisterUserController::class, 'register']);
 
@@ -34,8 +35,8 @@ Route::get('/register-frontend', function () {
 
 Route::get('/dashboard', function () {
     return view('layouts.app');
-})->middleware(['auth'])->name('dashboard'); // i-comment ni if di sa maggamit ug auth
-// })->name('dashboard'); // i-comment ni if login is required na
+// })->middleware(['auth'])->name('dashboard'); // i-comment ni if di sa maggamit ug auth
+})->name('dashboard'); // i-comment ni if login is required na
 
 // Suppliers
 Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
@@ -96,6 +97,9 @@ Route::post('/sales/{sale}/pay', [SalesController::class, 'pay'])->name('sales.p
 Route::delete('/sales/{sale}', [SalesController::class, 'destroy'])->name('sales.destroy');
 Route::post('/customers/{customer}/credits/pay-all', [SalesController::class, 'payAll'])->name('sales.payAll');
 Route::delete('/customers/{customer}/credits/delete-all', [SalesController::class, 'destroyAll'])->name('sales.destroyAll');
+
+Route::get('/forecast/run', [ForecastController::class, 'runAIForecast'])
+    ->name('forecast.run');
 
 Route::get('/employees/export', [AttendanceEmployeeExportController::class, 'export'])
     ->name('employees.export')
