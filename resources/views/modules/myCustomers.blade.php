@@ -359,7 +359,7 @@
                                 </button>
                             </div>
 
-                            <!-- Delete All Form -->
+                            <!-- Delete All Forms -->
                             <div>
                                 <button type="submit" 
                                     class="px-2 py-1 text-white bg-red-600 rounded hover:bg-red-700"
