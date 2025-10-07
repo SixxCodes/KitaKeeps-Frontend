@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Press the KitaKeeps image below to visit the website
 <a href="https://sixxcodes.github.io/KitaKeeps"><img src="public/assets/images/docu/social-preview-1.png" alt="KitaKeeps Social Preview"/></a>
 
@@ -35,3 +36,7 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 ### Notes:
 - Don't run php artisan migrate
+=======
+# KitaKeeps-Frontend
+KitaKeeps Frontend only
+>>>>>>> 701cb22e9dffc8ae010d179aa573db6309b5029c
